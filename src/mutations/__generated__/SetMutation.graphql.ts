@@ -88,12 +88,14 @@ fragment Message_document on Document {
     id
     content
     path
+    timestamp
     workspace {
       address
       id
     }
     author {
       address
+      shortName
       id
     }
   }
@@ -104,6 +106,9 @@ fragment WorkspaceMessages_workspace on Workspace {
   documents(sortedBy: NEWEST) {
     __typename
     ...Message_document
+    ... on ES4Document {
+      timestamp
+    }
     ... on Node {
       __isNode: __typename
       id
@@ -197,13 +202,16 @@ v8 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
+  "name": "timestamp",
+  "storageKey": null
+},
+v9 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
   "name": "address",
   "storageKey": null
 },
-v9 = [
-  (v8/*: any*/),
-  (v4/*: any*/)
-],
 v10 = {
   "alias": null,
   "args": null,
@@ -211,7 +219,17 @@ v10 = {
   "kind": "LinkedField",
   "name": "author",
   "plural": false,
-  "selections": (v9/*: any*/),
+  "selections": [
+    (v9/*: any*/),
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "shortName",
+      "storageKey": null
+    },
+    (v4/*: any*/)
+  ],
   "storageKey": null
 },
 v11 = {
@@ -328,6 +346,7 @@ return {
                       (v6/*: any*/),
                       (v4/*: any*/),
                       (v7/*: any*/),
+                      (v8/*: any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -336,7 +355,7 @@ return {
                         "name": "workspace",
                         "plural": false,
                         "selections": [
-                          (v8/*: any*/),
+                          (v9/*: any*/),
                           (v4/*: any*/),
                           {
                             "alias": null,
@@ -360,6 +379,7 @@ return {
                                   (v6/*: any*/),
                                   (v4/*: any*/),
                                   (v7/*: any*/),
+                                  (v8/*: any*/),
                                   {
                                     "alias": null,
                                     "args": null,
@@ -367,7 +387,10 @@ return {
                                     "kind": "LinkedField",
                                     "name": "workspace",
                                     "plural": false,
-                                    "selections": (v9/*: any*/),
+                                    "selections": [
+                                      (v9/*: any*/),
+                                      (v4/*: any*/)
+                                    ],
                                     "storageKey": null
                                   },
                                   (v10/*: any*/)
@@ -401,12 +424,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "c4b658f1966e455dfb4503b3cadbd1a2",
+    "cacheID": "6ea7f9bc27701917b66a0fc9c0987cd8",
     "id": null,
     "metadata": {},
     "name": "SetMutation",
     "operationKind": "mutation",
-    "text": "mutation SetMutation(\n  $author: AuthorInput!\n  $document: NewDocumentInput!\n  $workspace: String!\n) {\n  set(author: $author, document: $document, workspace: $workspace) {\n    __typename\n    ... on DocumentRejectedError {\n      reason\n    }\n    ... on SetDataSuccessResult {\n      document {\n        __typename\n        ...Message_document\n        ... on ES4Document {\n          id\n          workspace {\n            ...WorkspaceMessages_workspace\n            id\n          }\n        }\n        ... on Node {\n          __isNode: __typename\n          id\n        }\n      }\n    }\n  }\n}\n\nfragment MessageEditor_document on ES4Document {\n  content\n}\n\nfragment Message_document on Document {\n  __isDocument: __typename\n  __typename\n  ... on ES4Document {\n    ...MessageEditor_document\n    id\n    content\n    path\n    workspace {\n      address\n      id\n    }\n    author {\n      address\n      id\n    }\n  }\n}\n\nfragment WorkspaceMessages_workspace on Workspace {\n  address\n  documents(sortedBy: NEWEST) {\n    __typename\n    ...Message_document\n    ... on Node {\n      __isNode: __typename\n      id\n    }\n  }\n}\n"
+    "text": "mutation SetMutation(\n  $author: AuthorInput!\n  $document: NewDocumentInput!\n  $workspace: String!\n) {\n  set(author: $author, document: $document, workspace: $workspace) {\n    __typename\n    ... on DocumentRejectedError {\n      reason\n    }\n    ... on SetDataSuccessResult {\n      document {\n        __typename\n        ...Message_document\n        ... on ES4Document {\n          id\n          workspace {\n            ...WorkspaceMessages_workspace\n            id\n          }\n        }\n        ... on Node {\n          __isNode: __typename\n          id\n        }\n      }\n    }\n  }\n}\n\nfragment MessageEditor_document on ES4Document {\n  content\n}\n\nfragment Message_document on Document {\n  __isDocument: __typename\n  __typename\n  ... on ES4Document {\n    ...MessageEditor_document\n    id\n    content\n    path\n    timestamp\n    workspace {\n      address\n      id\n    }\n    author {\n      address\n      shortName\n      id\n    }\n  }\n}\n\nfragment WorkspaceMessages_workspace on Workspace {\n  address\n  documents(sortedBy: NEWEST) {\n    __typename\n    ...Message_document\n    ... on ES4Document {\n      timestamp\n    }\n    ... on Node {\n      __isNode: __typename\n      id\n    }\n  }\n}\n"
   }
 };
 })();

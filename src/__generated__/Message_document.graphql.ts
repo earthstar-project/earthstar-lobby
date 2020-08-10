@@ -9,11 +9,13 @@ export type Message_document = {
     readonly id: string;
     readonly content: string;
     readonly path: string;
+    readonly timestamp: number;
     readonly workspace: {
         readonly address: string;
     };
     readonly author: {
         readonly address: string;
+        readonly shortName: string;
     };
     readonly " $fragmentRefs": FragmentRefs<"MessageEditor_document">;
     readonly " $refType": "Message_document";
@@ -32,15 +34,13 @@ export type Message_document$key = {
 
 
 const node: ReaderFragment = (function(){
-var v0 = [
-  {
-    "alias": null,
-    "args": null,
-    "kind": "ScalarField",
-    "name": "address",
-    "storageKey": null
-  }
-];
+var v0 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "address",
+  "storageKey": null
+};
 return {
   "argumentDefinitions": [],
   "kind": "Fragment",
@@ -81,11 +81,20 @@ return {
         {
           "alias": null,
           "args": null,
+          "kind": "ScalarField",
+          "name": "timestamp",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
           "concreteType": "Workspace",
           "kind": "LinkedField",
           "name": "workspace",
           "plural": false,
-          "selections": (v0/*: any*/),
+          "selections": [
+            (v0/*: any*/)
+          ],
           "storageKey": null
         },
         {
@@ -95,7 +104,16 @@ return {
           "kind": "LinkedField",
           "name": "author",
           "plural": false,
-          "selections": (v0/*: any*/),
+          "selections": [
+            (v0/*: any*/),
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "shortName",
+              "storageKey": null
+            }
+          ],
           "storageKey": null
         },
         {
@@ -112,5 +130,5 @@ return {
   "abstractKey": "__isDocument"
 };
 })();
-(node as any).hash = 'a710ae826dcf6974887592b5b82753ae';
+(node as any).hash = '82d45c7f90df40992dceef14e3a60935';
 export default node;

@@ -4294,6 +4294,11 @@ domutils@^1.5.1, domutils@^1.7.0:
     dom-serializer "0"
     domelementtype "1"
 
+dot-beat-time@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/dot-beat-time/-/dot-beat-time-1.2.1.tgz#0ed611b50b1e78043a5137a0951fc48a531a4454"
+  integrity sha512-/SZynid/jSoG+7SeCeImFLgOUGA00m8hU//IeUR+kmWQXR/3cgP0YyA0V5efHu2yU1Eza2KTVLYomXjc61XybA==
+
 dot-case@^3.0.3:
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/dot-case/-/dot-case-3.0.3.tgz#21d3b52efaaba2ea5fda875bb1aa8124521cf4aa"

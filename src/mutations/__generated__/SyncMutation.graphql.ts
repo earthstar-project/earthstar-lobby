@@ -95,12 +95,14 @@ fragment Message_document on Document {
     id
     content
     path
+    timestamp
     workspace {
       address
       id
     }
     author {
       address
+      shortName
       id
     }
   }
@@ -111,6 +113,9 @@ fragment WorkspaceMessages_workspace on Workspace {
   documents(sortedBy: NEWEST) {
     __typename
     ...Message_document
+    ... on ES4Document {
+      timestamp
+    }
     ... on Node {
       __isNode: __typename
       id
@@ -246,11 +251,7 @@ v11 = {
   "name": "id",
   "storageKey": null
 },
-v12 = [
-  (v10/*: any*/),
-  (v11/*: any*/)
-],
-v13 = {
+v12 = {
   "alias": null,
   "args": null,
   "concreteType": "Workspace",
@@ -299,11 +300,21 @@ v13 = {
             {
               "alias": null,
               "args": null,
+              "kind": "ScalarField",
+              "name": "timestamp",
+              "storageKey": null
+            },
+            {
+              "alias": null,
+              "args": null,
               "concreteType": "Workspace",
               "kind": "LinkedField",
               "name": "workspace",
               "plural": false,
-              "selections": (v12/*: any*/),
+              "selections": [
+                (v10/*: any*/),
+                (v11/*: any*/)
+              ],
               "storageKey": null
             },
             {
@@ -313,7 +324,17 @@ v13 = {
               "kind": "LinkedField",
               "name": "author",
               "plural": false,
-              "selections": (v12/*: any*/),
+              "selections": [
+                (v10/*: any*/),
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "shortName",
+                  "storageKey": null
+                },
+                (v11/*: any*/)
+              ],
               "storageKey": null
             }
           ],
@@ -404,7 +425,7 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v13/*: any*/)
+              (v12/*: any*/)
             ],
             "type": "SyncSuccess",
             "abstractKey": null
@@ -414,7 +435,7 @@ return {
             "selections": [
               (v8/*: any*/),
               (v9/*: any*/),
-              (v13/*: any*/)
+              (v12/*: any*/)
             ],
             "type": "DetailedSyncSuccess",
             "abstractKey": null
@@ -425,12 +446,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "b655f4a6ec11469f72d41b80de616fd9",
+    "cacheID": "64c77e59f957ff4d62b5e9857408a29c",
     "id": null,
     "metadata": {},
     "name": "SyncMutation",
     "operationKind": "mutation",
-    "text": "mutation SyncMutation(\n  $workspace: String!\n  $pubUrl: String!\n  $format: SyncFormatEnum!\n) {\n  syncWithPub(workspace: $workspace, pubUrl: $pubUrl, format: $format) {\n    __typename\n    ... on SyncError {\n      reason\n    }\n    ... on SyncSuccess {\n      syncedWorkspace {\n        ...WorkspaceMessages_workspace\n        id\n      }\n    }\n    ... on DetailedSyncSuccess {\n      pushed {\n        rejectedCount\n        ignoredCount\n        acceptedCount\n      }\n      pulled {\n        rejectedCount\n        ignoredCount\n        acceptedCount\n      }\n      syncedWorkspace {\n        ...WorkspaceMessages_workspace\n        id\n      }\n    }\n  }\n}\n\nfragment MessageEditor_document on ES4Document {\n  content\n}\n\nfragment Message_document on Document {\n  __isDocument: __typename\n  __typename\n  ... on ES4Document {\n    ...MessageEditor_document\n    id\n    content\n    path\n    workspace {\n      address\n      id\n    }\n    author {\n      address\n      id\n    }\n  }\n}\n\nfragment WorkspaceMessages_workspace on Workspace {\n  address\n  documents(sortedBy: NEWEST) {\n    __typename\n    ...Message_document\n    ... on Node {\n      __isNode: __typename\n      id\n    }\n  }\n}\n"
+    "text": "mutation SyncMutation(\n  $workspace: String!\n  $pubUrl: String!\n  $format: SyncFormatEnum!\n) {\n  syncWithPub(workspace: $workspace, pubUrl: $pubUrl, format: $format) {\n    __typename\n    ... on SyncError {\n      reason\n    }\n    ... on SyncSuccess {\n      syncedWorkspace {\n        ...WorkspaceMessages_workspace\n        id\n      }\n    }\n    ... on DetailedSyncSuccess {\n      pushed {\n        rejectedCount\n        ignoredCount\n        acceptedCount\n      }\n      pulled {\n        rejectedCount\n        ignoredCount\n        acceptedCount\n      }\n      syncedWorkspace {\n        ...WorkspaceMessages_workspace\n        id\n      }\n    }\n  }\n}\n\nfragment MessageEditor_document on ES4Document {\n  content\n}\n\nfragment Message_document on Document {\n  __isDocument: __typename\n  __typename\n  ... on ES4Document {\n    ...MessageEditor_document\n    id\n    content\n    path\n    timestamp\n    workspace {\n      address\n      id\n    }\n    author {\n      address\n      shortName\n      id\n    }\n  }\n}\n\nfragment WorkspaceMessages_workspace on Workspace {\n  address\n  documents(sortedBy: NEWEST) {\n    __typename\n    ...Message_document\n    ... on ES4Document {\n      timestamp\n    }\n    ... on Node {\n      __isNode: __typename\n      id\n    }\n  }\n}\n"
   }
 };
 })();

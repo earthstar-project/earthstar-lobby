@@ -5,6 +5,7 @@ import { Message_document } from "./__generated__/Message_document.graphql";
 import SetMutation from "./mutations/SetMutation";
 import { AuthorKeypair } from "earthstar";
 import MessageEditor from "./MessageEditor";
+import { fromDate } from "dot-beat-time";
 
 type MessageProps = {
   document: Message_document;
@@ -63,6 +64,13 @@ const Message: React.FC<MessageProps> = ({
   return (
     <div style={{ marginBottom: 16 }}>
       <div>{document.content}</div>
+      <div title={document.author.address}>
+        {"posted by "}
+        <span>
+          <b>{document.author.shortName}</b>
+        </span>
+        {` at ${fromDate(new Date(document.timestamp / 1000))}`}
+      </div>
       {author.address === document.author.address ? (
         <div>
           <button onClick={() => setIsEditing(true)}>{"Edit"}</button>
@@ -94,11 +102,13 @@ export default createFragmentContainer(Message, {
         id
         content
         path
+        timestamp
         workspace {
           address
         }
         author {
           address
+          shortName
         }
       }
     }
