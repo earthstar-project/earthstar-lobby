@@ -10,16 +10,23 @@
     "@types/node": "^12.0.0",
     "@types/react": "^16.9.0",
     "@types/react-dom": "^16.9.0",
+    "earthstar": "^5.0.0",
+    "earthstar-graphql": "4.0.1",
+    "graphql": "^15.3.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "react-relay": "^10.0.1",
     "react-scripts": "3.4.1",
-    "typescript": "~3.7.2"
+    "relay-runtime": "^10.0.1",
+    "typescript": "^3.9.7"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "print-schema": "node ./scripts/print-schema.js",
+    "relay": "relay-compiler"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -35,5 +42,13 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/react-relay": "^7.0.8",
+    "@types/relay-runtime": "^10.0.3",
+    "babel-plugin-relay": "^10.0.1",
+    "relay-compiler": "^10.0.1",
+    "relay-compiler-language-typescript": "^13.0.1",
+    "relay-config": "^10.0.1"
   }
 }
