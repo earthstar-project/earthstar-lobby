@@ -1,38 +1,32 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { createFragmentContainer, RelayProp } from "react-relay";
 import graphql from "babel-plugin-relay/macro";
 import { WorkspaceMessages_workspace } from "./__generated__/WorkspaceMessages_workspace.graphql";
-import SyncMutation from "./mutations/SyncMutation";
+import Message from "./Message";
+import { AuthorKeypair } from "earthstar";
 
 type WorkspaceMessagesProps = {
   workspace: WorkspaceMessages_workspace;
   relay: RelayProp;
+  author: AuthorKeypair;
+  setHasLocalWorkspaceChanges: (hasChanges: boolean) => void;
 };
 
 const WorkspaceMessages: React.FC<WorkspaceMessagesProps> = ({
   workspace,
-  relay,
+  author,
+  setHasLocalWorkspaceChanges,
 }) => {
-  useEffect(() => {
-    const disposable = SyncMutation.commit(
-      relay.environment,
-      {
-        pubUrl: "https://earthstar-graphql-pub.glitch.me",
-        workspace: workspace.address,
-        format: "GRAPHQL",
-      },
-      (res) => {
-        console.log(res);
-      }
-    );
-
-    return () => disposable.dispose();
-  }, [workspace.documents.length, workspace.address, relay.environment]);
-
   return (
     <>
       {workspace.documents.map((doc) => {
-        return <li>{doc.content}</li>;
+        return (
+          <Message
+            setHasLocalWorkspaceChanges={setHasLocalWorkspaceChanges}
+            author={author}
+            document={doc}
+          />
+        );
       })}
     </>
   );
@@ -43,15 +37,7 @@ export default createFragmentContainer(WorkspaceMessages, {
     fragment WorkspaceMessages_workspace on Workspace {
       address
       documents(sortedBy: NEWEST) {
-        ... on ES4Document {
-          id
-          content
-          timestamp
-          author {
-            shortName
-            address
-          }
-        }
+        ...Message_document
       }
     }
   `,

@@ -7,13 +7,7 @@ import { FragmentRefs } from "relay-runtime";
 export type WorkspaceMessages_workspace = {
     readonly address: string;
     readonly documents: ReadonlyArray<{
-        readonly id?: string;
-        readonly content?: string;
-        readonly timestamp?: number;
-        readonly author?: {
-            readonly shortName: string;
-            readonly address: string;
-        };
+        readonly " $fragmentRefs": FragmentRefs<"Message_document">;
     }>;
     readonly " $refType": "WorkspaceMessages_workspace";
 };
@@ -25,21 +19,19 @@ export type WorkspaceMessages_workspace$key = {
 
 
 
-const node: ReaderFragment = (function(){
-var v0 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "address",
-  "storageKey": null
-};
-return {
+const node: ReaderFragment = {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
   "name": "WorkspaceMessages_workspace",
   "selections": [
-    (v0/*: any*/),
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "address",
+      "storageKey": null
+    },
     {
       "alias": null,
       "args": [
@@ -55,51 +47,9 @@ return {
       "plural": true,
       "selections": [
         {
-          "kind": "InlineFragment",
-          "selections": [
-            {
-              "alias": null,
-              "args": null,
-              "kind": "ScalarField",
-              "name": "id",
-              "storageKey": null
-            },
-            {
-              "alias": null,
-              "args": null,
-              "kind": "ScalarField",
-              "name": "content",
-              "storageKey": null
-            },
-            {
-              "alias": null,
-              "args": null,
-              "kind": "ScalarField",
-              "name": "timestamp",
-              "storageKey": null
-            },
-            {
-              "alias": null,
-              "args": null,
-              "concreteType": "Author",
-              "kind": "LinkedField",
-              "name": "author",
-              "plural": false,
-              "selections": [
-                {
-                  "alias": null,
-                  "args": null,
-                  "kind": "ScalarField",
-                  "name": "shortName",
-                  "storageKey": null
-                },
-                (v0/*: any*/)
-              ],
-              "storageKey": null
-            }
-          ],
-          "type": "ES4Document",
-          "abstractKey": null
+          "args": null,
+          "kind": "FragmentSpread",
+          "name": "Message_document"
         }
       ],
       "storageKey": "documents(sortedBy:\"NEWEST\")"
@@ -108,6 +58,5 @@ return {
   "type": "Workspace",
   "abstractKey": null
 };
-})();
-(node as any).hash = '255fbb036900a0b981b355c17ff56c57';
+(node as any).hash = 'd1a81549248f4e90ea3025d01feb7a35';
 export default node;

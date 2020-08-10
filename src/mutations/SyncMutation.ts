@@ -18,6 +18,11 @@ const mutation = graphql`
       ... on SyncError {
         reason
       }
+      ... on SyncSuccess {
+        syncedWorkspace {
+          ...WorkspaceMessages_workspace
+        }
+      }
       ... on DetailedSyncSuccess {
         pushed {
           rejectedCount
@@ -30,18 +35,7 @@ const mutation = graphql`
           acceptedCount
         }
         syncedWorkspace {
-          id
-          documents(sortedBy: NEWEST) {
-            ... on ES4Document {
-              id
-              content
-              timestamp
-              author {
-                shortName
-                address
-              }
-            }
-          }
+          ...WorkspaceMessages_workspace
         }
       }
     }

@@ -3,6 +3,7 @@
 // @ts-nocheck
 
 import { ConcreteRequest } from "relay-runtime";
+import { FragmentRefs } from "relay-runtime";
 export type SyncFormatEnum = "GRAPHQL" | "REST" | "%future added value";
 export type SyncMutationVariables = {
     workspace: string;
@@ -13,6 +14,11 @@ export type SyncMutationResponse = {
     readonly syncWithPub: {
         readonly __typename: "SyncError";
         readonly reason: string;
+    } | {
+        readonly __typename: "SyncSuccess";
+        readonly syncedWorkspace: {
+            readonly " $fragmentRefs": FragmentRefs<"WorkspaceMessages_workspace">;
+        };
     } | {
         readonly __typename: "DetailedSyncSuccess";
         readonly pushed: {
@@ -26,16 +32,7 @@ export type SyncMutationResponse = {
             readonly acceptedCount: number;
         };
         readonly syncedWorkspace: {
-            readonly id: string;
-            readonly documents: ReadonlyArray<{
-                readonly id?: string;
-                readonly content?: string;
-                readonly timestamp?: number;
-                readonly author?: {
-                    readonly shortName: string;
-                    readonly address: string;
-                };
-            }>;
+            readonly " $fragmentRefs": FragmentRefs<"WorkspaceMessages_workspace">;
         };
     } | {
         /*This will never be '%other', but we need some
@@ -61,6 +58,12 @@ mutation SyncMutation(
     ... on SyncError {
       reason
     }
+    ... on SyncSuccess {
+      syncedWorkspace {
+        ...WorkspaceMessages_workspace
+        id
+      }
+    }
     ... on DetailedSyncSuccess {
       pushed {
         rejectedCount
@@ -73,25 +76,44 @@ mutation SyncMutation(
         acceptedCount
       }
       syncedWorkspace {
+        ...WorkspaceMessages_workspace
         id
-        documents(sortedBy: NEWEST) {
-          __typename
-          ... on ES4Document {
-            id
-            content
-            timestamp
-            author {
-              shortName
-              address
-              id
-            }
-          }
-          ... on Node {
-            __isNode: __typename
-            id
-          }
-        }
       }
+    }
+  }
+}
+
+fragment MessageEditor_document on ES4Document {
+  content
+}
+
+fragment Message_document on Document {
+  __isDocument: __typename
+  __typename
+  ... on ES4Document {
+    ...MessageEditor_document
+    id
+    content
+    path
+    workspace {
+      address
+      id
+    }
+    author {
+      address
+      id
+    }
+  }
+}
+
+fragment WorkspaceMessages_workspace on Workspace {
+  address
+  documents(sortedBy: NEWEST) {
+    __typename
+    ...Message_document
+    ... on Node {
+      __isNode: __typename
+      id
     }
   }
 }
@@ -151,7 +173,23 @@ v5 = {
   "type": "SyncError",
   "abstractKey": null
 },
-v6 = [
+v6 = {
+  "alias": null,
+  "args": null,
+  "concreteType": "Workspace",
+  "kind": "LinkedField",
+  "name": "syncedWorkspace",
+  "plural": false,
+  "selections": [
+    {
+      "args": null,
+      "kind": "FragmentSpread",
+      "name": "WorkspaceMessages_workspace"
+    }
+  ],
+  "storageKey": null
+},
+v7 = [
   {
     "alias": null,
     "args": null,
@@ -174,66 +212,127 @@ v6 = [
     "storageKey": null
   }
 ],
-v7 = {
+v8 = {
   "alias": null,
   "args": null,
   "concreteType": "DocumentIngestionReport",
   "kind": "LinkedField",
   "name": "pushed",
   "plural": false,
-  "selections": (v6/*: any*/),
+  "selections": (v7/*: any*/),
   "storageKey": null
 },
-v8 = {
+v9 = {
   "alias": null,
   "args": null,
   "concreteType": "DocumentIngestionReport",
   "kind": "LinkedField",
   "name": "pulled",
   "plural": false,
-  "selections": (v6/*: any*/),
+  "selections": (v7/*: any*/),
   "storageKey": null
 },
-v9 = {
+v10 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "address",
+  "storageKey": null
+},
+v11 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "id",
   "storageKey": null
 },
-v10 = [
-  {
-    "kind": "Literal",
-    "name": "sortedBy",
-    "value": "NEWEST"
-  }
+v12 = [
+  (v10/*: any*/),
+  (v11/*: any*/)
 ],
-v11 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "content",
-  "storageKey": null
-},
-v12 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "timestamp",
-  "storageKey": null
-},
 v13 = {
   "alias": null,
   "args": null,
-  "kind": "ScalarField",
-  "name": "shortName",
-  "storageKey": null
-},
-v14 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "address",
+  "concreteType": "Workspace",
+  "kind": "LinkedField",
+  "name": "syncedWorkspace",
+  "plural": false,
+  "selections": [
+    (v10/*: any*/),
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "sortedBy",
+          "value": "NEWEST"
+        }
+      ],
+      "concreteType": null,
+      "kind": "LinkedField",
+      "name": "documents",
+      "plural": true,
+      "selections": [
+        (v4/*: any*/),
+        {
+          "kind": "TypeDiscriminator",
+          "abstractKey": "__isDocument"
+        },
+        {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "content",
+              "storageKey": null
+            },
+            (v11/*: any*/),
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "path",
+              "storageKey": null
+            },
+            {
+              "alias": null,
+              "args": null,
+              "concreteType": "Workspace",
+              "kind": "LinkedField",
+              "name": "workspace",
+              "plural": false,
+              "selections": (v12/*: any*/),
+              "storageKey": null
+            },
+            {
+              "alias": null,
+              "args": null,
+              "concreteType": "Author",
+              "kind": "LinkedField",
+              "name": "author",
+              "plural": false,
+              "selections": (v12/*: any*/),
+              "storageKey": null
+            }
+          ],
+          "type": "ES4Document",
+          "abstractKey": null
+        },
+        {
+          "kind": "InlineFragment",
+          "selections": [
+            (v11/*: any*/)
+          ],
+          "type": "Node",
+          "abstractKey": "__isNode"
+        }
+      ],
+      "storageKey": "documents(sortedBy:\"NEWEST\")"
+    },
+    (v11/*: any*/)
+  ],
   "storageKey": null
 };
 return {
@@ -260,54 +359,17 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v7/*: any*/),
+              (v6/*: any*/)
+            ],
+            "type": "SyncSuccess",
+            "abstractKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
               (v8/*: any*/),
-              {
-                "alias": null,
-                "args": null,
-                "concreteType": "Workspace",
-                "kind": "LinkedField",
-                "name": "syncedWorkspace",
-                "plural": false,
-                "selections": [
-                  (v9/*: any*/),
-                  {
-                    "alias": null,
-                    "args": (v10/*: any*/),
-                    "concreteType": null,
-                    "kind": "LinkedField",
-                    "name": "documents",
-                    "plural": true,
-                    "selections": [
-                      {
-                        "kind": "InlineFragment",
-                        "selections": [
-                          (v9/*: any*/),
-                          (v11/*: any*/),
-                          (v12/*: any*/),
-                          {
-                            "alias": null,
-                            "args": null,
-                            "concreteType": "Author",
-                            "kind": "LinkedField",
-                            "name": "author",
-                            "plural": false,
-                            "selections": [
-                              (v13/*: any*/),
-                              (v14/*: any*/)
-                            ],
-                            "storageKey": null
-                          }
-                        ],
-                        "type": "ES4Document",
-                        "abstractKey": null
-                      }
-                    ],
-                    "storageKey": "documents(sortedBy:\"NEWEST\")"
-                  }
-                ],
-                "storageKey": null
-              }
+              (v9/*: any*/),
+              (v6/*: any*/)
             ],
             "type": "DetailedSyncSuccess",
             "abstractKey": null
@@ -342,64 +404,17 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v7/*: any*/),
+              (v13/*: any*/)
+            ],
+            "type": "SyncSuccess",
+            "abstractKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
               (v8/*: any*/),
-              {
-                "alias": null,
-                "args": null,
-                "concreteType": "Workspace",
-                "kind": "LinkedField",
-                "name": "syncedWorkspace",
-                "plural": false,
-                "selections": [
-                  (v9/*: any*/),
-                  {
-                    "alias": null,
-                    "args": (v10/*: any*/),
-                    "concreteType": null,
-                    "kind": "LinkedField",
-                    "name": "documents",
-                    "plural": true,
-                    "selections": [
-                      (v4/*: any*/),
-                      {
-                        "kind": "InlineFragment",
-                        "selections": [
-                          (v9/*: any*/),
-                          (v11/*: any*/),
-                          (v12/*: any*/),
-                          {
-                            "alias": null,
-                            "args": null,
-                            "concreteType": "Author",
-                            "kind": "LinkedField",
-                            "name": "author",
-                            "plural": false,
-                            "selections": [
-                              (v13/*: any*/),
-                              (v14/*: any*/),
-                              (v9/*: any*/)
-                            ],
-                            "storageKey": null
-                          }
-                        ],
-                        "type": "ES4Document",
-                        "abstractKey": null
-                      },
-                      {
-                        "kind": "InlineFragment",
-                        "selections": [
-                          (v9/*: any*/)
-                        ],
-                        "type": "Node",
-                        "abstractKey": "__isNode"
-                      }
-                    ],
-                    "storageKey": "documents(sortedBy:\"NEWEST\")"
-                  }
-                ],
-                "storageKey": null
-              }
+              (v9/*: any*/),
+              (v13/*: any*/)
             ],
             "type": "DetailedSyncSuccess",
             "abstractKey": null
@@ -410,14 +425,14 @@ return {
     ]
   },
   "params": {
-    "cacheID": "9b09e3fbf7ce6e878c74f81521c5cb56",
+    "cacheID": "b655f4a6ec11469f72d41b80de616fd9",
     "id": null,
     "metadata": {},
     "name": "SyncMutation",
     "operationKind": "mutation",
-    "text": "mutation SyncMutation(\n  $workspace: String!\n  $pubUrl: String!\n  $format: SyncFormatEnum!\n) {\n  syncWithPub(workspace: $workspace, pubUrl: $pubUrl, format: $format) {\n    __typename\n    ... on SyncError {\n      reason\n    }\n    ... on DetailedSyncSuccess {\n      pushed {\n        rejectedCount\n        ignoredCount\n        acceptedCount\n      }\n      pulled {\n        rejectedCount\n        ignoredCount\n        acceptedCount\n      }\n      syncedWorkspace {\n        id\n        documents(sortedBy: NEWEST) {\n          __typename\n          ... on ES4Document {\n            id\n            content\n            timestamp\n            author {\n              shortName\n              address\n              id\n            }\n          }\n          ... on Node {\n            __isNode: __typename\n            id\n          }\n        }\n      }\n    }\n  }\n}\n"
+    "text": "mutation SyncMutation(\n  $workspace: String!\n  $pubUrl: String!\n  $format: SyncFormatEnum!\n) {\n  syncWithPub(workspace: $workspace, pubUrl: $pubUrl, format: $format) {\n    __typename\n    ... on SyncError {\n      reason\n    }\n    ... on SyncSuccess {\n      syncedWorkspace {\n        ...WorkspaceMessages_workspace\n        id\n      }\n    }\n    ... on DetailedSyncSuccess {\n      pushed {\n        rejectedCount\n        ignoredCount\n        acceptedCount\n      }\n      pulled {\n        rejectedCount\n        ignoredCount\n        acceptedCount\n      }\n      syncedWorkspace {\n        ...WorkspaceMessages_workspace\n        id\n      }\n    }\n  }\n}\n\nfragment MessageEditor_document on ES4Document {\n  content\n}\n\nfragment Message_document on Document {\n  __isDocument: __typename\n  __typename\n  ... on ES4Document {\n    ...MessageEditor_document\n    id\n    content\n    path\n    workspace {\n      address\n      id\n    }\n    author {\n      address\n      id\n    }\n  }\n}\n\nfragment WorkspaceMessages_workspace on Workspace {\n  address\n  documents(sortedBy: NEWEST) {\n    __typename\n    ...Message_document\n    ... on Node {\n      __isNode: __typename\n      id\n    }\n  }\n}\n"
   }
 };
 })();
-(node as any).hash = 'a39148d0f11aceec3dd429d459f1bd21';
+(node as any).hash = '90f43c4a595563c71089be1448d92ee9';
 export default node;

@@ -4,7 +4,9 @@ import {
   SetMutation,
   AuthorInput,
   NewDocumentInput,
+  SetMutationResponse,
 } from "./__generated__/SetMutation.graphql";
+import { PayloadError } from "relay-runtime";
 
 const mutation = graphql`
   mutation SetMutation(
@@ -14,22 +16,16 @@ const mutation = graphql`
   ) {
     set(author: $author, document: $document, workspace: $workspace) {
       __typename
+      ... on DocumentRejectedError {
+        reason
+      }
       ... on SetDataSuccessResult {
         document {
+          ...Message_document
           ... on ES4Document {
+            id
             workspace {
-              id
-              documents(sortedBy: NEWEST) {
-                ... on ES4Document {
-                  id
-                  content
-                  timestamp
-                  author {
-                    shortName
-                    address
-                  }
-                }
-              }
+              ...WorkspaceMessages_workspace
             }
           }
         }
@@ -44,11 +40,16 @@ function commit(
     author: AuthorInput;
     document: NewDocumentInput;
     workspace: string;
-  }
+  },
+  onCompleted?: (
+    response: SetMutationResponse,
+    errors: readonly PayloadError[] | null | undefined
+  ) => void
 ) {
   return commitMutation<SetMutation>(environment, {
     mutation,
     variables,
+    onCompleted,
   });
 }
 

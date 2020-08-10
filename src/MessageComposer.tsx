@@ -1,27 +1,24 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { createFragmentContainer, RelayProp } from "react-relay";
 import graphql from "babel-plugin-relay/macro";
 import { MessageComposer_workspace } from "./__generated__/MessageComposer_workspace.graphql";
 import SetMutation from "./mutations/SetMutation";
-import { generateAuthorKeypair, isErr } from "earthstar";
+import { AuthorKeypair } from "earthstar";
 
 type MessageComposerProps = {
   workspace: MessageComposer_workspace;
   relay: RelayProp;
+  setHasLocalWorkspaceChanges: (hasChanges: boolean) => void;
+  author: AuthorKeypair;
 };
 
 const MessageComposer: React.FC<MessageComposerProps> = ({
   workspace,
   relay,
+  setHasLocalWorkspaceChanges,
+  author,
 }) => {
   const [message, setMessage] = useState("");
-  const author = useMemo(() => {
-    return generateAuthorKeypair("gwil");
-  }, []);
-
-  if (isErr(author)) {
-    return <div>{author.message}</div>;
-  }
 
   const path = `/lobby/~${author.address}/${Date.now()}`;
 
@@ -33,14 +30,23 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
       ></textarea>
       <button
         onClick={() => {
-          SetMutation.commit(relay.environment, {
-            author,
-            document: {
-              content: message,
-              path,
+          SetMutation.commit(
+            relay.environment,
+            {
+              author,
+              document: {
+                content: message,
+                path,
+              },
+              workspace: workspace.address,
             },
-            workspace: workspace.address,
-          });
+            (result) => {
+              if (result.set.__typename === "SetDataSuccessResult") {
+                setHasLocalWorkspaceChanges(true);
+                setMessage("");
+              }
+            }
+          );
           setMessage("");
         }}
       >
