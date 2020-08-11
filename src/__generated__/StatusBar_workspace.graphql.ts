@@ -4,15 +4,15 @@
 
 import { ReaderFragment } from "relay-runtime";
 import { FragmentRefs } from "relay-runtime";
-export type WorkspaceHeading_workspace = {
+export type StatusBar_workspace = {
     readonly address: string;
     readonly name: string;
-    readonly " $refType": "WorkspaceHeading_workspace";
+    readonly " $refType": "StatusBar_workspace";
 };
-export type WorkspaceHeading_workspace$data = WorkspaceHeading_workspace;
-export type WorkspaceHeading_workspace$key = {
-    readonly " $data"?: WorkspaceHeading_workspace$data;
-    readonly " $fragmentRefs": FragmentRefs<"WorkspaceHeading_workspace">;
+export type StatusBar_workspace$data = StatusBar_workspace;
+export type StatusBar_workspace$key = {
+    readonly " $data"?: StatusBar_workspace$data;
+    readonly " $fragmentRefs": FragmentRefs<"StatusBar_workspace">;
 };
 
 
@@ -21,7 +21,7 @@ const node: ReaderFragment = {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "WorkspaceHeading_workspace",
+  "name": "StatusBar_workspace",
   "selections": [
     {
       "alias": null,
@@ -41,5 +41,5 @@ const node: ReaderFragment = {
   "type": "Workspace",
   "abstractKey": null
 };
-(node as any).hash = '9e98eadf80fdd12b04556d41225399b5';
+(node as any).hash = '3a2a989b5bd0e194ca5cb4aa3b27e92c';
 export default node;

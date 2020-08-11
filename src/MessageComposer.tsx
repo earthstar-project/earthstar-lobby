@@ -4,6 +4,9 @@ import graphql from "babel-plugin-relay/macro";
 import { MessageComposer_workspace } from "./__generated__/MessageComposer_workspace.graphql";
 import SetMutation from "./mutations/SetMutation";
 import { AuthorKeypair } from "earthstar";
+import Button from "./Button";
+import TextArea from "./TextArea";
+import { css } from "styled-components/macro";
 
 type MessageComposerProps = {
   workspace: MessageComposer_workspace;
@@ -23,12 +26,19 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
   const path = `/lobby/~${author.address}/${Date.now()}`;
 
   return (
-    <div>
-      <textarea
+    <div
+      css={css`
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+      `}
+    >
+      <TextArea
+        placeholder={"Write a message"}
         value={message}
         onChange={(e) => setMessage(e.target.value)}
-      ></textarea>
-      <button
+      />
+      <Button
         onClick={() => {
           SetMutation.commit(
             relay.environment,
@@ -51,7 +61,7 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
         }}
       >
         {"Post"}
-      </button>
+      </Button>
     </div>
   );
 };

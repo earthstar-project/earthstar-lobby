@@ -9,7 +9,7 @@ export type AppQueryVariables = {
 };
 export type AppQueryResponse = {
     readonly workspace: {
-        readonly " $fragmentRefs": FragmentRefs<"WorkspaceHeading_workspace" | "WorkspaceMessages_workspace" | "MessageComposer_workspace">;
+        readonly " $fragmentRefs": FragmentRefs<"StatusBar_workspace" | "WorkspaceMessages_workspace" | "MessageComposer_workspace">;
     } | null;
 };
 export type AppQuery = {
@@ -24,7 +24,7 @@ query AppQuery(
   $workspace: String!
 ) {
   workspace(address: $workspace) {
-    ...WorkspaceHeading_workspace
+    ...StatusBar_workspace
     ...WorkspaceMessages_workspace
     ...MessageComposer_workspace
     id
@@ -60,7 +60,7 @@ fragment Message_document on Document {
   }
 }
 
-fragment WorkspaceHeading_workspace on Workspace {
+fragment StatusBar_workspace on Workspace {
   address
   name
 }
@@ -71,6 +71,7 @@ fragment WorkspaceMessages_workspace on Workspace {
     __typename
     ...Message_document
     ... on ES4Document {
+      id
       timestamp
     }
     ... on Node {
@@ -128,7 +129,7 @@ return {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "WorkspaceHeading_workspace"
+            "name": "StatusBar_workspace"
           },
           {
             "args": null,
@@ -274,14 +275,14 @@ return {
     ]
   },
   "params": {
-    "cacheID": "3b84d3e0c7afa35498e11587f5d3936c",
+    "cacheID": "3d4e8fd225e6e5c6539f5621f8b9d52b",
     "id": null,
     "metadata": {},
     "name": "AppQuery",
     "operationKind": "query",
-    "text": "query AppQuery(\n  $workspace: String!\n) {\n  workspace(address: $workspace) {\n    ...WorkspaceHeading_workspace\n    ...WorkspaceMessages_workspace\n    ...MessageComposer_workspace\n    id\n  }\n}\n\nfragment MessageComposer_workspace on Workspace {\n  address\n}\n\nfragment MessageEditor_document on ES4Document {\n  content\n}\n\nfragment Message_document on Document {\n  __isDocument: __typename\n  __typename\n  ... on ES4Document {\n    ...MessageEditor_document\n    id\n    content\n    path\n    timestamp\n    workspace {\n      address\n      id\n    }\n    author {\n      address\n      shortName\n      id\n    }\n  }\n}\n\nfragment WorkspaceHeading_workspace on Workspace {\n  address\n  name\n}\n\nfragment WorkspaceMessages_workspace on Workspace {\n  address\n  documents(sortedBy: NEWEST) {\n    __typename\n    ...Message_document\n    ... on ES4Document {\n      timestamp\n    }\n    ... on Node {\n      __isNode: __typename\n      id\n    }\n  }\n}\n"
+    "text": "query AppQuery(\n  $workspace: String!\n) {\n  workspace(address: $workspace) {\n    ...StatusBar_workspace\n    ...WorkspaceMessages_workspace\n    ...MessageComposer_workspace\n    id\n  }\n}\n\nfragment MessageComposer_workspace on Workspace {\n  address\n}\n\nfragment MessageEditor_document on ES4Document {\n  content\n}\n\nfragment Message_document on Document {\n  __isDocument: __typename\n  __typename\n  ... on ES4Document {\n    ...MessageEditor_document\n    id\n    content\n    path\n    timestamp\n    workspace {\n      address\n      id\n    }\n    author {\n      address\n      shortName\n      id\n    }\n  }\n}\n\nfragment StatusBar_workspace on Workspace {\n  address\n  name\n}\n\nfragment WorkspaceMessages_workspace on Workspace {\n  address\n  documents(sortedBy: NEWEST) {\n    __typename\n    ...Message_document\n    ... on ES4Document {\n      id\n      timestamp\n    }\n    ... on Node {\n      __isNode: __typename\n      id\n    }\n  }\n}\n"
   }
 };
 })();
-(node as any).hash = '997a04bc621cef2e5a7be680274ebeb4';
+(node as any).hash = '08bcc2b19a69e27c434b6eb74dcd9fe1';
 export default node;

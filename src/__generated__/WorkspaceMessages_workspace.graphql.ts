@@ -7,6 +7,7 @@ import { FragmentRefs } from "relay-runtime";
 export type WorkspaceMessages_workspace = {
     readonly address: string;
     readonly documents: ReadonlyArray<{
+        readonly id?: string;
         readonly timestamp?: number;
         readonly " $fragmentRefs": FragmentRefs<"Message_document">;
     }>;
@@ -59,6 +60,13 @@ const node: ReaderFragment = {
               "alias": null,
               "args": null,
               "kind": "ScalarField",
+              "name": "id",
+              "storageKey": null
+            },
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
               "name": "timestamp",
               "storageKey": null
             }
@@ -73,5 +81,5 @@ const node: ReaderFragment = {
   "type": "Workspace",
   "abstractKey": null
 };
-(node as any).hash = 'e8c9b182155fd739bcb36e4ce797b281';
+(node as any).hash = '9449049daf5f25622331816a06189636';
 export default node;

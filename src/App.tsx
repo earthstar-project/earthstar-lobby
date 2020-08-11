@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { QueryRenderer } from "react-relay";
 import graphql from "babel-plugin-relay/macro";
 import createEnvironment from "./util/relay-environment";
@@ -7,15 +7,14 @@ import { AppQuery } from "./__generated__/AppQuery.graphql";
 import MessageComposer from "./MessageComposer";
 import WorkspaceMessages from "./WorkspaceMessages";
 import SyncMutation from "./mutations/SyncMutation";
-import WorkspaceHeading from "./WorkspaceHeading";
+import { AuthorKeypair } from "earthstar";
+import { isKeypair } from "./util/handy";
+import { ThemeProvider, css } from "styled-components/macro";
+import { lightTheme, makeThemeForFont } from "./themes";
+import StatusBar from "./StatusBar";
 
 const WORKSPACE_ADDR = "+lobbydev.a1";
 export const PUB_URL = "https://earthstar-graphql-pub.glitch.me";
-
-const AUTHOR = {
-  address: "@gwil.b63a5eqlqqkv5im37s6vebgf3ledhkyt63gzt4ylvcyatlxmrprma",
-  secret: "b5nb2ii7lkmreavhwuxbmqxe4fw7p7okomf2eepjjty2jyndixbna",
-};
 
 function App() {
   const [workspaceAddr] = useState(WORKSPACE_ADDR);
@@ -27,6 +26,42 @@ function App() {
       })
     )
   );
+
+  const initAuthor = useMemo(() => {
+    const maybeSessionAuthor = localStorage.getItem("authorKeypair");
+
+    if (!maybeSessionAuthor) {
+      return null;
+    }
+
+    const parsed = JSON.parse(maybeSessionAuthor);
+
+    if (parsed && !isKeypair(parsed)) {
+      return null;
+    }
+
+    return parsed;
+  }, []);
+
+  const [author, setAuthor] = useState<AuthorKeypair | null>(initAuthor);
+
+  useEffect(() => {
+    localStorage.setItem("authorKeypair", JSON.stringify(author));
+  }, [author]);
+
+  useEffect(() => {
+    const beforeUnload = (event: BeforeUnloadEvent) => {
+      if (hasLocalWorkspaceChanges) {
+        event.preventDefault();
+      }
+    };
+
+    window.addEventListener("beforeunload", beforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", beforeUnload);
+    };
+  });
 
   useEffect(() => {
     const disposable = SyncMutation.commit(
@@ -49,50 +84,59 @@ function App() {
   );
 
   return (
-    <QueryRenderer<AppQuery>
-      environment={env}
-      query={graphql`
-        query AppQuery($workspace: String!) {
-          workspace(address: $workspace) {
-            ...WorkspaceHeading_workspace
-            ...WorkspaceMessages_workspace
-            ...MessageComposer_workspace
+    <ThemeProvider theme={makeThemeForFont("Helvetica", lightTheme)}>
+      <QueryRenderer<AppQuery>
+        environment={env}
+        query={graphql`
+          query AppQuery($workspace: String!) {
+            workspace(address: $workspace) {
+              ...StatusBar_workspace
+              ...WorkspaceMessages_workspace
+              ...MessageComposer_workspace
+            }
           }
-        }
-      `}
-      variables={{
-        workspace: workspaceAddr,
-      }}
-      render={({ error, props }) => {
-        if (error) {
-          return <div>Error!</div>;
-        }
-        if (!props) {
-          return <div>Loading...</div>;
-        }
-        return props.workspace ? (
-          <div>
-            <WorkspaceHeading
-              workspace={props.workspace}
-              hasLocalWorkspaceChanges={hasLocalWorkspaceChanges}
-              setHasLocalWorkspaceChanges={setHasLocalWorkspaceChanges}
-            />
-            <MessageComposer
-              workspace={props.workspace}
-              setHasLocalWorkspaceChanges={setHasLocalWorkspaceChanges}
-              author={AUTHOR}
-            />
-            <WorkspaceMessages
-              setHasLocalWorkspaceChanges={setHasLocalWorkspaceChanges}
-              author={AUTHOR}
-              workspace={props.workspace}
-            />
-          </div>
-        ) : (
-          <div>Couldn't find the workspae!</div>
-        );
-      }}
-    />
+        `}
+        variables={{
+          workspace: workspaceAddr,
+        }}
+        render={({ error, props }) => {
+          if (error) {
+            return <div>Error!</div>;
+          }
+          if (!props) {
+            return <div>Loading...</div>;
+          }
+          return props.workspace ? (
+            <div
+              css={css`
+                font: ${(props) =>
+                  `${props.theme.font.size}px ${props.theme.font.family}`};
+              `}
+            >
+              <StatusBar
+                author={author}
+                setAuthor={setAuthor}
+                workspace={props.workspace}
+              />
+              {author ? (
+                <MessageComposer
+                  workspace={props.workspace}
+                  setHasLocalWorkspaceChanges={setHasLocalWorkspaceChanges}
+                  author={author}
+                />
+              ) : null}
+              <WorkspaceMessages
+                setHasLocalWorkspaceChanges={setHasLocalWorkspaceChanges}
+                author={author}
+                workspace={props.workspace}
+              />
+            </div>
+          ) : (
+            <div>Couldn't find the workspae!</div>
+          );
+        }}
+      />
+    </ThemeProvider>
   );
 }
 

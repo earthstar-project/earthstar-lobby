@@ -10,7 +10,7 @@ import { fromDate } from "dot-beat-time";
 type MessageProps = {
   document: Message_document;
   relay: RelayProp;
-  author: AuthorKeypair;
+  author: AuthorKeypair | null;
   setHasLocalWorkspaceChanges: (hasChanges: boolean) => void;
 };
 
@@ -26,27 +26,29 @@ const Message: React.FC<MessageProps> = ({
     return <div>{"???"}</div>;
   }
 
-  const set = (message: string) => {
-    SetMutation.commit(
-      relay.environment,
-      {
-        author,
-        document: {
-          content: message,
-          path: document.path,
-        },
-        workspace: document.workspace.address,
-      },
-      (res) => {
-        if (res.set.__typename === "SetDataSuccessResult") {
-          setHasLocalWorkspaceChanges(true);
-        }
-        if (res.set.__typename === "DocumentRejectedError") {
-          console.error("Document was not edited: ", res.set.reason);
-        }
+  const set = author
+    ? (message: string) => {
+        SetMutation.commit(
+          relay.environment,
+          {
+            author,
+            document: {
+              content: message,
+              path: document.path,
+            },
+            workspace: document.workspace.address,
+          },
+          (res) => {
+            if (res.set.__typename === "SetDataSuccessResult") {
+              setHasLocalWorkspaceChanges(true);
+            }
+            if (res.set.__typename === "DocumentRejectedError") {
+              console.error("Document was not edited: ", res.set.reason);
+            }
+          }
+        );
       }
-    );
-  };
+    : () => {};
 
   if (isEditing) {
     return (
@@ -63,15 +65,14 @@ const Message: React.FC<MessageProps> = ({
 
   return (
     <div style={{ marginBottom: 16 }}>
-      <div>{document.content}</div>
       <div title={document.author.address}>
-        {"posted by "}
         <span>
           <b>{document.author.shortName}</b>
         </span>
         {` at ${fromDate(new Date(document.timestamp / 1000))}`}
       </div>
-      {author.address === document.author.address ? (
+      <div>{document.content}</div>
+      {author && author.address === document.author.address ? (
         <div>
           <button onClick={() => setIsEditing(true)}>{"Edit"}</button>
           <button
