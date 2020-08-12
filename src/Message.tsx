@@ -73,7 +73,7 @@ const Message: React.FC<MessageProps> = ({
   return (
     <div style={{ marginBottom: 16 }}>
       {contextualPanelOpen && (
-        <ContextualPanel pointsToRef={buttonRef} accentColour={"blue"}>
+        <ContextualPanel pointsToRef={buttonRef} accentColour={"gamma"}>
           {author && author.address === document.author.address ? (
             <div>
               <Button onClick={() => setIsEditing(true)}>{"Edit"}</Button>
@@ -110,7 +110,7 @@ const Message: React.FC<MessageProps> = ({
               font-feature-settings: "tnum";
               font-variant-numeric: tabular-nums;
             `}
-            accent={"blue"}
+            accent={"gamma"}
             ref={buttonRef}
             onClick={() => {
               setContextualPanelOpen((prev) => !prev);

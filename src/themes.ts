@@ -2,21 +2,17 @@ import { DefaultTheme } from "styled-components";
 
 type ThemeWithoutFont = Omit<DefaultTheme, "font">;
 
+export type Accent = "alpha" | "beta" | "gamma";
+
 export const lightTheme: ThemeWithoutFont = {
   colours: {
     fg: "black",
     fgHint: "rgb(200, 200, 200)",
     bgHint: "rgb(244, 244, 244)",
-    bg: "white",
-  },
-};
-
-export const darkTheme: ThemeWithoutFont = {
-  colours: {
-    fg: "white",
-    fgHint: "rgb(6, 6, 6)",
-    bgHint: "rgb(244, 244, 244)",
-    bg: "black",
+    bg: "#FFFBEF",
+    alpha: "#F0E5CE",
+    beta: "#D0C3D1",
+    gamma: "#B2CFB8",
   },
 };
 

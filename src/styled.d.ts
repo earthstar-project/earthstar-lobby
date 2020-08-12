@@ -12,6 +12,9 @@ declare module "styled-components" {
       bgHint: string;
       fg: string;
       fgHint: string;
+      alpha: string;
+      beta: string;
+      gamma: string;
     };
   }
 }

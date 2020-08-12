@@ -1,7 +1,8 @@
 import styled from "styled-components";
+import { Accent } from "./themes";
 
 const NavButton = styled.button<{
-  accent: string;
+  accent: Accent;
 }>`
   appearance: none;
   border: none;
@@ -11,7 +12,7 @@ const NavButton = styled.button<{
   text-decoration: underline;
   text-decoration-style: wavy;
   text-decoration-thickness: from-font;
-  text-decoration-color: ${(props) => props.accent};
+  text-decoration-color: ${(props) => props.theme.colours[props.accent]};
   font: inherit;
 `;
 

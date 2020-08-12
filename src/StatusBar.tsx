@@ -122,7 +122,7 @@ const StatusBar: React.FC<StatusBarProps> = ({
       {openPanel !== null ? (
         <ContextualPanel
           pointsToRef={openPanel === "workspace" ? workspaceNameRef : authorRef}
-          accentColour={"blue"}
+          accentColour={openPanel === "workspace" ? "alpha" : "beta"}
         >
           {openPanel === "workspace" ? (
             <>
@@ -217,7 +217,7 @@ const StatusBar: React.FC<StatusBarProps> = ({
         <NavButton
           ref={workspaceNameRef}
           onClick={() => setPanel("workspace")}
-          accent={"green"}
+          accent={"alpha"}
         >
           {`+${workspace.name}`}
           {hasLocalWorkspaceChanges ? (
@@ -239,7 +239,7 @@ const StatusBar: React.FC<StatusBarProps> = ({
             onClick={() => setPanel(author ? "author" : "no-identity")}
             ref={authorRef}
             css={{ marginRight: 4 }}
-            accent={"blue"}
+            accent={"beta"}
             title={author ? author.address : undefined}
           >
             {author ? getAuthorShortname(author.address) : "Not Signed In"}

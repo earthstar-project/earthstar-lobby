@@ -112,7 +112,8 @@ function App() {
             <div
               css={css`
                 font: ${(props) =>
-                  `${props.theme.font.size}px ${props.theme.font.family}`};
+                  `${props.theme.font.size}px ${props.theme.font.family}`};}
+                  background: ${(props) => props.theme.colours.bg}
               `}
             >
               <StatusBar
