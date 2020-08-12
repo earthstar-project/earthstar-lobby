@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useRef, useEffect } from "react";
 
 export function useDownload(data: string, filename: string): () => void {
   return useCallback(() => {
@@ -14,4 +14,14 @@ export function useDownload(data: string, filename: string): () => void {
     window.URL.revokeObjectURL(url);
     document.body.removeChild(a);
   }, [data, filename]);
+}
+
+export function usePrevious<T>(value: T): T | undefined {
+  const ref = useRef<T>();
+
+  useEffect(() => {
+    ref.current = value;
+  }, [value]); // Only re-run if value changes
+
+  return ref.current;
 }

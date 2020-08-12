@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import { css } from "styled-components/macro";
 import graphql from "babel-plugin-relay/macro";
 import { createFragmentContainer, RelayProp } from "react-relay";
@@ -9,45 +9,27 @@ import useInternetTime from "use-internet-time";
 import NavButton from "./NavButton";
 import Button from "./Button";
 import { useDropzone } from "react-dropzone";
-import { useDownload } from "./util/hooks";
+import { useDownload, usePrevious } from "./util/hooks";
 import SyncMutation from "./mutations/SyncMutation";
 import { PUB_URL } from "./App";
+import ContextualPanel from "./ContextualPanel";
 
 type StatusBarProps = {
   author: AuthorKeypair | null;
   setAuthor: (keypair: AuthorKeypair | null) => void;
   workspace: StatusBar_workspace;
   relay: RelayProp;
+  setHeight: (height: number) => void;
 };
 
 type Panel = "workspace" | "author" | "no-identity";
-
-type StatusBarPanelProps = {
-  accent: string;
-};
-
-const StatusBarPanel: React.FC<StatusBarPanelProps> = ({
-  children,
-  accent,
-}) => {
-  return (
-    <div
-      css={css`
-        background-color: ${accent};
-        color: ${(props) => props.theme.colours.fg};
-        padding: 12px 8px;
-      `}
-    >
-      {children}
-    </div>
-  );
-};
 
 const StatusBar: React.FC<StatusBarProps> = ({
   workspace,
   author,
   setAuthor,
   relay,
+  setHeight,
 }) => {
   const [openPanel, setOpenPanel] = useState<Panel | null>(null);
 
@@ -108,6 +90,20 @@ const StatusBar: React.FC<StatusBarProps> = ({
 
   const download = useDownload(JSON.stringify(author), "keypair.json");
 
+  const workspaceNameRef = useRef(null);
+  const authorRef = useRef(null);
+
+  const prevOpenPanel = usePrevious(openPanel);
+
+  const measuredRef = useCallback(
+    (node) => {
+      if (node !== null && prevOpenPanel !== openPanel) {
+        setHeight(node.getBoundingClientRect().height);
+      }
+    },
+    [prevOpenPanel, openPanel, setHeight]
+  );
+
   return (
     <div
       css={css`
@@ -116,9 +112,13 @@ const StatusBar: React.FC<StatusBarProps> = ({
         background: ${(props) => props.theme.colours.bg};
         border-bottom: 1px solid ${(props) => props.theme.colours.fgHint};
       `}
+      ref={measuredRef}
     >
       {openPanel !== null ? (
-        <StatusBarPanel accent={"beige"}>
+        <ContextualPanel
+          pointsToRef={openPanel === "workspace" ? workspaceNameRef : authorRef}
+          accentColour={"blue"}
+        >
           {openPanel === "workspace" ? (
             <>
               <Button
@@ -199,7 +199,7 @@ const StatusBar: React.FC<StatusBarProps> = ({
               </Button>
             </div>
           )}
-        </StatusBarPanel>
+        </ContextualPanel>
       ) : null}
       <div
         css={`
@@ -209,7 +209,11 @@ const StatusBar: React.FC<StatusBarProps> = ({
           align-items: baseline;
         `}
       >
-        <NavButton onClick={() => setPanel("workspace")} accent={"green"}>
+        <NavButton
+          ref={workspaceNameRef}
+          onClick={() => setPanel("workspace")}
+          accent={"green"}
+        >
           {`+${workspace.name}`}
         </NavButton>
         <div
@@ -219,6 +223,7 @@ const StatusBar: React.FC<StatusBarProps> = ({
         >
           <NavButton
             onClick={() => setPanel(author ? "author" : "no-identity")}
+            ref={authorRef}
             css={{ marginRight: 4 }}
             accent={"blue"}
             title={author ? author.address : undefined}
@@ -244,5 +249,14 @@ export default createFragmentContainer(StatusBar, {
 function InternetClock() {
   const time = useInternetTime({ fractional: true });
 
-  return <div>{time}</div>;
+  return (
+    <div
+      css={`
+        font-feature-settings: "tnum";
+        font-variant-numeric: tabular-nums;
+      `}
+    >
+      {time}
+    </div>
+  );
 }

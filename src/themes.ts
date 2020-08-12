@@ -5,7 +5,7 @@ type ThemeWithoutFont = Omit<DefaultTheme, "font">;
 export const lightTheme: ThemeWithoutFont = {
   colours: {
     fg: "black",
-    fgHint: "rgb(11, 11, 11)",
+    fgHint: "rgb(200, 200, 200)",
     bgHint: "rgb(244, 244, 244)",
     bg: "white",
   },

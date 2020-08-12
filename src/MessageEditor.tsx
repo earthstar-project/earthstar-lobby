@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { createFragmentContainer } from "react-relay";
 import graphql from "babel-plugin-relay/macro";
 import { MessageEditor_document } from "./__generated__/MessageEditor_document.graphql";
+import TextArea from "./TextArea";
+import Button from "./Button";
 
 type MessageEditorProps = {
   document: MessageEditor_document;
@@ -18,9 +20,10 @@ const MessageEditor: React.FC<MessageEditorProps> = ({
 
   return (
     <>
-      <textarea value={message} onChange={(e) => setMessage(e.target.value)} />
-      <button onClick={() => updateMessage(message)}>{"Save"}</button>
-      <button onClick={cancelEditing}>{"Cancel"}</button>
+      <TextArea value={message} onChange={(e) => setMessage(e.target.value)} />
+      <Button onClick={() => updateMessage(message)}>{"Save"}</Button>
+      {" or "}
+      <Button onClick={cancelEditing}>{"Cancel"}</Button>
     </>
   );
 };

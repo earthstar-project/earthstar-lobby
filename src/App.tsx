@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { QueryRenderer } from "react-relay";
 import graphql from "babel-plugin-relay/macro";
 import createEnvironment from "./util/relay-environment";
@@ -83,8 +83,10 @@ function App() {
     false
   );
 
+  const [statusBarHeight, setStatusBarHeight] = useState(0);
+
   return (
-    <ThemeProvider theme={makeThemeForFont("Helvetica", lightTheme)}>
+    <ThemeProvider theme={makeThemeForFont("Georgia", lightTheme)}>
       <QueryRenderer<AppQuery>
         environment={env}
         query={graphql`
@@ -117,6 +119,7 @@ function App() {
                 author={author}
                 setAuthor={setAuthor}
                 workspace={props.workspace}
+                setHeight={setStatusBarHeight}
               />
               {author ? (
                 <MessageComposer
@@ -129,6 +132,7 @@ function App() {
                 setHasLocalWorkspaceChanges={setHasLocalWorkspaceChanges}
                 author={author}
                 workspace={props.workspace}
+                stickAt={statusBarHeight}
               />
             </div>
           ) : (

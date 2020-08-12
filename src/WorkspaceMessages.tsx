@@ -11,12 +11,14 @@ type WorkspaceMessagesProps = {
   relay: RelayProp;
   author: AuthorKeypair | null;
   setHasLocalWorkspaceChanges: (hasChanges: boolean) => void;
+  stickAt: number;
 };
 
 const WorkspaceMessages: React.FC<WorkspaceMessagesProps> = ({
   workspace,
   author,
   setHasLocalWorkspaceChanges,
+  stickAt,
 }) => {
   const docsByDate = workspace.documents.reduce((acc, doc) => {
     if (!doc.timestamp) {
@@ -47,19 +49,23 @@ const WorkspaceMessages: React.FC<WorkspaceMessagesProps> = ({
 
         return (
           <section key={key}>
-            <h2
+            <div
               css={css`
                 position: sticky;
-                top: 41px;
-                background: ${(props) => props.theme.colours.bgHint};
+                top: ${stickAt}px;
+                background: ${(props) => props.theme.colours.bg};
+                border-bottom: 1px solid
+                  ${(props) => props.theme.colours.fgHint};
                 padding: 12px 8px;
+                display: flex;
+                justify-content: space-between;
               `}
             >
-              {title}
-            </h2>
+              <div>{title}</div>
+            </div>
             <ol
               css={css`
-                padding: 8px;
+                padding: 0;
               `}
             >
               {documents.map((doc) => {
