@@ -53,6 +53,7 @@ const WorkspaceMessages: React.FC<WorkspaceMessagesProps> = ({
               css={css`
                 position: sticky;
                 top: ${stickAt}px;
+                z-index: 0;
                 background: ${(props) => props.theme.colours.bg};
                 border-bottom: 1px solid
                   ${(props) => props.theme.colours.fgHint};

@@ -86,7 +86,7 @@ function App() {
   const [statusBarHeight, setStatusBarHeight] = useState(0);
 
   return (
-    <ThemeProvider theme={makeThemeForFont("Georgia", lightTheme)}>
+    <ThemeProvider theme={makeThemeForFont("Gill Sans", lightTheme)}>
       <QueryRenderer<AppQuery>
         environment={env}
         query={graphql`
@@ -120,6 +120,8 @@ function App() {
                 setAuthor={setAuthor}
                 workspace={props.workspace}
                 setHeight={setStatusBarHeight}
+                setHasLocalWorkspaceChanges={setHasLocalWorkspaceChanges}
+                hasLocalWorkspaceChanges={hasLocalWorkspaceChanges}
               />
               {author ? (
                 <MessageComposer

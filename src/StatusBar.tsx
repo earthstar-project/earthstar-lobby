@@ -20,6 +20,8 @@ type StatusBarProps = {
   workspace: StatusBar_workspace;
   relay: RelayProp;
   setHeight: (height: number) => void;
+  hasLocalWorkspaceChanges: boolean;
+  setHasLocalWorkspaceChanges: (hasChanges: boolean) => void;
 };
 
 type Panel = "workspace" | "author" | "no-identity";
@@ -30,6 +32,8 @@ const StatusBar: React.FC<StatusBarProps> = ({
   setAuthor,
   relay,
   setHeight,
+  setHasLocalWorkspaceChanges,
+  hasLocalWorkspaceChanges,
 }) => {
   const [openPanel, setOpenPanel] = useState<Panel | null>(null);
 
@@ -108,6 +112,7 @@ const StatusBar: React.FC<StatusBarProps> = ({
     <div
       css={css`
         position: sticky;
+        z-index: 1;
         top: 0;
         background: ${(props) => props.theme.colours.bg};
         border-bottom: 1px solid ${(props) => props.theme.colours.fgHint};
@@ -132,7 +137,7 @@ const StatusBar: React.FC<StatusBarProps> = ({
                     },
                     () => {
                       console.log("Sync Complete ✅");
-                      // setHasLocalWorkspaceChanges(false);
+                      setHasLocalWorkspaceChanges(false);
                     }
                   );
                 }}
@@ -215,6 +220,15 @@ const StatusBar: React.FC<StatusBarProps> = ({
           accent={"green"}
         >
           {`+${workspace.name}`}
+          {hasLocalWorkspaceChanges ? (
+            <span
+              css={`
+                color: green;
+              `}
+            >
+              {" has unsynced changes"}
+            </span>
+          ) : null}
         </NavButton>
         <div
           css={`
