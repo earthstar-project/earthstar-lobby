@@ -40,6 +40,7 @@ const StatusBar: React.FC<StatusBarProps> = ({
   const [openPanel, setOpenPanel] = useState<Panel | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
 
+  // Open the selected panel, or toggle if it's already open
   const setPanel = (panel: Panel | null) => {
     setOpenPanel((prev) => {
       if (prev === panel) {
@@ -52,10 +53,12 @@ const StatusBar: React.FC<StatusBarProps> = ({
 
   const isAuthorDefined = author !== null;
 
+  // Close the contextual panel if the author changes (i.e. signs out or in)
   useEffect(() => {
     setPanel(null);
   }, [isAuthorDefined]);
 
+  // What to do when a keypair is uploaded
   const onDrop = useCallback(
     (accepted, _rejected) => {
       if (accepted.length === 0) {
@@ -95,13 +98,16 @@ const StatusBar: React.FC<StatusBarProps> = ({
     accept: "application/json",
   });
 
+  // Creates a fn to trigger a virtual download of the keypair
   const download = useDownload(JSON.stringify(author), "keypair.json");
 
+  // Using these to make the contextual panel's arrow point to the right place
   const workspaceNameRef = useRef(null);
   const authorRef = useRef(null);
 
   const prevOpenPanel = usePrevious(openPanel);
 
+  // Here for a good sticky effect
   const measuredRef = useCallback(
     (node) => {
       if (node !== null && prevOpenPanel !== openPanel) {
@@ -123,6 +129,7 @@ const StatusBar: React.FC<StatusBarProps> = ({
       `}
       ref={measuredRef}
     >
+      {/* This is quite convoluted, I will tidy this up later */}
       {openPanel !== null ? (
         <ContextualPanel
           pointsToRef={openPanel === "workspace" ? workspaceNameRef : authorRef}
@@ -222,6 +229,7 @@ const StatusBar: React.FC<StatusBarProps> = ({
           `}
         >
           <div ref={workspaceNameRef}>
+            {/* Animate the text whenever the value changes to draw the eye */}
             <WindupChildren>
               <NavButton onClick={() => setPanel("workspace")} accent={"alpha"}>
                 {`+${workspace.name}`}
@@ -245,6 +253,7 @@ const StatusBar: React.FC<StatusBarProps> = ({
             `}
           >
             <div ref={authorRef}>
+              {/* Animate the text whenever the value changes to draw the eye */}
               <WindupChildren>
                 <NavButton
                   onClick={() => setPanel(author ? "author" : "no-identity")}
@@ -258,6 +267,7 @@ const StatusBar: React.FC<StatusBarProps> = ({
                 </NavButton>
               </WindupChildren>
             </div>
+            {/* Welcome to the new millennium */}
             <InternetClock />
           </div>
         </div>
@@ -266,6 +276,7 @@ const StatusBar: React.FC<StatusBarProps> = ({
   );
 };
 
+// This declares which data StatusBar wants from Relay
 export default createFragmentContainer(StatusBar, {
   workspace: graphql`
     fragment StatusBar_workspace on Workspace {

@@ -13,6 +13,8 @@ function createFetchQuery(ctx: Context) {
   return async (request: RequestParameters, variables: Variables) => {
     const res = await query(request.text || ``, variables, ctx);
 
+    // Have to do this otherwise I get weird errors because graphql-js returns weirdly shaped objects
+    // should just use relay-local-schema for this
     return JSON.parse(JSON.stringify(res));
   };
 }

@@ -1,6 +1,7 @@
 import "styled-components";
 import {} from "styled-components/cssprop";
 
+// Tell TS what the shape of themes are
 declare module "styled-components" {
   export interface DefaultTheme {
     font: {

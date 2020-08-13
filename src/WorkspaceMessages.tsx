@@ -21,6 +21,7 @@ const WorkspaceMessages: React.FC<WorkspaceMessagesProps> = ({
   setHasLocalWorkspaceChanges,
   stickAt,
 }) => {
+  // Partition the documents by day (local)
   const docsByDate = workspace.documents.reduce((acc, doc) => {
     if (!doc.timestamp) {
       return acc;
@@ -102,6 +103,8 @@ const WorkspaceMessages: React.FC<WorkspaceMessagesProps> = ({
   );
 };
 
+// This declares which data WorkspaceMessages wants from Relay.
+// workspace will be fed in as a prop
 export default createFragmentContainer(WorkspaceMessages, {
   workspace: graphql`
     fragment WorkspaceMessages_workspace on Workspace {

@@ -29,12 +29,15 @@ const Message: React.FC<MessageProps> = ({
 }) => {
   const [openPanel, setOpenPanel] = useState<MessagePanel>("none");
 
+  // For pointing the contextual panel at the right place
   const buttonRef = useRef(null);
 
+  // This shouldn't happen, but just in case
   if (document.__typename !== "ES4Document") {
     return <div>{"???"}</div>;
   }
 
+  // A function for editing/deleting the document
   const set = author
     ? (message: string) => {
         SetMutation.commit(
@@ -138,6 +141,8 @@ const Message: React.FC<MessageProps> = ({
   );
 };
 
+// This declares which data Message wants from Relay.
+// document will be fed in as a prop
 export default createFragmentContainer(Message, {
   document: graphql`
     fragment Message_document on Document {

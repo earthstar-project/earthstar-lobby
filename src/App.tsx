@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { QueryRenderer } from "react-relay";
 import graphql from "babel-plugin-relay/macro";
 import createEnvironment from "./util/relay-environment";
@@ -17,8 +17,11 @@ const WORKSPACE_ADDR = "+lobbydev.a1";
 export const PUB_URL = "https://earthstar-graphql-pub.glitch.me";
 
 function App() {
+  // Preparing for later when you can have different workspaces
   const [workspaceAddr] = useState(WORKSPACE_ADDR);
 
+  // This is a Relay environment, which is where Relay stores its data cache
+  // and configurations for how to fetch data
   const [env] = useState(
     createEnvironment(
       createSchemaContext("MEMORY", {
@@ -27,6 +30,7 @@ function App() {
     )
   );
 
+  // Try and get the author from localstorage.
   const initAuthor = useMemo(() => {
     const maybeSessionAuthor = localStorage.getItem("authorKeypair");
 
@@ -45,10 +49,12 @@ function App() {
 
   const [author, setAuthor] = useState<AuthorKeypair | null>(initAuthor);
 
+  // Write the current keypair to localstorage whenever the value changes
   useEffect(() => {
     localStorage.setItem("authorKeypair", JSON.stringify(author));
   }, [author]);
 
+  // Stop the window from closing if there are unsynced changes.
   useEffect(() => {
     const beforeUnload = (event: BeforeUnloadEvent) => {
       if (hasLocalWorkspaceChanges) {
@@ -63,6 +69,7 @@ function App() {
     };
   });
 
+  // Sync with the pub once when the app starts up.
   useEffect(() => {
     const disposable = SyncMutation.commit(
       env,
@@ -83,15 +90,21 @@ function App() {
     false
   );
 
+  // Using this to make the sticky header effects work well
   const [statusBarHeight, setStatusBarHeight] = useState(0);
 
   return (
+    // Pass a theme into the app for styled components to use.
     <ThemeProvider theme={makeThemeForFont("Gill Sans", lightTheme)}>
+      {/* https://relay.dev/docs/en/query-renderer */}
+      {/* Data for the app is fetched here from earthstar-graphql */}
       <QueryRenderer<AppQuery>
         environment={env}
         query={graphql`
           query AppQuery($workspace: String!) {
             workspace(address: $workspace) {
+              # https://graphql.org/learn/queries/#fragments
+              # Components declare their own data dependencies independently
               ...StatusBar_workspace
               ...WorkspaceMessages_workspace
               ...MessageComposer_workspace
@@ -99,6 +112,7 @@ function App() {
           }
         `}
         variables={{
+          // Passed into the query above
           workspace: workspaceAddr,
         }}
         render={({ error, props }) => {
@@ -116,6 +130,7 @@ function App() {
                   background: ${(props) => props.theme.colours.bg}
               `}
             >
+              {/* I will probably put the stuff like author, setAuthor, hasLocalWorkspaceChanges etc into a React Context so I don't need to thread them through the whole app. */}
               <StatusBar
                 author={author}
                 setAuthor={setAuthor}
@@ -139,7 +154,7 @@ function App() {
               />
             </div>
           ) : (
-            <div>Couldn't find the workspae!</div>
+            <div>Couldn't find the workspace!</div>
           );
         }}
       />

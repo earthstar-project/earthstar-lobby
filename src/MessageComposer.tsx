@@ -24,7 +24,8 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
 }) => {
   const [message, setMessage] = useState("");
 
-  const path = `/lobby/~${author.address}/${Date.now()}`;
+  // The path the document will be stored at
+  const path = `/lobby/~${author.address}/${Date.now()}.txt`;
 
   return (
     <MaxWidth>
@@ -73,6 +74,8 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
   );
 };
 
+// This declares which data MessageComposer wants from Relay.
+// workspace will be fed in as a prop
 export default createFragmentContainer(MessageComposer, {
   workspace: graphql`
     fragment MessageComposer_workspace on Workspace {

@@ -8,6 +8,7 @@ type ContextPanelProps = {
   pointsToRef?: React.RefObject<HTMLElement>;
 };
 
+// Determine where to place the little speech bubble tail using a ref
 function getCenterXOfElement(el: HTMLElement) {
   return el.offsetLeft + el.clientWidth / 2;
 }
