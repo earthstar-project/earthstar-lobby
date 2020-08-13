@@ -1,4 +1,4 @@
-import styled, { DefaultTheme } from "styled-components";
+import styled, { DefaultTheme } from "styled-components/macro";
 import { Accent } from "./themes";
 
 const lineMap: Record<Accent, keyof DefaultTheme["colours"]> = {

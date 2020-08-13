@@ -12,11 +12,9 @@ import { isKeypair } from "./util/handy";
 import { ThemeProvider, css } from "styled-components/macro";
 import { lightTheme, makeThemeForFont } from "./themes";
 import StatusBar from "./StatusBar";
+import { WORKSPACE_ADDR, PUB_URL } from "./constants";
 
-const WORKSPACE_ADDR = "+lobbydev.a1";
-export const PUB_URL = "https://earthstar-graphql-pub.glitch.me";
-
-function App() {
+const App: React.FC = () => {
   // Preparing for later when you can have different workspaces
   const [workspaceAddr] = useState(WORKSPACE_ADDR);
 
@@ -160,6 +158,6 @@ function App() {
       />
     </ThemeProvider>
   );
-}
+};
 
 export default App;

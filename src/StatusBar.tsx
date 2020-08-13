@@ -11,7 +11,7 @@ import Button from "./Button";
 import { useDropzone } from "react-dropzone";
 import { useDownload, usePrevious } from "./util/hooks";
 import SyncMutation from "./mutations/SyncMutation";
-import { PUB_URL } from "./App";
+import { PUB_URL } from "./constants";
 import ContextualPanel from "./ContextualPanel";
 import { WindupChildren } from "windups";
 import MaxWidth from "./MaxWidth";

@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled from "styled-components/macro";
 
 // A blunt instrument used to make a sane desktop layout
 const MaxWidth = styled.div`

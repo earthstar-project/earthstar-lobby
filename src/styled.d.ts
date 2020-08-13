@@ -1,8 +1,8 @@
-import "styled-components";
+import "styled-components/macro";
 import {} from "styled-components/cssprop";
 
 // Tell TS what the shape of themes are
-declare module "styled-components" {
+declare module "styled-components/macro" {
   export interface DefaultTheme {
     font: {
       family: string;

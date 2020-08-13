@@ -1,4 +1,4 @@
-import { DefaultTheme } from "styled-components";
+import { DefaultTheme } from "styled-components/macro";
 
 type ThemeWithoutFont = Omit<DefaultTheme, "font">;
 
