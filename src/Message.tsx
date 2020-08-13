@@ -18,14 +18,15 @@ type MessageProps = {
   setHasLocalWorkspaceChanges: (hasChanges: boolean) => void;
 };
 
+type MessagePanel = "options" | "editing" | "none";
+
 const Message: React.FC<MessageProps> = ({
   document,
   relay,
   author,
   setHasLocalWorkspaceChanges,
 }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [contextualPanelOpen, setContextualPanelOpen] = useState(false);
+  const [openPanel, setOpenPanel] = useState<MessagePanel>("none");
 
   const buttonRef = useRef(null);
 
@@ -57,26 +58,22 @@ const Message: React.FC<MessageProps> = ({
       }
     : () => {};
 
-  if (isEditing) {
-    return (
-      <MessageEditor
-        cancelEditing={() => setIsEditing(false)}
-        document={document}
-        updateMessage={(newMessage: string) => {
-          set(newMessage);
-          setIsEditing(false);
-        }}
-      />
-    );
-  }
-
   return (
     <div style={{ marginBottom: 16 }}>
-      {contextualPanelOpen && (
+      {openPanel !== "none" ? (
         <ContextualPanel pointsToRef={buttonRef} accentColour={"gamma"}>
-          {author && author.address === document.author.address ? (
+          {openPanel === "editing" ? (
+            <MessageEditor
+              cancelEditing={() => setOpenPanel("none")}
+              document={document}
+              updateMessage={(newMessage: string) => {
+                set(newMessage);
+                setOpenPanel("none");
+              }}
+            />
+          ) : author && author.address === document.author.address ? (
             <div>
-              <Button onClick={() => setIsEditing(true)}>{"Edit"}</Button>
+              <Button onClick={() => setOpenPanel("editing")}>{"Edit"}</Button>
               {" or "}
               <Button
                 onClick={() => {
@@ -94,7 +91,7 @@ const Message: React.FC<MessageProps> = ({
             </div>
           ) : null}
         </ContextualPanel>
-      )}
+      ) : null}
       <div
         title={document.author.address}
         css={`
@@ -113,7 +110,7 @@ const Message: React.FC<MessageProps> = ({
             accent={"gamma"}
             ref={buttonRef}
             onClick={() => {
-              setContextualPanelOpen((prev) => !prev);
+              setOpenPanel("options");
             }}
           >
             {`${fromDate(new Date(document.timestamp / 1000))}`}
