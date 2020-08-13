@@ -110,7 +110,7 @@ const Message: React.FC<MessageProps> = ({
             accent={"gamma"}
             ref={buttonRef}
             onClick={() => {
-              setOpenPanel("options");
+              setOpenPanel((prev) => (prev === "none" ? "options" : "none"));
             }}
           >
             {`${fromDate(new Date(document.timestamp / 1000))}`}

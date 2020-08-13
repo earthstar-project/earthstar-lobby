@@ -15,6 +15,9 @@ declare module "styled-components" {
       alpha: string;
       beta: string;
       gamma: string;
+      alphaLine: string;
+      betaLine: string;
+      gammaLine: string;
     };
   }
 }

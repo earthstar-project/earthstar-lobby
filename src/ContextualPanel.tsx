@@ -23,6 +23,7 @@ const ContextualPanel: React.FC<ContextPanelProps> = ({
         color: ${(props) => props.theme.colours.fg};
         padding: 12px 8px;
         position: relative;
+        box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.06);
       `}
     >
       {children}

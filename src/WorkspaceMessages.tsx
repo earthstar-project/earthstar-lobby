@@ -60,9 +60,12 @@ const WorkspaceMessages: React.FC<WorkspaceMessagesProps> = ({
                 padding: 12px 8px;
                 display: flex;
                 justify-content: space-between;
+                box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.04);
               `}
             >
-              <div>{title}</div>
+              <div>
+                <b>{title}</b>
+              </div>
             </div>
             <ol
               css={css`
@@ -71,12 +74,20 @@ const WorkspaceMessages: React.FC<WorkspaceMessagesProps> = ({
             >
               {documents.map((doc) => {
                 return (
-                  <Message
-                    key={doc.id}
-                    setHasLocalWorkspaceChanges={setHasLocalWorkspaceChanges}
-                    author={author}
-                    document={doc}
-                  />
+                  <>
+                    <Message
+                      key={doc.id}
+                      setHasLocalWorkspaceChanges={setHasLocalWorkspaceChanges}
+                      author={author}
+                      document={doc}
+                    />
+                    <hr
+                      css={css`
+                        border-top: 1px solid
+                          ${(props) => props.theme.colours.fgHint};
+                      `}
+                    />
+                  </>
                 );
               })}
             </ol>

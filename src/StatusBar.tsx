@@ -116,6 +116,7 @@ const StatusBar: React.FC<StatusBarProps> = ({
         top: 0;
         background: ${(props) => props.theme.colours.bg};
         border-bottom: 1px solid ${(props) => props.theme.colours.fgHint};
+        box-shadow: 2px 2px 4px 4px rgba(0, 0, 0, 0.04);
       `}
       ref={measuredRef}
     >

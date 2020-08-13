@@ -1,5 +1,11 @@
-import styled from "styled-components";
+import styled, { DefaultTheme } from "styled-components";
 import { Accent } from "./themes";
+
+const lineMap: Record<Accent, keyof DefaultTheme["colours"]> = {
+  alpha: "alphaLine",
+  beta: "betaLine",
+  gamma: "gammaLine",
+};
 
 const NavButton = styled.button<{
   accent: Accent;
@@ -10,9 +16,10 @@ const NavButton = styled.button<{
   padding: 0;
   background: none;
   text-decoration: underline;
-  text-decoration-style: wavy;
-  text-decoration-thickness: from-font;
-  text-decoration-color: ${(props) => props.theme.colours[props.accent]};
+  //text-decoration-style: wavy;
+  text-decoration-thickness: 2px;
+  text-decoration-color: ${(props) =>
+    props.theme.colours[lineMap[props.accent]]};
   font: inherit;
 `;
 
