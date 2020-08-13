@@ -59,7 +59,7 @@ const WorkspaceMessages: React.FC<WorkspaceMessagesProps> = ({
                   ${(props) => props.theme.colours.fgHint};
                 padding: 12px 8px;
                 display: flex;
-                justify-content: space-between;
+                justify-content: center;
                 box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.04);
               `}
             >
@@ -70,6 +70,7 @@ const WorkspaceMessages: React.FC<WorkspaceMessagesProps> = ({
             <ol
               css={css`
                 padding: 0;
+                margin: 0;
               `}
             >
               {documents.map((doc) => {

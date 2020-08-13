@@ -86,7 +86,7 @@ const Message: React.FC<MessageProps> = ({
                   }
                 }}
               >
-                {"Delete this post"}
+                {"Delete this message"}
               </Button>
             </div>
           ) : null}

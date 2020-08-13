@@ -31,12 +31,16 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
         display: flex;
         flex-direction: column;
         align-items: flex-end;
+        padding: 8px;
       `}
     >
       <TextArea
         placeholder={"Write a message"}
         value={message}
         onChange={(e) => setMessage(e.target.value)}
+        css={css`
+          margin-bottom: 4px;
+        `}
       />
       <Button
         onClick={() => {

@@ -13,6 +13,7 @@ import { useDownload, usePrevious } from "./util/hooks";
 import SyncMutation from "./mutations/SyncMutation";
 import { PUB_URL } from "./App";
 import ContextualPanel from "./ContextualPanel";
+import { WindupChildren } from "windups";
 
 type StatusBarProps = {
   author: AuthorKeypair | null;
@@ -36,6 +37,7 @@ const StatusBar: React.FC<StatusBarProps> = ({
   hasLocalWorkspaceChanges,
 }) => {
   const [openPanel, setOpenPanel] = useState<Panel | null>(null);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   const setPanel = (panel: Panel | null) => {
     setOpenPanel((prev) => {
@@ -129,6 +131,7 @@ const StatusBar: React.FC<StatusBarProps> = ({
             <>
               <Button
                 onClick={() => {
+                  setIsSyncing(true);
                   SyncMutation.commit(
                     relay.environment,
                     {
@@ -139,6 +142,7 @@ const StatusBar: React.FC<StatusBarProps> = ({
                     () => {
                       console.log("Sync Complete ✅");
                       setHasLocalWorkspaceChanges(false);
+                      setIsSyncing(false);
                     }
                   );
                 }}
@@ -146,7 +150,7 @@ const StatusBar: React.FC<StatusBarProps> = ({
                 Sync this workspace
               </Button>
               {" or "}
-              <Button>View another one</Button>
+              <Button disabled>View another one</Button>
             </>
           ) : openPanel === "no-identity" ? (
             <div
@@ -215,36 +219,41 @@ const StatusBar: React.FC<StatusBarProps> = ({
           align-items: baseline;
         `}
       >
-        <NavButton
-          ref={workspaceNameRef}
-          onClick={() => setPanel("workspace")}
-          accent={"alpha"}
-        >
-          {`+${workspace.name}`}
-          {hasLocalWorkspaceChanges ? (
-            <span
-              css={`
-                color: green;
-              `}
-            >
-              {" has unsynced changes"}
-            </span>
-          ) : null}
-        </NavButton>
+        <div ref={workspaceNameRef}>
+          <WindupChildren>
+            <NavButton onClick={() => setPanel("workspace")} accent={"alpha"}>
+              {`+${workspace.name}`}
+              <span
+                css={css`
+                  color: ${(props) => props.theme.colours.gammaLine};
+                `}
+              >
+                {isSyncing
+                  ? " is syncing..."
+                  : hasLocalWorkspaceChanges
+                  ? " has unsynced changes"
+                  : null}
+              </span>
+            </NavButton>
+          </WindupChildren>
+        </div>
         <div
           css={`
             display: flex;
           `}
         >
-          <NavButton
-            onClick={() => setPanel(author ? "author" : "no-identity")}
-            ref={authorRef}
-            css={{ marginRight: 4 }}
-            accent={"beta"}
-            title={author ? author.address : undefined}
-          >
-            {author ? getAuthorShortname(author.address) : "Not Signed In"}
-          </NavButton>
+          <div ref={authorRef}>
+            <WindupChildren>
+              <NavButton
+                onClick={() => setPanel(author ? "author" : "no-identity")}
+                css={{ marginRight: 4 }}
+                accent={"beta"}
+                title={author ? author.address : undefined}
+              >
+                {author ? getAuthorShortname(author.address) : "Not Signed In"}
+              </NavButton>
+            </WindupChildren>
+          </div>
           <InternetClock />
         </div>
       </div>

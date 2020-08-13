@@ -22,7 +22,8 @@
     "relay-runtime": "^10.0.1",
     "styled-components": "^5.1.1",
     "typescript": "^3.9.7",
-    "use-internet-time": "^1.0.1"
+    "use-internet-time": "^1.0.1",
+    "windups": "^1.0.2"
   },
   "scripts": {
     "start": "react-scripts start",
