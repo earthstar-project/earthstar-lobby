@@ -10,6 +10,7 @@ import NavButton from "./NavButton";
 import ContextualPanel from "./ContextualPanel";
 import "styled-components/macro";
 import Button from "./Button";
+import MaxWidth from "./MaxWidth";
 
 type MessageProps = {
   document: Message_document;
@@ -92,45 +93,47 @@ const Message: React.FC<MessageProps> = ({
           ) : null}
         </ContextualPanel>
       ) : null}
-      <div
-        title={document.author.address}
-        css={`
-          padding: 12px 8px 0 8px;
-        `}
-      >
-        <span>
-          <b>{document.author.shortName}</b>
-        </span>{" "}
-        {author && author.address === document.author.address ? (
-          <NavButton
-            css={`
-              font-feature-settings: "tnum";
-              font-variant-numeric: tabular-nums;
-            `}
-            accent={"gamma"}
-            ref={buttonRef}
-            onClick={() => {
-              setOpenPanel((prev) => (prev === "none" ? "options" : "none"));
-            }}
-          >
-            {`${fromDate(new Date(document.timestamp / 1000))}`}
-          </NavButton>
-        ) : (
-          <span
-            css={`
-              font-feature-settings: "tnum";
-              font-variant-numeric: tabular-nums;
-            `}
-          >{`${fromDate(new Date(document.timestamp / 1000))}`}</span>
-        )}
-      </div>
-      <div
-        css={`
-          padding: 4px 8px 0 8px;
-        `}
-      >
-        {document.content}
-      </div>
+      <MaxWidth>
+        <div
+          title={document.author.address}
+          css={`
+            padding: 12px 8px 0 8px;
+          `}
+        >
+          <span>
+            <b>{document.author.shortName}</b>
+          </span>{" "}
+          {author && author.address === document.author.address ? (
+            <NavButton
+              css={`
+                font-feature-settings: "tnum";
+                font-variant-numeric: tabular-nums;
+              `}
+              accent={"gamma"}
+              ref={buttonRef}
+              onClick={() => {
+                setOpenPanel((prev) => (prev === "none" ? "options" : "none"));
+              }}
+            >
+              {`${fromDate(new Date(document.timestamp / 1000))}`}
+            </NavButton>
+          ) : (
+            <span
+              css={`
+                font-feature-settings: "tnum";
+                font-variant-numeric: tabular-nums;
+              `}
+            >{`${fromDate(new Date(document.timestamp / 1000))}`}</span>
+          )}
+        </div>
+        <div
+          css={`
+            padding: 4px 8px 0 8px;
+          `}
+        >
+          {document.content}
+        </div>
+      </MaxWidth>
     </div>
   );
 };

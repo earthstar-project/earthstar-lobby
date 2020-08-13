@@ -7,6 +7,7 @@ import { AuthorKeypair } from "earthstar";
 import Button from "./Button";
 import TextArea from "./TextArea";
 import { css } from "styled-components/macro";
+import MaxWidth from "./MaxWidth";
 
 type MessageComposerProps = {
   workspace: MessageComposer_workspace;
@@ -26,47 +27,49 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
   const path = `/lobby/~${author.address}/${Date.now()}`;
 
   return (
-    <div
-      css={css`
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        padding: 8px;
-      `}
-    >
-      <TextArea
-        placeholder={"Write a message"}
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
+    <MaxWidth>
+      <div
         css={css`
-          margin-bottom: 4px;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          padding: 8px;
         `}
-      />
-      <Button
-        onClick={() => {
-          SetMutation.commit(
-            relay.environment,
-            {
-              author,
-              document: {
-                content: message,
-                path,
-              },
-              workspace: workspace.address,
-            },
-            (result) => {
-              if (result.set.__typename === "SetDataSuccessResult") {
-                setHasLocalWorkspaceChanges(true);
-                setMessage("");
-              }
-            }
-          );
-          setMessage("");
-        }}
       >
-        {"Post"}
-      </Button>
-    </div>
+        <TextArea
+          placeholder={"Write a message"}
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          css={css`
+            margin-bottom: 4px;
+          `}
+        />
+        <Button
+          onClick={() => {
+            SetMutation.commit(
+              relay.environment,
+              {
+                author,
+                document: {
+                  content: message,
+                  path,
+                },
+                workspace: workspace.address,
+              },
+              (result) => {
+                if (result.set.__typename === "SetDataSuccessResult") {
+                  setHasLocalWorkspaceChanges(true);
+                  setMessage("");
+                }
+              }
+            );
+            setMessage("");
+          }}
+        >
+          {"Post"}
+        </Button>
+      </div>
+    </MaxWidth>
   );
 };
 

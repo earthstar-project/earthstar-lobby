@@ -14,6 +14,7 @@ import SyncMutation from "./mutations/SyncMutation";
 import { PUB_URL } from "./App";
 import ContextualPanel from "./ContextualPanel";
 import { WindupChildren } from "windups";
+import MaxWidth from "./MaxWidth";
 
 type StatusBarProps = {
   author: AuthorKeypair | null;
@@ -211,52 +212,56 @@ const StatusBar: React.FC<StatusBarProps> = ({
           )}
         </ContextualPanel>
       ) : null}
-      <div
-        css={`
-          display: flex;
-          justify-content: space-between;
-          padding: 12px 8px;
-          align-items: baseline;
-        `}
-      >
-        <div ref={workspaceNameRef}>
-          <WindupChildren>
-            <NavButton onClick={() => setPanel("workspace")} accent={"alpha"}>
-              {`+${workspace.name}`}
-              <span
-                css={css`
-                  color: ${(props) => props.theme.colours.gammaLine};
-                `}
-              >
-                {isSyncing
-                  ? " is syncing..."
-                  : hasLocalWorkspaceChanges
-                  ? " has unsynced changes"
-                  : null}
-              </span>
-            </NavButton>
-          </WindupChildren>
-        </div>
+      <MaxWidth>
         <div
           css={`
             display: flex;
+            justify-content: space-between;
+            padding: 12px 8px;
+            align-items: baseline;
           `}
         >
-          <div ref={authorRef}>
+          <div ref={workspaceNameRef}>
             <WindupChildren>
-              <NavButton
-                onClick={() => setPanel(author ? "author" : "no-identity")}
-                css={{ marginRight: 4 }}
-                accent={"beta"}
-                title={author ? author.address : undefined}
-              >
-                {author ? getAuthorShortname(author.address) : "Not Signed In"}
+              <NavButton onClick={() => setPanel("workspace")} accent={"alpha"}>
+                {`+${workspace.name}`}
+                <span
+                  css={css`
+                    color: ${(props) => props.theme.colours.gammaLine};
+                  `}
+                >
+                  {isSyncing
+                    ? " is syncing..."
+                    : hasLocalWorkspaceChanges
+                    ? " has unsynced changes"
+                    : null}
+                </span>
               </NavButton>
             </WindupChildren>
           </div>
-          <InternetClock />
+          <div
+            css={`
+              display: flex;
+            `}
+          >
+            <div ref={authorRef}>
+              <WindupChildren>
+                <NavButton
+                  onClick={() => setPanel(author ? "author" : "no-identity")}
+                  css={{ marginRight: 4 }}
+                  accent={"beta"}
+                  title={author ? author.address : undefined}
+                >
+                  {author
+                    ? getAuthorShortname(author.address)
+                    : "Not Signed In"}
+                </NavButton>
+              </WindupChildren>
+            </div>
+            <InternetClock />
+          </div>
         </div>
-      </div>
+      </MaxWidth>
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import React from "react";
 import { css } from "styled-components/macro";
 import { Accent } from "./themes";
+import MaxWidth from "./MaxWidth";
 
 type ContextPanelProps = {
   accentColour: Accent;
@@ -26,7 +27,7 @@ const ContextualPanel: React.FC<ContextPanelProps> = ({
         box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.06);
       `}
     >
-      {children}
+      <MaxWidth>{children}</MaxWidth>
       {pointsToRef && pointsToRef.current ? (
         <div
           css={css`

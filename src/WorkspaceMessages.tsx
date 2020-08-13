@@ -5,6 +5,7 @@ import { WorkspaceMessages_workspace } from "./__generated__/WorkspaceMessages_w
 import Message from "./Message";
 import { AuthorKeypair } from "earthstar";
 import { css } from "styled-components/macro";
+import MaxWidth from "./MaxWidth";
 
 type WorkspaceMessagesProps = {
   workspace: WorkspaceMessages_workspace;
@@ -69,7 +70,7 @@ const WorkspaceMessages: React.FC<WorkspaceMessagesProps> = ({
             </div>
             <ol
               css={css`
-                padding: 0;
+                padding: 8px 0;
                 margin: 0;
               `}
             >
@@ -82,12 +83,14 @@ const WorkspaceMessages: React.FC<WorkspaceMessagesProps> = ({
                       author={author}
                       document={doc}
                     />
-                    <hr
-                      css={css`
-                        border-top: 1px solid
-                          ${(props) => props.theme.colours.fgHint};
-                      `}
-                    />
+                    <MaxWidth>
+                      <hr
+                        css={css`
+                          border-top: 1px solid
+                            ${(props) => props.theme.colours.fgHint};
+                        `}
+                      />
+                    </MaxWidth>
                   </>
                 );
               })}
