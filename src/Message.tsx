@@ -104,7 +104,7 @@ const Message: React.FC<MessageProps> = ({
           `}
         >
           <span>
-            <b>{document.author.shortName}</b>
+            <b>{document.author.displayName || document.author.shortName}</b>
           </span>{" "}
           {author && author.address === document.author.address ? (
             <NavButton
@@ -158,6 +158,7 @@ export default createFragmentContainer(Message, {
         }
         author {
           address
+          displayName
           shortName
         }
       }

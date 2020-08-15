@@ -6,6 +6,7 @@ import { ConcreteRequest } from "relay-runtime";
 import { FragmentRefs } from "relay-runtime";
 export type AppQueryVariables = {
     workspace: string;
+    authorAddress: string;
 };
 export type AppQueryResponse = {
     readonly workspace: {
@@ -22,9 +23,10 @@ export type AppQuery = {
 /*
 query AppQuery(
   $workspace: String!
+  $authorAddress: String!
 ) {
   workspace(address: $workspace) {
-    ...StatusBar_workspace
+    ...StatusBar_workspace_3XuIvM
     ...WorkspaceMessages_workspace
     ...MessageComposer_workspace
     id
@@ -54,20 +56,25 @@ fragment Message_document on Document {
     }
     author {
       address
+      displayName
       shortName
       id
     }
   }
 }
 
-fragment StatusBar_workspace on Workspace {
+fragment StatusBar_workspace_3XuIvM on Workspace {
   address
   name
+  author(address: $authorAddress) {
+    displayName
+    id
+  }
 }
 
 fragment WorkspaceMessages_workspace on Workspace {
   address
-  documents(sortedBy: NEWEST) {
+  documents(sortedBy: NEWEST, pathPrefixes: ["/lobby"]) {
     __typename
     ...Message_document
     ... on ES4Document {
@@ -83,28 +90,38 @@ fragment WorkspaceMessages_workspace on Workspace {
 */
 
 const node: ConcreteRequest = (function(){
-var v0 = [
-  {
-    "defaultValue": null,
-    "kind": "LocalArgument",
-    "name": "workspace"
-  }
-],
-v1 = [
+var v0 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
+  "name": "authorAddress"
+},
+v1 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
+  "name": "workspace"
+},
+v2 = [
   {
     "kind": "Variable",
     "name": "address",
     "variableName": "workspace"
   }
 ],
-v2 = {
+v3 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "address",
   "storageKey": null
 },
-v3 = {
+v4 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "displayName",
+  "storageKey": null
+},
+v5 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
@@ -113,21 +130,30 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": [
+      (v0/*: any*/),
+      (v1/*: any*/)
+    ],
     "kind": "Fragment",
     "metadata": null,
     "name": "AppQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v2/*: any*/),
         "concreteType": "Workspace",
         "kind": "LinkedField",
         "name": "workspace",
         "plural": false,
         "selections": [
           {
-            "args": null,
+            "args": [
+              {
+                "kind": "Variable",
+                "name": "authorAddress",
+                "variableName": "authorAddress"
+              }
+            ],
             "kind": "FragmentSpread",
             "name": "StatusBar_workspace"
           },
@@ -150,19 +176,22 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": [
+      (v1/*: any*/),
+      (v0/*: any*/)
+    ],
     "kind": "Operation",
     "name": "AppQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v2/*: any*/),
         "concreteType": "Workspace",
         "kind": "LinkedField",
         "name": "workspace",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v3/*: any*/),
           {
             "alias": null,
             "args": null,
@@ -173,6 +202,32 @@ return {
           {
             "alias": null,
             "args": [
+              {
+                "kind": "Variable",
+                "name": "address",
+                "variableName": "authorAddress"
+              }
+            ],
+            "concreteType": "Author",
+            "kind": "LinkedField",
+            "name": "author",
+            "plural": false,
+            "selections": [
+              (v4/*: any*/),
+              (v5/*: any*/)
+            ],
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "pathPrefixes",
+                "value": [
+                  "/lobby"
+                ]
+              },
               {
                 "kind": "Literal",
                 "name": "sortedBy",
@@ -205,7 +260,7 @@ return {
                     "name": "content",
                     "storageKey": null
                   },
-                  (v3/*: any*/),
+                  (v5/*: any*/),
                   {
                     "alias": null,
                     "args": null,
@@ -228,8 +283,8 @@ return {
                     "name": "workspace",
                     "plural": false,
                     "selections": [
-                      (v2/*: any*/),
-                      (v3/*: any*/)
+                      (v3/*: any*/),
+                      (v5/*: any*/)
                     ],
                     "storageKey": null
                   },
@@ -241,7 +296,8 @@ return {
                     "name": "author",
                     "plural": false,
                     "selections": [
-                      (v2/*: any*/),
+                      (v3/*: any*/),
+                      (v4/*: any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -249,7 +305,7 @@ return {
                         "name": "shortName",
                         "storageKey": null
                       },
-                      (v3/*: any*/)
+                      (v5/*: any*/)
                     ],
                     "storageKey": null
                   }
@@ -260,29 +316,29 @@ return {
               {
                 "kind": "InlineFragment",
                 "selections": [
-                  (v3/*: any*/)
+                  (v5/*: any*/)
                 ],
                 "type": "Node",
                 "abstractKey": "__isNode"
               }
             ],
-            "storageKey": "documents(sortedBy:\"NEWEST\")"
+            "storageKey": "documents(pathPrefixes:[\"/lobby\"],sortedBy:\"NEWEST\")"
           },
-          (v3/*: any*/)
+          (v5/*: any*/)
         ],
         "storageKey": null
       }
     ]
   },
   "params": {
-    "cacheID": "3d4e8fd225e6e5c6539f5621f8b9d52b",
+    "cacheID": "2968c31d5635544637e4d9231284f859",
     "id": null,
     "metadata": {},
     "name": "AppQuery",
     "operationKind": "query",
-    "text": "query AppQuery(\n  $workspace: String!\n) {\n  workspace(address: $workspace) {\n    ...StatusBar_workspace\n    ...WorkspaceMessages_workspace\n    ...MessageComposer_workspace\n    id\n  }\n}\n\nfragment MessageComposer_workspace on Workspace {\n  address\n}\n\nfragment MessageEditor_document on ES4Document {\n  content\n}\n\nfragment Message_document on Document {\n  __isDocument: __typename\n  __typename\n  ... on ES4Document {\n    ...MessageEditor_document\n    id\n    content\n    path\n    timestamp\n    workspace {\n      address\n      id\n    }\n    author {\n      address\n      shortName\n      id\n    }\n  }\n}\n\nfragment StatusBar_workspace on Workspace {\n  address\n  name\n}\n\nfragment WorkspaceMessages_workspace on Workspace {\n  address\n  documents(sortedBy: NEWEST) {\n    __typename\n    ...Message_document\n    ... on ES4Document {\n      id\n      timestamp\n    }\n    ... on Node {\n      __isNode: __typename\n      id\n    }\n  }\n}\n"
+    "text": "query AppQuery(\n  $workspace: String!\n  $authorAddress: String!\n) {\n  workspace(address: $workspace) {\n    ...StatusBar_workspace_3XuIvM\n    ...WorkspaceMessages_workspace\n    ...MessageComposer_workspace\n    id\n  }\n}\n\nfragment MessageComposer_workspace on Workspace {\n  address\n}\n\nfragment MessageEditor_document on ES4Document {\n  content\n}\n\nfragment Message_document on Document {\n  __isDocument: __typename\n  __typename\n  ... on ES4Document {\n    ...MessageEditor_document\n    id\n    content\n    path\n    timestamp\n    workspace {\n      address\n      id\n    }\n    author {\n      address\n      displayName\n      shortName\n      id\n    }\n  }\n}\n\nfragment StatusBar_workspace_3XuIvM on Workspace {\n  address\n  name\n  author(address: $authorAddress) {\n    displayName\n    id\n  }\n}\n\nfragment WorkspaceMessages_workspace on Workspace {\n  address\n  documents(sortedBy: NEWEST, pathPrefixes: [\"/lobby\"]) {\n    __typename\n    ...Message_document\n    ... on ES4Document {\n      id\n      timestamp\n    }\n    ... on Node {\n      __isNode: __typename\n      id\n    }\n  }\n}\n"
   }
 };
 })();
-(node as any).hash = '08bcc2b19a69e27c434b6eb74dcd9fe1';
+(node as any).hash = 'e33f202f111e6a8d08e3ea33c636ba2f';
 export default node;

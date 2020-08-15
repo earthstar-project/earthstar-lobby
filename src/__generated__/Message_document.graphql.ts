@@ -15,6 +15,7 @@ export type Message_document = {
     };
     readonly author: {
         readonly address: string;
+        readonly displayName: string | null;
         readonly shortName: string;
     };
     readonly " $fragmentRefs": FragmentRefs<"MessageEditor_document">;
@@ -110,6 +111,13 @@ return {
               "alias": null,
               "args": null,
               "kind": "ScalarField",
+              "name": "displayName",
+              "storageKey": null
+            },
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
               "name": "shortName",
               "storageKey": null
             }
@@ -130,5 +138,5 @@ return {
   "abstractKey": "__isDocument"
 };
 })();
-(node as any).hash = '82d45c7f90df40992dceef14e3a60935';
+(node as any).hash = '19f5b84b1983a5dc6675cab84a99828d';
 export default node;

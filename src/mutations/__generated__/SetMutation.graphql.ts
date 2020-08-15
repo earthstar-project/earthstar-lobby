@@ -95,6 +95,7 @@ fragment Message_document on Document {
     }
     author {
       address
+      displayName
       shortName
       id
     }
@@ -103,7 +104,7 @@ fragment Message_document on Document {
 
 fragment WorkspaceMessages_workspace on Workspace {
   address
-  documents(sortedBy: NEWEST) {
+  documents(sortedBy: NEWEST, pathPrefixes: ["/lobby"]) {
     __typename
     ...Message_document
     ... on ES4Document {
@@ -222,6 +223,13 @@ v10 = {
   "plural": false,
   "selections": [
     (v9/*: any*/),
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "displayName",
+      "storageKey": null
+    },
     {
       "alias": null,
       "args": null,
@@ -363,6 +371,13 @@ return {
                             "args": [
                               {
                                 "kind": "Literal",
+                                "name": "pathPrefixes",
+                                "value": [
+                                  "/lobby"
+                                ]
+                              },
+                              {
+                                "kind": "Literal",
                                 "name": "sortedBy",
                                 "value": "NEWEST"
                               }
@@ -401,7 +416,7 @@ return {
                               },
                               (v11/*: any*/)
                             ],
-                            "storageKey": "documents(sortedBy:\"NEWEST\")"
+                            "storageKey": "documents(pathPrefixes:[\"/lobby\"],sortedBy:\"NEWEST\")"
                           }
                         ],
                         "storageKey": null
@@ -425,12 +440,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "ead0c83b9f00fabd5fff0fe02f478800",
+    "cacheID": "0f524393dafe19a3050fb83cbf7d0c69",
     "id": null,
     "metadata": {},
     "name": "SetMutation",
     "operationKind": "mutation",
-    "text": "mutation SetMutation(\n  $author: AuthorInput!\n  $document: NewDocumentInput!\n  $workspace: String!\n) {\n  set(author: $author, document: $document, workspace: $workspace) {\n    __typename\n    ... on DocumentRejectedError {\n      reason\n    }\n    ... on SetDataSuccessResult {\n      document {\n        __typename\n        ...Message_document\n        ... on ES4Document {\n          id\n          workspace {\n            ...WorkspaceMessages_workspace\n            id\n          }\n        }\n        ... on Node {\n          __isNode: __typename\n          id\n        }\n      }\n    }\n  }\n}\n\nfragment MessageEditor_document on ES4Document {\n  content\n}\n\nfragment Message_document on Document {\n  __isDocument: __typename\n  __typename\n  ... on ES4Document {\n    ...MessageEditor_document\n    id\n    content\n    path\n    timestamp\n    workspace {\n      address\n      id\n    }\n    author {\n      address\n      shortName\n      id\n    }\n  }\n}\n\nfragment WorkspaceMessages_workspace on Workspace {\n  address\n  documents(sortedBy: NEWEST) {\n    __typename\n    ...Message_document\n    ... on ES4Document {\n      id\n      timestamp\n    }\n    ... on Node {\n      __isNode: __typename\n      id\n    }\n  }\n}\n"
+    "text": "mutation SetMutation(\n  $author: AuthorInput!\n  $document: NewDocumentInput!\n  $workspace: String!\n) {\n  set(author: $author, document: $document, workspace: $workspace) {\n    __typename\n    ... on DocumentRejectedError {\n      reason\n    }\n    ... on SetDataSuccessResult {\n      document {\n        __typename\n        ...Message_document\n        ... on ES4Document {\n          id\n          workspace {\n            ...WorkspaceMessages_workspace\n            id\n          }\n        }\n        ... on Node {\n          __isNode: __typename\n          id\n        }\n      }\n    }\n  }\n}\n\nfragment MessageEditor_document on ES4Document {\n  content\n}\n\nfragment Message_document on Document {\n  __isDocument: __typename\n  __typename\n  ... on ES4Document {\n    ...MessageEditor_document\n    id\n    content\n    path\n    timestamp\n    workspace {\n      address\n      id\n    }\n    author {\n      address\n      displayName\n      shortName\n      id\n    }\n  }\n}\n\nfragment WorkspaceMessages_workspace on Workspace {\n  address\n  documents(sortedBy: NEWEST, pathPrefixes: [\"/lobby\"]) {\n    __typename\n    ...Message_document\n    ... on ES4Document {\n      id\n      timestamp\n    }\n    ... on Node {\n      __isNode: __typename\n      id\n    }\n  }\n}\n"
   }
 };
 })();

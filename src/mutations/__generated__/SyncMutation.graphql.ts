@@ -102,6 +102,7 @@ fragment Message_document on Document {
     }
     author {
       address
+      displayName
       shortName
       id
     }
@@ -110,7 +111,7 @@ fragment Message_document on Document {
 
 fragment WorkspaceMessages_workspace on Workspace {
   address
-  documents(sortedBy: NEWEST) {
+  documents(sortedBy: NEWEST, pathPrefixes: ["/lobby"]) {
     __typename
     ...Message_document
     ... on ES4Document {
@@ -266,6 +267,13 @@ v12 = {
       "args": [
         {
           "kind": "Literal",
+          "name": "pathPrefixes",
+          "value": [
+            "/lobby"
+          ]
+        },
+        {
+          "kind": "Literal",
           "name": "sortedBy",
           "value": "NEWEST"
         }
@@ -331,6 +339,13 @@ v12 = {
                   "alias": null,
                   "args": null,
                   "kind": "ScalarField",
+                  "name": "displayName",
+                  "storageKey": null
+                },
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
                   "name": "shortName",
                   "storageKey": null
                 },
@@ -351,7 +366,7 @@ v12 = {
           "abstractKey": "__isNode"
         }
       ],
-      "storageKey": "documents(sortedBy:\"NEWEST\")"
+      "storageKey": "documents(pathPrefixes:[\"/lobby\"],sortedBy:\"NEWEST\")"
     },
     (v11/*: any*/)
   ],
@@ -447,12 +462,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "ee98193a5bc74085f728deff52fb997d",
+    "cacheID": "40cb291de47efee19545daa8eec00f3d",
     "id": null,
     "metadata": {},
     "name": "SyncMutation",
     "operationKind": "mutation",
-    "text": "mutation SyncMutation(\n  $workspace: String!\n  $pubUrl: String!\n  $format: SyncFormatEnum!\n) {\n  syncWithPub(workspace: $workspace, pubUrl: $pubUrl, format: $format) {\n    __typename\n    ... on SyncError {\n      reason\n    }\n    ... on SyncSuccess {\n      syncedWorkspace {\n        ...WorkspaceMessages_workspace\n        id\n      }\n    }\n    ... on DetailedSyncSuccess {\n      pushed {\n        rejectedCount\n        ignoredCount\n        acceptedCount\n      }\n      pulled {\n        rejectedCount\n        ignoredCount\n        acceptedCount\n      }\n      syncedWorkspace {\n        ...WorkspaceMessages_workspace\n        id\n      }\n    }\n  }\n}\n\nfragment MessageEditor_document on ES4Document {\n  content\n}\n\nfragment Message_document on Document {\n  __isDocument: __typename\n  __typename\n  ... on ES4Document {\n    ...MessageEditor_document\n    id\n    content\n    path\n    timestamp\n    workspace {\n      address\n      id\n    }\n    author {\n      address\n      shortName\n      id\n    }\n  }\n}\n\nfragment WorkspaceMessages_workspace on Workspace {\n  address\n  documents(sortedBy: NEWEST) {\n    __typename\n    ...Message_document\n    ... on ES4Document {\n      id\n      timestamp\n    }\n    ... on Node {\n      __isNode: __typename\n      id\n    }\n  }\n}\n"
+    "text": "mutation SyncMutation(\n  $workspace: String!\n  $pubUrl: String!\n  $format: SyncFormatEnum!\n) {\n  syncWithPub(workspace: $workspace, pubUrl: $pubUrl, format: $format) {\n    __typename\n    ... on SyncError {\n      reason\n    }\n    ... on SyncSuccess {\n      syncedWorkspace {\n        ...WorkspaceMessages_workspace\n        id\n      }\n    }\n    ... on DetailedSyncSuccess {\n      pushed {\n        rejectedCount\n        ignoredCount\n        acceptedCount\n      }\n      pulled {\n        rejectedCount\n        ignoredCount\n        acceptedCount\n      }\n      syncedWorkspace {\n        ...WorkspaceMessages_workspace\n        id\n      }\n    }\n  }\n}\n\nfragment MessageEditor_document on ES4Document {\n  content\n}\n\nfragment Message_document on Document {\n  __isDocument: __typename\n  __typename\n  ... on ES4Document {\n    ...MessageEditor_document\n    id\n    content\n    path\n    timestamp\n    workspace {\n      address\n      id\n    }\n    author {\n      address\n      displayName\n      shortName\n      id\n    }\n  }\n}\n\nfragment WorkspaceMessages_workspace on Workspace {\n  address\n  documents(sortedBy: NEWEST, pathPrefixes: [\"/lobby\"]) {\n    __typename\n    ...Message_document\n    ... on ES4Document {\n      id\n      timestamp\n    }\n    ... on Node {\n      __isNode: __typename\n      id\n    }\n  }\n}\n"
   }
 };
 })();

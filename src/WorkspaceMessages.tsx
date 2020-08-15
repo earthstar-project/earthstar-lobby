@@ -109,7 +109,7 @@ export default createFragmentContainer(WorkspaceMessages, {
   workspace: graphql`
     fragment WorkspaceMessages_workspace on Workspace {
       address
-      documents(sortedBy: NEWEST) {
+      documents(sortedBy: NEWEST, pathPrefixes: ["/lobby"]) {
         ...Message_document
         ... on ES4Document {
           id

@@ -39,6 +39,13 @@ const node: ReaderFragment = {
       "args": [
         {
           "kind": "Literal",
+          "name": "pathPrefixes",
+          "value": [
+            "/lobby"
+          ]
+        },
+        {
+          "kind": "Literal",
           "name": "sortedBy",
           "value": "NEWEST"
         }
@@ -75,11 +82,11 @@ const node: ReaderFragment = {
           "abstractKey": null
         }
       ],
-      "storageKey": "documents(sortedBy:\"NEWEST\")"
+      "storageKey": "documents(pathPrefixes:[\"/lobby\"],sortedBy:\"NEWEST\")"
     }
   ],
   "type": "Workspace",
   "abstractKey": null
 };
-(node as any).hash = '9449049daf5f25622331816a06189636';
+(node as any).hash = 'c3f30e9983d5a8a9db61022d77452bf5';
 export default node;

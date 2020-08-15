@@ -7,6 +7,9 @@ import { FragmentRefs } from "relay-runtime";
 export type StatusBar_workspace = {
     readonly address: string;
     readonly name: string;
+    readonly author: {
+        readonly displayName: string | null;
+    } | null;
     readonly " $refType": "StatusBar_workspace";
 };
 export type StatusBar_workspace$data = StatusBar_workspace;
@@ -18,7 +21,13 @@ export type StatusBar_workspace$key = {
 
 
 const node: ReaderFragment = {
-  "argumentDefinitions": [],
+  "argumentDefinitions": [
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "authorAddress"
+    }
+  ],
   "kind": "Fragment",
   "metadata": null,
   "name": "StatusBar_workspace",
@@ -36,10 +45,34 @@ const node: ReaderFragment = {
       "kind": "ScalarField",
       "name": "name",
       "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "address",
+          "variableName": "authorAddress"
+        }
+      ],
+      "concreteType": "Author",
+      "kind": "LinkedField",
+      "name": "author",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "displayName",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
     }
   ],
   "type": "Workspace",
   "abstractKey": null
 };
-(node as any).hash = '3a2a989b5bd0e194ca5cb4aa3b27e92c';
+(node as any).hash = 'ffca70c1f098492178c3aebdba31e6d5';
 export default node;

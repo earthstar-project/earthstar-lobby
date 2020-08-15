@@ -15,6 +15,8 @@ import { PUB_URL } from "./constants";
 import ContextualPanel from "./ContextualPanel";
 import { WindupChildren } from "windups";
 import MaxWidth from "./MaxWidth";
+import SetMutation from "./mutations/SetMutation";
+import TextInput from "./TextInput";
 
 type StatusBarProps = {
   author: AuthorKeypair | null;
@@ -26,7 +28,7 @@ type StatusBarProps = {
   setHasLocalWorkspaceChanges: (hasChanges: boolean) => void;
 };
 
-type Panel = "workspace" | "author" | "no-identity";
+type Panel = "workspace" | "author" | "author-management" | "no-identity";
 
 const StatusBar: React.FC<StatusBarProps> = ({
   workspace,
@@ -40,22 +42,11 @@ const StatusBar: React.FC<StatusBarProps> = ({
   const [openPanel, setOpenPanel] = useState<Panel | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
 
-  // Open the selected panel, or toggle if it's already open
-  const setPanel = (panel: Panel | null) => {
-    setOpenPanel((prev) => {
-      if (prev === panel) {
-        return null;
-      }
-
-      return panel;
-    });
-  };
-
   const isAuthorDefined = author !== null;
 
   // Close the contextual panel if the author changes (i.e. signs out or in)
   useEffect(() => {
-    setPanel(null);
+    setOpenPanel(null);
   }, [isAuthorDefined]);
 
   // What to do when a keypair is uploaded
@@ -100,6 +91,26 @@ const StatusBar: React.FC<StatusBarProps> = ({
 
   // Creates a fn to trigger a virtual download of the keypair
   const download = useDownload(JSON.stringify(author), "keypair.json");
+
+  // State for display name
+  const [newDisplayName, setNewDisplayName] = useState(
+    workspace.author?.displayName || ""
+  );
+
+  const setDisplayName = () => {
+    if (!author) {
+      return;
+    }
+
+    SetMutation.commit(relay.environment, {
+      author,
+      document: {
+        content: newDisplayName,
+        path: `/about/${author.address}/name`,
+      },
+      workspace: workspace.address,
+    });
+  };
 
   // Using these to make the contextual panel's arrow point to the right place
   const workspaceNameRef = useRef(null);
@@ -193,11 +204,37 @@ const StatusBar: React.FC<StatusBarProps> = ({
                   }
 
                   setAuthor(keypair);
-                  setPanel(null);
+                  setOpenPanel(null);
                 }}
               >
                 Make a new one
               </Button>
+            </div>
+          ) : openPanel === "author-management" ? (
+            <div
+              css={`
+                display: flex;
+                flex-direction: column;
+                align-items: flex-end;
+              `}
+            >
+              <TextInput
+                placeholder={"Enter a display name"}
+                value={newDisplayName}
+                onChange={(e) => {
+                  setNewDisplayName(e.target.value);
+                }}
+              />
+              <Button
+                onClick={() => {
+                  setOpenPanel(null);
+                  setDisplayName();
+                }}
+              >
+                Set display name
+              </Button>
+              <p>or</p>
+              <Button onClick={download}>Download your keypair.json</Button>
             </div>
           ) : (
             <div
@@ -205,12 +242,14 @@ const StatusBar: React.FC<StatusBarProps> = ({
                 text-align: right;
               `}
             >
-              <Button onClick={download}>Download your keypair.json</Button>
+              <Button onClick={() => setOpenPanel("author-management")}>
+                Manage your identity
+              </Button>
               {" or "}
               <Button
                 onClick={() => {
                   setAuthor(null);
-                  setPanel(null);
+                  setOpenPanel(null);
                 }}
               >
                 Sign out
@@ -231,7 +270,17 @@ const StatusBar: React.FC<StatusBarProps> = ({
           <div ref={workspaceNameRef}>
             {/* Animate the text whenever the value changes to draw the eye */}
             <WindupChildren>
-              <NavButton onClick={() => setPanel("workspace")} accent={"alpha"}>
+              <NavButton
+                onClick={() =>
+                  setOpenPanel((prev) => {
+                    if (prev === "workspace") {
+                      return null;
+                    }
+                    return "workspace";
+                  })
+                }
+                accent={"alpha"}
+              >
                 {`+${workspace.name}`}
                 <span
                   css={css`
@@ -256,13 +305,28 @@ const StatusBar: React.FC<StatusBarProps> = ({
               {/* Animate the text whenever the value changes to draw the eye */}
               <WindupChildren>
                 <NavButton
-                  onClick={() => setPanel(author ? "author" : "no-identity")}
+                  onClick={() =>
+                    setOpenPanel((prev) => {
+                      const authGroup = [
+                        "author",
+                        "no-identity",
+                        "author-management",
+                      ] as Panel[];
+
+                      if (prev !== null && authGroup.includes(prev)) {
+                        return null;
+                      }
+
+                      return author ? "author" : "no-identity";
+                    })
+                  }
                   css={{ marginRight: 4 }}
                   accent={"beta"}
                   title={author ? author.address : undefined}
                 >
                   {author
-                    ? getAuthorShortname(author.address)
+                    ? workspace.author?.displayName ||
+                      getAuthorShortname(author.address)
                     : "Not Signed In"}
                 </NavButton>
               </WindupChildren>
@@ -279,9 +343,13 @@ const StatusBar: React.FC<StatusBarProps> = ({
 // This declares which data StatusBar wants from Relay
 export default createFragmentContainer(StatusBar, {
   workspace: graphql`
-    fragment StatusBar_workspace on Workspace {
+    fragment StatusBar_workspace on Workspace
+      @argumentDefinitions(authorAddress: { type: "String!" }) {
       address
       name
+      author(address: $authorAddress) {
+        displayName
+      }
     }
   `,
 });
