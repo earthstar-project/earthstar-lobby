@@ -102,14 +102,20 @@ const StatusBar: React.FC<StatusBarProps> = ({
       return;
     }
 
-    SetMutation.commit(relay.environment, {
-      author,
-      document: {
-        content: newDisplayName,
-        path: `/about/${author.address}/name`,
+    SetMutation.commit(
+      relay.environment,
+      {
+        author,
+        document: {
+          content: newDisplayName,
+          path: `/about/${author.address}/name`,
+        },
+        workspace: workspace.address,
       },
-      workspace: workspace.address,
-    });
+      () => {
+        setHasLocalWorkspaceChanges(true);
+      }
+    );
   };
 
   // Using these to make the contextual panel's arrow point to the right place
@@ -218,21 +224,23 @@ const StatusBar: React.FC<StatusBarProps> = ({
                 align-items: flex-end;
               `}
             >
-              <TextInput
-                placeholder={"Enter a display name"}
-                value={newDisplayName}
-                onChange={(e) => {
-                  setNewDisplayName(e.target.value);
-                }}
-              />
-              <Button
-                onClick={() => {
-                  setOpenPanel(null);
-                  setDisplayName();
-                }}
-              >
-                Set display name
-              </Button>
+              <div>
+                <TextInput
+                  placeholder={"Enter a display name"}
+                  value={newDisplayName}
+                  onChange={(e) => {
+                    setNewDisplayName(e.target.value);
+                  }}
+                />
+                <Button
+                  onClick={() => {
+                    setOpenPanel(null);
+                    setDisplayName();
+                  }}
+                >
+                  Set display name
+                </Button>
+              </div>
               <p>or</p>
               <Button onClick={download}>Download your keypair.json</Button>
             </div>
