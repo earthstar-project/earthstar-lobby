@@ -11,6 +11,9 @@ import ContextualPanel from "./ContextualPanel";
 import "styled-components/macro";
 import Button from "./Button";
 import MaxWidth from "./MaxWidth";
+import AuthorIdenticon from "./AuthorIdenticon";
+import { getAuthorShortname } from "./util/handy";
+import { css } from "styled-components/macro";
 
 type MessageProps = {
   document: Message_document;
@@ -76,7 +79,7 @@ const Message: React.FC<MessageProps> = ({
               }}
             />
           ) : author && author.address === document.author.address ? (
-            <div>
+            <div css={"text-align: right"}>
               <Button onClick={() => setOpenPanel("editing")}>{"Edit"}</Button>
               {" or "}
               <Button
@@ -101,33 +104,48 @@ const Message: React.FC<MessageProps> = ({
           title={document.author.address}
           css={`
             padding: 12px 8px 0 8px;
+            align-items: baseline;
           `}
         >
           <span>
-            <b>{document.author.displayName || document.author.shortName}</b>
-          </span>{" "}
-          {author && author.address === document.author.address ? (
-            <NavButton
-              css={`
-                font-feature-settings: "tnum";
-                font-variant-numeric: tabular-nums;
-              `}
-              accent={"gamma"}
-              ref={buttonRef}
-              onClick={() => {
-                setOpenPanel((prev) => (prev === "none" ? "options" : "none"));
-              }}
-            >
-              {`${fromDate(new Date(document.timestamp / 1000))}`}
-            </NavButton>
-          ) : (
+            <b>{document.author.displayName || document.author.shortName}</b>{" "}
             <span
-              css={`
-                font-feature-settings: "tnum";
-                font-variant-numeric: tabular-nums;
+              css={css`
+                color: ${(props) => props.theme.colours.fgHint};
               `}
-            >{`${fromDate(new Date(document.timestamp / 1000))}`}</span>
-          )}
+            >
+              {document.author.displayName
+                ? getAuthorShortname(document.author.address)
+                : ""}{" "}
+            </span>
+            <AuthorIdenticon address={document.author.address} />
+          </span>{" "}
+          <span
+            css={css`
+              color: ${(props) => props.theme.colours.fgHint};
+              font-feature-settings: "tnum";
+              font-variant-numeric: tabular-nums;
+            `}
+          >
+            {author && author.address === document.author.address ? (
+              <NavButton
+                css={css`
+                  color: ${(props) => props.theme.colours.fgHint};
+                `}
+                accent={"gamma"}
+                ref={buttonRef}
+                onClick={() => {
+                  setOpenPanel((prev) =>
+                    prev === "none" ? "options" : "none"
+                  );
+                }}
+              >
+                {`${fromDate(new Date(document.timestamp / 1000))}`}
+              </NavButton>
+            ) : (
+              `${fromDate(new Date(document.timestamp / 1000))}`
+            )}
+          </span>
         </div>
         <div
           css={`

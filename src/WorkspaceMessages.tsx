@@ -58,7 +58,7 @@ const WorkspaceMessages: React.FC<WorkspaceMessagesProps> = ({
                 z-index: 0;
                 background: ${(props) => props.theme.colours.bg};
                 border-bottom: 1px solid
-                  ${(props) => props.theme.colours.fgHint};
+                  ${(props) => props.theme.colours.bgHint};
                 padding: 12px 8px;
                 display: flex;
                 justify-content: center;
@@ -88,7 +88,7 @@ const WorkspaceMessages: React.FC<WorkspaceMessagesProps> = ({
                       <hr
                         css={css`
                           border-top: 1px solid
-                            ${(props) => props.theme.colours.fgHint};
+                            ${(props) => props.theme.colours.bgHint};
                         `}
                       />
                     </MaxWidth>

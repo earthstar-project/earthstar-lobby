@@ -17,6 +17,7 @@ import { WindupChildren } from "windups";
 import MaxWidth from "./MaxWidth";
 import SetMutation from "./mutations/SetMutation";
 import TextInput from "./TextInput";
+import AuthorIdenticon from "./AuthorIdenticon";
 
 type StatusBarProps = {
   author: AuthorKeypair | null;
@@ -93,9 +94,7 @@ const StatusBar: React.FC<StatusBarProps> = ({
   const download = useDownload(JSON.stringify(author), "keypair.json");
 
   // State for display name
-  const [newDisplayName, setNewDisplayName] = useState(
-    workspace.author?.displayName || ""
-  );
+  const [newDisplayName, setNewDisplayName] = useState("");
 
   const setDisplayName = () => {
     if (!author) {
@@ -141,7 +140,7 @@ const StatusBar: React.FC<StatusBarProps> = ({
         z-index: 1;
         top: 0;
         background: ${(props) => props.theme.colours.bg};
-        border-bottom: 1px solid ${(props) => props.theme.colours.fgHint};
+        border-bottom: 1px solid ${(props) => props.theme.colours.bgHint};
         box-shadow: 2px 2px 4px 4px rgba(0, 0, 0, 0.04);
       `}
       ref={measuredRef}
@@ -309,7 +308,12 @@ const StatusBar: React.FC<StatusBarProps> = ({
               display: flex;
             `}
           >
-            <div ref={authorRef}>
+            <div
+              ref={authorRef}
+              css={`
+                margin-right: 4px;
+              `}
+            >
               {/* Animate the text whenever the value changes to draw the eye */}
               <WindupChildren>
                 <NavButton
@@ -333,10 +337,10 @@ const StatusBar: React.FC<StatusBarProps> = ({
                   title={author ? author.address : undefined}
                 >
                   {author
-                    ? workspace.author?.displayName ||
-                      getAuthorShortname(author.address)
+                    ? getAuthorShortname(author.address)
                     : "Not Signed In"}
                 </NavButton>
+                {author ? <AuthorIdenticon address={author.address} /> : null}
               </WindupChildren>
             </div>
             {/* Welcome to the new millennium */}
@@ -351,13 +355,9 @@ const StatusBar: React.FC<StatusBarProps> = ({
 // This declares which data StatusBar wants from Relay
 export default createFragmentContainer(StatusBar, {
   workspace: graphql`
-    fragment StatusBar_workspace on Workspace
-      @argumentDefinitions(authorAddress: { type: "String!" }) {
+    fragment StatusBar_workspace on Workspace {
       address
       name
-      author(address: $authorAddress) {
-        displayName
-      }
     }
   `,
 });
@@ -367,9 +367,10 @@ function InternetClock() {
 
   return (
     <div
-      css={`
+      css={css`
         font-feature-settings: "tnum";
         font-variant-numeric: tabular-nums;
+        color: ${(props) => props.theme.colours.fgHint};
       `}
     >
       {time}

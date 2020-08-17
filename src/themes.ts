@@ -7,8 +7,8 @@ export type Accent = "alpha" | "beta" | "gamma";
 export const lightTheme: ThemeWithoutFont = {
   colours: {
     fg: "black",
-    fgHint: "#B9B78C",
-    bgHint: "white",
+    fgHint: "#76684D",
+    bgHint: "#D9D7AE",
     bg: "#FFFBEF",
     alpha: "#F0E5CE",
     beta: "#D0C3D1",
@@ -16,6 +16,7 @@ export const lightTheme: ThemeWithoutFont = {
     alphaLine: "#AE9D7B",
     betaLine: "#8F6493",
     gammaLine: "#3BAE54",
+    inputBg: "white",
   },
 };
 

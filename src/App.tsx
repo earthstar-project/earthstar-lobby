@@ -99,11 +99,11 @@ const App: React.FC = () => {
       <QueryRenderer<AppQuery>
         environment={env}
         query={graphql`
-          query AppQuery($workspace: String!, $authorAddress: String!) {
+          query AppQuery($workspace: String!) {
             workspace(address: $workspace) {
               # https://graphql.org/learn/queries/#fragments
               # Components declare their own data dependencies independently
-              ...StatusBar_workspace @arguments(authorAddress: $authorAddress)
+              ...StatusBar_workspace
               ...WorkspaceMessages_workspace
               ...MessageComposer_workspace
             }
@@ -112,7 +112,6 @@ const App: React.FC = () => {
         variables={{
           // Passed into the query above
           workspace: workspaceAddr,
-          authorAddress: author?.address || "",
         }}
         render={({ error, props }) => {
           if (error) {
