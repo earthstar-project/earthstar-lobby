@@ -42,6 +42,7 @@ const StatusBar: React.FC<StatusBarProps> = ({
 }) => {
   const [openPanel, setOpenPanel] = useState<Panel | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [tempMessage, setTempMessage] = useState<string | null>(null);
 
   const isAuthorDefined = author !== null;
 
@@ -133,6 +134,18 @@ const StatusBar: React.FC<StatusBarProps> = ({
     [prevOpenPanel, openPanel, setHeight]
   );
 
+  useEffect(() => {
+    if (tempMessage) {
+      const timeout = setTimeout(() => {
+        setTempMessage(null);
+      }, 3000);
+
+      return () => {
+        clearTimeout(timeout);
+      };
+    }
+  }, [tempMessage]);
+
   return (
     <div
       css={css`
@@ -163,10 +176,50 @@ const StatusBar: React.FC<StatusBarProps> = ({
                       workspace: workspace.address,
                       format: "GRAPHQL",
                     },
-                    () => {
+                    (res) => {
                       console.log("Sync Complete ✅");
                       setHasLocalWorkspaceChanges(false);
                       setIsSyncing(false);
+
+                      if (
+                        res.syncWithPub.__typename !== "DetailedSyncSuccess"
+                      ) {
+                        return;
+                      }
+
+                      if (
+                        res.syncWithPub.pulled.acceptedCount === 0 &&
+                        res.syncWithPub.pushed.acceptedCount === 0
+                      ) {
+                        setTempMessage("No updates.");
+                        return;
+                      }
+
+                      if (res.syncWithPub.pulled.acceptedCount === 0) {
+                        setTempMessage(
+                          `Pushed ${
+                            res.syncWithPub.pushed.acceptedCount
+                          } update${
+                            res.syncWithPub.pushed.acceptedCount > 1 ? "s" : ""
+                          }.`
+                        );
+                        return;
+                      }
+
+                      if (res.syncWithPub.pushed.acceptedCount === 0) {
+                        setTempMessage(
+                          `Pulled ${
+                            res.syncWithPub.pulled.acceptedCount
+                          } update${
+                            res.syncWithPub.pulled.acceptedCount > 1 ? "s" : ""
+                          }.`
+                        );
+                        return;
+                      }
+
+                      setTempMessage(
+                        `Downloaded ${res.syncWithPub.pulled.acceptedCount}, uploaded ${res.syncWithPub.pushed.acceptedCount} posts.`
+                      );
                     }
                   );
                 }}
@@ -277,30 +330,34 @@ const StatusBar: React.FC<StatusBarProps> = ({
           <div ref={workspaceNameRef}>
             {/* Animate the text whenever the value changes to draw the eye */}
             <WindupChildren>
-              <NavButton
-                onClick={() =>
-                  setOpenPanel((prev) => {
-                    if (prev === "workspace") {
-                      return null;
-                    }
-                    return "workspace";
-                  })
-                }
-                accent={"alpha"}
-              >
-                {`+${workspace.name}`}
-                <span
-                  css={css`
-                    color: ${(props) => props.theme.colours.gammaLine};
-                  `}
+              {tempMessage ? (
+                tempMessage
+              ) : (
+                <NavButton
+                  onClick={() =>
+                    setOpenPanel((prev) => {
+                      if (prev === "workspace") {
+                        return null;
+                      }
+                      return "workspace";
+                    })
+                  }
+                  accent={"alpha"}
                 >
-                  {isSyncing
-                    ? " is syncing..."
-                    : hasLocalWorkspaceChanges
-                    ? " has unsynced changes"
-                    : null}
-                </span>
-              </NavButton>
+                  {`+${workspace.name}`}
+                  <span
+                    css={css`
+                      color: ${(props) => props.theme.colours.alphaLine};
+                    `}
+                  >
+                    {isSyncing
+                      ? " is syncing..."
+                      : hasLocalWorkspaceChanges
+                      ? " has unsynced changes"
+                      : null}
+                  </span>
+                </NavButton>
+              )}
             </WindupChildren>
           </div>
           <div

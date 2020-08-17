@@ -75,7 +75,7 @@ const WorkspaceMessages: React.FC<WorkspaceMessagesProps> = ({
                 margin: 0;
               `}
             >
-              {documents.map((doc) => {
+              {documents.map((doc, i) => {
                 return (
                   <>
                     <Message
@@ -84,14 +84,17 @@ const WorkspaceMessages: React.FC<WorkspaceMessagesProps> = ({
                       author={author}
                       document={doc}
                     />
-                    <MaxWidth>
-                      <hr
-                        css={css`
-                          border-top: 1px solid
-                            ${(props) => props.theme.colours.bgHint};
-                        `}
-                      />
-                    </MaxWidth>
+                    {i < documents.length - 1 ? (
+                      <MaxWidth>
+                        <hr
+                          css={css`
+                            border: none;
+                            border-top: 1px solid
+                              ${(props) => props.theme.colours.bgHint};
+                          `}
+                        />
+                      </MaxWidth>
+                    ) : null}
                   </>
                 );
               })}
