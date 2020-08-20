@@ -174,7 +174,6 @@ const StatusBar: React.FC<StatusBarProps> = ({
                     {
                       pubUrl: PUB_URL,
                       workspace: workspace.address,
-                      format: "GRAPHQL",
                     },
                     (res) => {
                       console.log("Sync Complete ✅");

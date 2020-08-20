@@ -13,6 +13,7 @@ export type NewDocumentInput = {
     format?: DocumentFormat | null;
     content: string;
     path: string;
+    deleteAfter?: number | null;
 };
 export type SetMutationVariables = {
     author: AuthorInput;

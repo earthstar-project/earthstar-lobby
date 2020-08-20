@@ -74,7 +74,6 @@ const App: React.FC = () => {
       {
         pubUrl: PUB_URL,
         workspace: WORKSPACE_ADDR,
-        format: "GRAPHQL",
       },
       () => {
         console.log("Inital sync ✅");

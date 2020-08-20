@@ -272,9 +272,6 @@ type Mutation {
 
     """The URL of the pub to sync with"""
     pubUrl: String!
-
-    """The format for this sync operation to take"""
-    format: SyncFormatEnum = REST
   ): SyncWithPubResult!
 
   """Sync documents to this GraphQL server from a peer"""
@@ -336,6 +333,9 @@ input NewDocumentInput {
 
   """The path of the document, e.g. /spices/pepper"""
   path: String!
+
+  """A timestamp representing the time this document should be deleted by"""
+  deleteAfter: Float = null
 }
 
 enum DocumentFormat {
@@ -434,14 +434,6 @@ type RejectedDocumentIngestion implements DocumentIngestion {
 
   """The document which failed to be ingested"""
   document: Document!
-}
-
-enum SyncFormatEnum {
-  """The sync format for REST API Earthstar pubs"""
-  REST
-
-  """The sync format for GraphQL Earthstar pubs"""
-  GRAPHQL
 }
 
 """The result of an attempt to ingest many documents"""

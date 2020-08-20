@@ -8,12 +8,8 @@ import {
 import { PayloadError } from "relay-runtime";
 
 const mutation = graphql`
-  mutation SyncMutation(
-    $workspace: String!
-    $pubUrl: String!
-    $format: SyncFormatEnum!
-  ) {
-    syncWithPub(workspace: $workspace, pubUrl: $pubUrl, format: $format) {
+  mutation SyncMutation($workspace: String!, $pubUrl: String!) {
+    syncWithPub(workspace: $workspace, pubUrl: $pubUrl) {
       __typename
       ... on SyncError {
         reason
