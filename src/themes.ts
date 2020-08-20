@@ -4,6 +4,22 @@ type ThemeWithoutFont = Omit<DefaultTheme, "font">;
 
 export type Accent = "alpha" | "beta" | "gamma";
 
+export const darkTheme: ThemeWithoutFont = {
+  colours: {
+    fg: "white",
+    fgHint: "#DBD3C5",
+    bgHint: "#46423E",
+    bg: "#383630",
+    inputBg: "#46423E",
+    alpha: "#51442C",
+    beta: "#4A364B",
+    gamma: "#294830",
+    alphaLine: "#826837",
+    betaLine: "#703A75",
+    gammaLine: "#2A813D",
+  },
+};
+
 export const lightTheme: ThemeWithoutFont = {
   colours: {
     fg: "black",

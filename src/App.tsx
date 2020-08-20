@@ -10,11 +10,19 @@ import SyncMutation from "./mutations/SyncMutation";
 import { AuthorKeypair } from "earthstar";
 import { isKeypair } from "./util/handy";
 import { ThemeProvider, css } from "styled-components/macro";
-import { lightTheme, makeThemeForFont } from "./themes";
+import { lightTheme, makeThemeForFont, darkTheme } from "./themes";
 import StatusBar from "./StatusBar";
 import { WORKSPACE_ADDR, PUB_URL } from "./constants";
+import { useModeSelector } from "use-light-switch";
 
 const App: React.FC = () => {
+  // Dark or light mode
+  const theme = useModeSelector({
+    light: lightTheme,
+    dark: darkTheme,
+    unset: lightTheme,
+  });
+
   // Preparing for later when you can have different workspaces
   const [workspaceAddr] = useState(WORKSPACE_ADDR);
 
@@ -92,7 +100,7 @@ const App: React.FC = () => {
 
   return (
     // Pass a theme into the app for styled components to use.
-    <ThemeProvider theme={makeThemeForFont("Gill Sans", lightTheme)}>
+    <ThemeProvider theme={makeThemeForFont("Gill Sans", theme || lightTheme)}>
       {/* https://relay.dev/docs/en/query-renderer */}
       {/* Data for the app is fetched here from earthstar-graphql */}
       <QueryRenderer<AppQuery>

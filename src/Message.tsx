@@ -125,7 +125,13 @@ const Message: React.FC<MessageProps> = ({
           `}
         >
           <span>
-            <b>{document.author.displayName || document.author.shortName}</b>{" "}
+            <b
+              css={css`
+                color: ${(props) => props.theme.colours.fg};
+              `}
+            >
+              {document.author.displayName || document.author.shortName}
+            </b>{" "}
             <span
               css={css`
                 color: ${(props) => props.theme.colours.fgHint};
@@ -166,6 +172,7 @@ const Message: React.FC<MessageProps> = ({
         </div>
         <div
           css={css`
+            color: ${(props) => props.theme.colours.fg};
             padding: 4px 8px 0 8px;
             a {
               overflow-wrap: break-word;

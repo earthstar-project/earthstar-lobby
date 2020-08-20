@@ -11,6 +11,7 @@ const NavButton = styled.button<{
   accent: Accent;
 }>`
   appearance: none;
+  color: ${(props) => props.theme.colours.fg};
   border: none;
   margin: 0;
   padding: 0;

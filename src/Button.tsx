@@ -12,6 +12,7 @@ const Button = styled.button`
   font: inherit;
   padding: 0.4em 0.4em 0.3em 0.4em;
   position: relative;
+  color: ${(props) => props.theme.colours.fg};
   &:active {
     color: ${(props) => props.theme.colours.fgHint};
     top: 2px;

@@ -65,7 +65,11 @@ const WorkspaceMessages: React.FC<WorkspaceMessagesProps> = ({
                 box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.04);
               `}
             >
-              <div>
+              <div
+                css={css`
+                  color: ${(props) => props.theme.colours.fg};
+                `}
+              >
                 <b>{title}</b>
               </div>
             </div>

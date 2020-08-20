@@ -11422,6 +11422,11 @@ use-internet-time@^1.0.1:
   dependencies:
     dot-beat-time "^1.2.1"
 
+use-light-switch@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/use-light-switch/-/use-light-switch-1.0.1.tgz#3e7c2fbc69f89ee0d4a6f8d44dd7409081a8fd25"
+  integrity sha512-R9TQa/HAXR4A/u0PPjQ0OoEY9mB4UOvyKqz0deVTBTOprVUjYar/2pFZ8D9CRTNlGrL4Dl5GRGMq00hEm25abA==
+
 use@^3.1.0:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/use/-/use-3.1.1.tgz#d50c8cac79a19fbc20f2911f56eb973f4e10070f"
