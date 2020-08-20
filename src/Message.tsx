@@ -95,7 +95,7 @@ const Message: React.FC<MessageProps> = ({
               }}
             />
           ) : author && author.address === document.author.address ? (
-            <div css={"text-align: right"}>
+            <div>
               <Button onClick={() => setOpenPanel("editing")}>{"Edit"}</Button>
               {" or "}
               <Button
