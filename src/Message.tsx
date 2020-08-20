@@ -16,6 +16,7 @@ import { getAuthorShortname } from "./util/handy";
 import { css } from "styled-components/macro";
 import SyncMutation from "./mutations/SyncMutation";
 import { PUB_URL } from "./constants";
+import Linkify from "react-linkify";
 
 type MessageProps = {
   document: Message_document;
@@ -164,11 +165,19 @@ const Message: React.FC<MessageProps> = ({
           </span>
         </div>
         <div
-          css={`
+          css={css`
             padding: 4px 8px 0 8px;
+            a {
+              overflow-wrap: break-word;
+              word-wrap: break-word;
+              word-break: break-all;
+              word-break: break-word;
+              hyphens: auto;
+              color: ${(props) => props.theme.colours.fgHint};
+            }
           `}
         >
-          {document.content}
+          <Linkify>{document.content}</Linkify>
         </div>
         {document.deleteAfter ? (
           <div
