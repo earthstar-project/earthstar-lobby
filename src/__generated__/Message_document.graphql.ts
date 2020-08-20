@@ -5,7 +5,6 @@
 import { ReaderFragment } from "relay-runtime";
 import { FragmentRefs } from "relay-runtime";
 export type Message_document = {
-    readonly __typename: "ES4Document";
     readonly id: string;
     readonly content: string;
     readonly path: string;
@@ -20,11 +19,6 @@ export type Message_document = {
         readonly shortName: string;
     };
     readonly " $fragmentRefs": FragmentRefs<"MessageEditor_document">;
-    readonly " $refType": "Message_document";
-} | {
-    /*This will never be '%other', but we need some
-    value in case none of the concrete values match.*/
-    readonly __typename: "%other";
     readonly " $refType": "Message_document";
 };
 export type Message_document$data = Message_document;
@@ -53,98 +47,84 @@ return {
       "alias": null,
       "args": null,
       "kind": "ScalarField",
-      "name": "__typename",
+      "name": "id",
       "storageKey": null
     },
     {
-      "kind": "InlineFragment",
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "content",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "path",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "timestamp",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "deleteAfter",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "Workspace",
+      "kind": "LinkedField",
+      "name": "workspace",
+      "plural": false,
       "selections": [
+        (v0/*: any*/)
+      ],
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "Author",
+      "kind": "LinkedField",
+      "name": "author",
+      "plural": false,
+      "selections": [
+        (v0/*: any*/),
         {
           "alias": null,
           "args": null,
           "kind": "ScalarField",
-          "name": "id",
-          "storageKey": null
-        },
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "content",
-          "storageKey": null
-        },
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "path",
-          "storageKey": null
-        },
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "timestamp",
+          "name": "displayName",
           "storageKey": null
         },
         {
           "alias": null,
           "args": null,
           "kind": "ScalarField",
-          "name": "deleteAfter",
+          "name": "shortName",
           "storageKey": null
-        },
-        {
-          "alias": null,
-          "args": null,
-          "concreteType": "Workspace",
-          "kind": "LinkedField",
-          "name": "workspace",
-          "plural": false,
-          "selections": [
-            (v0/*: any*/)
-          ],
-          "storageKey": null
-        },
-        {
-          "alias": null,
-          "args": null,
-          "concreteType": "Author",
-          "kind": "LinkedField",
-          "name": "author",
-          "plural": false,
-          "selections": [
-            (v0/*: any*/),
-            {
-              "alias": null,
-              "args": null,
-              "kind": "ScalarField",
-              "name": "displayName",
-              "storageKey": null
-            },
-            {
-              "alias": null,
-              "args": null,
-              "kind": "ScalarField",
-              "name": "shortName",
-              "storageKey": null
-            }
-          ],
-          "storageKey": null
-        },
-        {
-          "args": null,
-          "kind": "FragmentSpread",
-          "name": "MessageEditor_document"
         }
       ],
-      "type": "ES4Document",
-      "abstractKey": null
+      "storageKey": null
+    },
+    {
+      "args": null,
+      "kind": "FragmentSpread",
+      "name": "MessageEditor_document"
     }
   ],
-  "type": "Document",
-  "abstractKey": "__isDocument"
+  "type": "ES4Document",
+  "abstractKey": null
 };
 })();
-(node as any).hash = '42dae8e46d53dec32470c56830c5ed40';
+(node as any).hash = '9da12dd6fa230f43159cffcdccdcddf4';
 export default node;

@@ -7,9 +7,14 @@ import { FragmentRefs } from "relay-runtime";
 export type WorkspaceMessages_workspace = {
     readonly address: string;
     readonly documents: ReadonlyArray<{
-        readonly id?: string;
-        readonly timestamp?: number;
+        readonly __typename: "ES4Document";
+        readonly id: string;
+        readonly timestamp: number;
         readonly " $fragmentRefs": FragmentRefs<"Message_document">;
+    } | {
+        /*This will never be '%other', but we need some
+        value in case none of the concrete values match.*/
+        readonly __typename: "%other";
     }>;
     readonly " $refType": "WorkspaceMessages_workspace";
 };
@@ -56,9 +61,11 @@ const node: ReaderFragment = {
       "plural": true,
       "selections": [
         {
+          "alias": null,
           "args": null,
-          "kind": "FragmentSpread",
-          "name": "Message_document"
+          "kind": "ScalarField",
+          "name": "__typename",
+          "storageKey": null
         },
         {
           "kind": "InlineFragment",
@@ -76,6 +83,11 @@ const node: ReaderFragment = {
               "kind": "ScalarField",
               "name": "timestamp",
               "storageKey": null
+            },
+            {
+              "args": null,
+              "kind": "FragmentSpread",
+              "name": "Message_document"
             }
           ],
           "type": "ES4Document",
@@ -88,5 +100,5 @@ const node: ReaderFragment = {
   "type": "Workspace",
   "abstractKey": null
 };
-(node as any).hash = 'c3f30e9983d5a8a9db61022d77452bf5';
+(node as any).hash = '52fadb97f07bf9485dc8731e1f46c20e';
 export default node;

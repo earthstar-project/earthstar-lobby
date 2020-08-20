@@ -23,7 +23,7 @@ const WorkspaceMessages: React.FC<WorkspaceMessagesProps> = ({
 }) => {
   // Partition the documents by day (local)
   const docsByDate = workspace.documents.reduce((acc, doc) => {
-    if (!doc.timestamp) {
+    if (doc.__typename !== "ES4Document") {
       return acc;
     }
 
@@ -76,6 +76,10 @@ const WorkspaceMessages: React.FC<WorkspaceMessagesProps> = ({
               `}
             >
               {documents.map((doc, i) => {
+                if (doc.__typename !== "ES4Document") {
+                  return null;
+                }
+
                 return (
                   <>
                     <Message
@@ -113,10 +117,11 @@ export default createFragmentContainer(WorkspaceMessages, {
     fragment WorkspaceMessages_workspace on Workspace {
       address
       documents(sortedBy: NEWEST, pathPrefixes: ["/lobby"]) {
-        ...Message_document
+        __typename
         ... on ES4Document {
           id
           timestamp
+          ...Message_document
         }
       }
     }

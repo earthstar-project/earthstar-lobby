@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { createFragmentContainer, RelayProp } from "react-relay";
 import graphql from "babel-plugin-relay/macro";
 import { Message_document } from "./__generated__/Message_document.graphql";
@@ -14,6 +14,8 @@ import MaxWidth from "./MaxWidth";
 import AuthorIdenticon from "./AuthorIdenticon";
 import { getAuthorShortname } from "./util/handy";
 import { css } from "styled-components/macro";
+import SyncMutation from "./mutations/SyncMutation";
+import { PUB_URL } from "./constants";
 
 type MessageProps = {
   document: Message_document;
@@ -35,10 +37,23 @@ const Message: React.FC<MessageProps> = ({
   // For pointing the contextual panel at the right place
   const buttonRef = useRef(null);
 
-  // This shouldn't happen, but just in case
-  if (document.__typename !== "ES4Document") {
-    return <div>{"???"}</div>;
-  }
+  // Sync the deletion of the post after the deleteAfter has passed
+  useEffect(() => {
+    if (document.deleteAfter !== null) {
+      const interval = setInterval(() => {
+        if (document.deleteAfter && document.deleteAfter >= Date.now() * 1000) {
+          SyncMutation.commit(relay.environment, {
+            pubUrl: PUB_URL,
+            workspace: document.workspace.address,
+          });
+        }
+      }, 86400);
+
+      return () => {
+        clearInterval(interval);
+      };
+    }
+  }, [document.deleteAfter, document.workspace.address, relay.environment]);
 
   // A function for editing/deleting the document
   const set = author
@@ -177,23 +192,20 @@ const Message: React.FC<MessageProps> = ({
 // document will be fed in as a prop
 export default createFragmentContainer(Message, {
   document: graphql`
-    fragment Message_document on Document {
-      __typename
-      ... on ES4Document {
-        ...MessageEditor_document
-        id
-        content
-        path
-        timestamp
-        deleteAfter
-        workspace {
-          address
-        }
-        author {
-          address
-          displayName
-          shortName
-        }
+    fragment Message_document on ES4Document {
+      ...MessageEditor_document
+      id
+      content
+      path
+      timestamp
+      deleteAfter
+      workspace {
+        address
+      }
+      author {
+        address
+        displayName
+        shortName
       }
     }
   `,

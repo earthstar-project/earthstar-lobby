@@ -84,26 +84,22 @@ fragment MessageEditor_document on ES4Document {
   content
 }
 
-fragment Message_document on Document {
-  __isDocument: __typename
-  __typename
-  ... on ES4Document {
-    ...MessageEditor_document
+fragment Message_document on ES4Document {
+  ...MessageEditor_document
+  id
+  content
+  path
+  timestamp
+  deleteAfter
+  workspace {
+    address
     id
-    content
-    path
-    timestamp
-    deleteAfter
-    workspace {
-      address
-      id
-    }
-    author {
-      address
-      displayName
-      shortName
-      id
-    }
+  }
+  author {
+    address
+    displayName
+    shortName
+    id
   }
 }
 
@@ -111,10 +107,10 @@ fragment WorkspaceMessages_workspace on Workspace {
   address
   documents(sortedBy: NEWEST, pathPrefixes: ["/lobby"]) {
     __typename
-    ...Message_document
     ... on ES4Document {
       id
       timestamp
+      ...Message_document
     }
     ... on Node {
       __isNode: __typename
@@ -273,12 +269,16 @@ v11 = {
       "selections": [
         (v3/*: any*/),
         {
-          "kind": "TypeDiscriminator",
-          "abstractKey": "__isDocument"
-        },
-        {
           "kind": "InlineFragment",
           "selections": [
+            (v10/*: any*/),
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "timestamp",
+              "storageKey": null
+            },
             {
               "alias": null,
               "args": null,
@@ -286,19 +286,11 @@ v11 = {
               "name": "content",
               "storageKey": null
             },
-            (v10/*: any*/),
             {
               "alias": null,
               "args": null,
               "kind": "ScalarField",
               "name": "path",
-              "storageKey": null
-            },
-            {
-              "alias": null,
-              "args": null,
-              "kind": "ScalarField",
-              "name": "timestamp",
               "storageKey": null
             },
             {
@@ -455,12 +447,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "d0c1926ac87f085eb198c855dea6a3ed",
+    "cacheID": "6a91b75233085183bf64a3dd4b46b9cd",
     "id": null,
     "metadata": {},
     "name": "SyncMutation",
     "operationKind": "mutation",
-    "text": "mutation SyncMutation(\n  $workspace: String!\n  $pubUrl: String!\n) {\n  syncWithPub(workspace: $workspace, pubUrl: $pubUrl) {\n    __typename\n    ... on SyncError {\n      reason\n    }\n    ... on SyncSuccess {\n      syncedWorkspace {\n        ...WorkspaceMessages_workspace\n        id\n      }\n    }\n    ... on DetailedSyncSuccess {\n      pushed {\n        rejectedCount\n        ignoredCount\n        acceptedCount\n      }\n      pulled {\n        rejectedCount\n        ignoredCount\n        acceptedCount\n      }\n      syncedWorkspace {\n        ...WorkspaceMessages_workspace\n        id\n      }\n    }\n  }\n}\n\nfragment MessageEditor_document on ES4Document {\n  content\n}\n\nfragment Message_document on Document {\n  __isDocument: __typename\n  __typename\n  ... on ES4Document {\n    ...MessageEditor_document\n    id\n    content\n    path\n    timestamp\n    deleteAfter\n    workspace {\n      address\n      id\n    }\n    author {\n      address\n      displayName\n      shortName\n      id\n    }\n  }\n}\n\nfragment WorkspaceMessages_workspace on Workspace {\n  address\n  documents(sortedBy: NEWEST, pathPrefixes: [\"/lobby\"]) {\n    __typename\n    ...Message_document\n    ... on ES4Document {\n      id\n      timestamp\n    }\n    ... on Node {\n      __isNode: __typename\n      id\n    }\n  }\n}\n"
+    "text": "mutation SyncMutation(\n  $workspace: String!\n  $pubUrl: String!\n) {\n  syncWithPub(workspace: $workspace, pubUrl: $pubUrl) {\n    __typename\n    ... on SyncError {\n      reason\n    }\n    ... on SyncSuccess {\n      syncedWorkspace {\n        ...WorkspaceMessages_workspace\n        id\n      }\n    }\n    ... on DetailedSyncSuccess {\n      pushed {\n        rejectedCount\n        ignoredCount\n        acceptedCount\n      }\n      pulled {\n        rejectedCount\n        ignoredCount\n        acceptedCount\n      }\n      syncedWorkspace {\n        ...WorkspaceMessages_workspace\n        id\n      }\n    }\n  }\n}\n\nfragment MessageEditor_document on ES4Document {\n  content\n}\n\nfragment Message_document on ES4Document {\n  ...MessageEditor_document\n  id\n  content\n  path\n  timestamp\n  deleteAfter\n  workspace {\n    address\n    id\n  }\n  author {\n    address\n    displayName\n    shortName\n    id\n  }\n}\n\nfragment WorkspaceMessages_workspace on Workspace {\n  address\n  documents(sortedBy: NEWEST, pathPrefixes: [\"/lobby\"]) {\n    __typename\n    ... on ES4Document {\n      id\n      timestamp\n      ...Message_document\n    }\n    ... on Node {\n      __isNode: __typename\n      id\n    }\n  }\n}\n"
   }
 };
 })();
