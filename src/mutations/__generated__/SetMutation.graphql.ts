@@ -90,6 +90,7 @@ fragment Message_document on Document {
     content
     path
     timestamp
+    deleteAfter
     workspace {
       address
       id
@@ -212,10 +213,17 @@ v9 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
-  "name": "address",
+  "name": "deleteAfter",
   "storageKey": null
 },
 v10 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "address",
+  "storageKey": null
+},
+v11 = {
   "alias": null,
   "args": null,
   "concreteType": "Author",
@@ -223,7 +231,7 @@ v10 = {
   "name": "author",
   "plural": false,
   "selections": [
-    (v9/*: any*/),
+    (v10/*: any*/),
     {
       "alias": null,
       "args": null,
@@ -242,7 +250,7 @@ v10 = {
   ],
   "storageKey": null
 },
-v11 = {
+v12 = {
   "kind": "InlineFragment",
   "selections": [
     (v4/*: any*/)
@@ -357,6 +365,7 @@ return {
                       (v4/*: any*/),
                       (v7/*: any*/),
                       (v8/*: any*/),
+                      (v9/*: any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -365,7 +374,7 @@ return {
                         "name": "workspace",
                         "plural": false,
                         "selections": [
-                          (v9/*: any*/),
+                          (v10/*: any*/),
                           (v4/*: any*/),
                           {
                             "alias": null,
@@ -397,6 +406,7 @@ return {
                                   (v4/*: any*/),
                                   (v7/*: any*/),
                                   (v8/*: any*/),
+                                  (v9/*: any*/),
                                   {
                                     "alias": null,
                                     "args": null,
@@ -405,29 +415,29 @@ return {
                                     "name": "workspace",
                                     "plural": false,
                                     "selections": [
-                                      (v9/*: any*/),
+                                      (v10/*: any*/),
                                       (v4/*: any*/)
                                     ],
                                     "storageKey": null
                                   },
-                                  (v10/*: any*/)
+                                  (v11/*: any*/)
                                 ],
                                 "type": "ES4Document",
                                 "abstractKey": null
                               },
-                              (v11/*: any*/)
+                              (v12/*: any*/)
                             ],
                             "storageKey": "documents(pathPrefixes:[\"/lobby\"],sortedBy:\"NEWEST\")"
                           }
                         ],
                         "storageKey": null
                       },
-                      (v10/*: any*/)
+                      (v11/*: any*/)
                     ],
                     "type": "ES4Document",
                     "abstractKey": null
                   },
-                  (v11/*: any*/)
+                  (v12/*: any*/)
                 ],
                 "storageKey": null
               }
@@ -441,12 +451,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "0f524393dafe19a3050fb83cbf7d0c69",
+    "cacheID": "b9862f1e5a6f8f2265084033ed3eaa39",
     "id": null,
     "metadata": {},
     "name": "SetMutation",
     "operationKind": "mutation",
-    "text": "mutation SetMutation(\n  $author: AuthorInput!\n  $document: NewDocumentInput!\n  $workspace: String!\n) {\n  set(author: $author, document: $document, workspace: $workspace) {\n    __typename\n    ... on DocumentRejectedError {\n      reason\n    }\n    ... on SetDataSuccessResult {\n      document {\n        __typename\n        ...Message_document\n        ... on ES4Document {\n          id\n          workspace {\n            ...WorkspaceMessages_workspace\n            id\n          }\n        }\n        ... on Node {\n          __isNode: __typename\n          id\n        }\n      }\n    }\n  }\n}\n\nfragment MessageEditor_document on ES4Document {\n  content\n}\n\nfragment Message_document on Document {\n  __isDocument: __typename\n  __typename\n  ... on ES4Document {\n    ...MessageEditor_document\n    id\n    content\n    path\n    timestamp\n    workspace {\n      address\n      id\n    }\n    author {\n      address\n      displayName\n      shortName\n      id\n    }\n  }\n}\n\nfragment WorkspaceMessages_workspace on Workspace {\n  address\n  documents(sortedBy: NEWEST, pathPrefixes: [\"/lobby\"]) {\n    __typename\n    ...Message_document\n    ... on ES4Document {\n      id\n      timestamp\n    }\n    ... on Node {\n      __isNode: __typename\n      id\n    }\n  }\n}\n"
+    "text": "mutation SetMutation(\n  $author: AuthorInput!\n  $document: NewDocumentInput!\n  $workspace: String!\n) {\n  set(author: $author, document: $document, workspace: $workspace) {\n    __typename\n    ... on DocumentRejectedError {\n      reason\n    }\n    ... on SetDataSuccessResult {\n      document {\n        __typename\n        ...Message_document\n        ... on ES4Document {\n          id\n          workspace {\n            ...WorkspaceMessages_workspace\n            id\n          }\n        }\n        ... on Node {\n          __isNode: __typename\n          id\n        }\n      }\n    }\n  }\n}\n\nfragment MessageEditor_document on ES4Document {\n  content\n}\n\nfragment Message_document on Document {\n  __isDocument: __typename\n  __typename\n  ... on ES4Document {\n    ...MessageEditor_document\n    id\n    content\n    path\n    timestamp\n    deleteAfter\n    workspace {\n      address\n      id\n    }\n    author {\n      address\n      displayName\n      shortName\n      id\n    }\n  }\n}\n\nfragment WorkspaceMessages_workspace on Workspace {\n  address\n  documents(sortedBy: NEWEST, pathPrefixes: [\"/lobby\"]) {\n    __typename\n    ...Message_document\n    ... on ES4Document {\n      id\n      timestamp\n    }\n    ... on Node {\n      __isNode: __typename\n      id\n    }\n  }\n}\n"
   }
 };
 })();

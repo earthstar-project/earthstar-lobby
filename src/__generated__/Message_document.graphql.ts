@@ -10,6 +10,7 @@ export type Message_document = {
     readonly content: string;
     readonly path: string;
     readonly timestamp: number;
+    readonly deleteAfter: number | null;
     readonly workspace: {
         readonly address: string;
     };
@@ -89,6 +90,13 @@ return {
         {
           "alias": null,
           "args": null,
+          "kind": "ScalarField",
+          "name": "deleteAfter",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
           "concreteType": "Workspace",
           "kind": "LinkedField",
           "name": "workspace",
@@ -138,5 +146,5 @@ return {
   "abstractKey": "__isDocument"
 };
 })();
-(node as any).hash = '19f5b84b1983a5dc6675cab84a99828d';
+(node as any).hash = '42dae8e46d53dec32470c56830c5ed40';
 export default node;

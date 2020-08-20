@@ -8,6 +8,8 @@ import Button from "./Button";
 import TextArea from "./TextArea";
 import { css } from "styled-components/macro";
 import MaxWidth from "./MaxWidth";
+import LabelledCheckbox from "./LabelledCheckbox";
+import NumberInput from "./NumberInput";
 
 type MessageComposerProps = {
   workspace: MessageComposer_workspace;
@@ -23,9 +25,13 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
   author,
 }) => {
   const [message, setMessage] = useState("");
+  const [isEphemeral, setIsEphemeral] = useState(false);
+  const [deleteAfterHours, setDeleteAfterHours] = useState(1);
 
   // The path the document will be stored at
-  const path = `/lobby/~${author.address}/${Date.now()}.txt`;
+  const path = `/lobby/~${author.address}/${
+    isEphemeral ? "!" : ""
+  }${Date.now()}.txt`;
 
   return (
     <MaxWidth>
@@ -33,7 +39,6 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
         css={css`
           display: flex;
           flex-direction: column;
-          align-items: flex-end;
           padding: 8px;
         `}
       >
@@ -45,30 +50,72 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
             margin-bottom: 4px;
           `}
         />
-        <Button
-          onClick={() => {
-            SetMutation.commit(
-              relay.environment,
-              {
-                author,
-                document: {
-                  content: message,
-                  path,
-                },
-                workspace: workspace.address,
-              },
-              (result) => {
-                if (result.set.__typename === "SetDataSuccessResult") {
-                  setHasLocalWorkspaceChanges(true);
-                  setMessage("");
-                }
-              }
-            );
-            setMessage("");
-          }}
+        <div
+          css={css`
+            display: flex;
+            justify-content: space-between;
+          `}
         >
-          {"Post"}
-        </Button>
+          <LabelledCheckbox
+            isChecked={isEphemeral}
+            onChange={(isEphemeral) => setIsEphemeral(isEphemeral)}
+          >
+            <span
+              css={css`
+                display: flex;
+                align-items: center;
+                color: ${(props) =>
+                  isEphemeral ? "inherit" : props.theme.colours.fgHint};
+                font-size: 0.8em;
+              `}
+            >
+              {"Delete after "}
+              <NumberInput
+                css={css`
+                  margin: 0 4px;
+                `}
+                value={deleteAfterHours}
+                min={1}
+                max={24}
+                onChange={(e) => {
+                  if (!isEphemeral) {
+                    setIsEphemeral(true);
+                  }
+
+                  setDeleteAfterHours(parseInt(e.target.value));
+                }}
+              />
+              {" hours"}
+            </span>
+          </LabelledCheckbox>
+          <Button
+            onClick={() => {
+              SetMutation.commit(
+                relay.environment,
+                {
+                  author,
+                  document: {
+                    content: message,
+                    path,
+                    deleteAfter: isEphemeral
+                      ? Date.now() * 1000 + deleteAfterHours * 1000000 * 60 * 60
+                      : null,
+                  },
+                  workspace: workspace.address,
+                },
+                (result) => {
+                  if (result.set.__typename === "SetDataSuccessResult") {
+                    setHasLocalWorkspaceChanges(true);
+                    setMessage("");
+                  }
+                }
+              );
+              setMessage("");
+            }}
+          >
+            {"Post"}
+          </Button>
+        </div>
       </div>
     </MaxWidth>
   );

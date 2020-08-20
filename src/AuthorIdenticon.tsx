@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
-import { getAuthorShortname, getAuthorHash, hexToRgb } from "./util/handy";
+import { hexToRgb } from "./util/handy";
 import Identicon from "identicon.js";
-import { css, useTheme } from "styled-components/macro";
+import { useTheme } from "styled-components/macro";
 
 type AuthorIDProps = {
   address: string;

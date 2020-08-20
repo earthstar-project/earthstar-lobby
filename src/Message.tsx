@@ -50,6 +50,7 @@ const Message: React.FC<MessageProps> = ({
             document: {
               content: message,
               path: document.path,
+              deleteAfter: document.deleteAfter,
             },
             workspace: document.workspace.address,
           },
@@ -154,6 +155,19 @@ const Message: React.FC<MessageProps> = ({
         >
           {document.content}
         </div>
+        {document.deleteAfter ? (
+          <div
+            css={css`
+              font-size: 0.8em;
+              padding: 4px 8px 0 8px;
+              color: ${(props) => props.theme.colours.fgHint};
+            `}
+          >
+            {`This message will disappear at ${fromDate(
+              new Date(document.deleteAfter / 1000)
+            )}.`}
+          </div>
+        ) : null}
       </MaxWidth>
     </div>
   );
@@ -171,6 +185,7 @@ export default createFragmentContainer(Message, {
         content
         path
         timestamp
+        deleteAfter
         workspace {
           address
         }
