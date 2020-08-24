@@ -1,0 +1,11 @@
+{
+  "actions" : {
+    "run" : {
+      "enabled" : true,
+      "script" : "yarn relay --watch"
+    }
+  },
+  "identifier" : "135E1005-ECFE-4871-B385-3FC43F64C48F",
+  "openLogOnRun" : "start",
+  "persistent" : true
+}
