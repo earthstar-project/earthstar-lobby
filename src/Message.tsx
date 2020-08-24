@@ -1,9 +1,8 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import { createFragmentContainer, RelayProp } from "react-relay";
 import graphql from "babel-plugin-relay/macro";
 import { Message_document } from "./__generated__/Message_document.graphql";
 import SetMutation from "./mutations/SetMutation";
-import { AuthorKeypair } from "earthstar";
 import MessageEditor from "./MessageEditor";
 import { fromDate } from "dot-beat-time";
 import NavButton from "./NavButton";
@@ -17,12 +16,12 @@ import { css } from "styled-components/macro";
 import SyncMutation from "./mutations/SyncMutation";
 import { PUB_URL } from "./constants";
 import Linkify from "react-linkify";
+import { LobbyContext } from "./util/lobby-context";
 
 type MessageProps = {
   document: Message_document;
   relay: RelayProp;
-  author: AuthorKeypair | null;
-  setHasLocalWorkspaceChanges: (hasChanges: boolean) => void;
+  setIsWorkspaceDirty: (isDirty: boolean) => void;
 };
 
 type MessagePanel = "options" | "editing" | "none";
@@ -30,10 +29,10 @@ type MessagePanel = "options" | "editing" | "none";
 const Message: React.FC<MessageProps> = ({
   document,
   relay,
-  author,
-  setHasLocalWorkspaceChanges,
+  setIsWorkspaceDirty,
 }) => {
   const [openPanel, setOpenPanel] = useState<MessagePanel>("none");
+  const { author } = useContext(LobbyContext);
 
   // For pointing the contextual panel at the right place
   const buttonRef = useRef(null);
@@ -72,7 +71,7 @@ const Message: React.FC<MessageProps> = ({
           },
           (res) => {
             if (res.set.__typename === "SetDataSuccessResult") {
-              setHasLocalWorkspaceChanges(true);
+              setIsWorkspaceDirty(true);
             }
             if (res.set.__typename === "DocumentRejectedError") {
               console.error("Document was not edited: ", res.set.reason);

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { createFragmentContainer, RelayProp } from "react-relay";
 import graphql from "babel-plugin-relay/macro";
 import { MessageComposer_workspace } from "./__generated__/MessageComposer_workspace.graphql";
@@ -14,15 +14,15 @@ import NumberInput from "./NumberInput";
 type MessageComposerProps = {
   workspace: MessageComposer_workspace;
   relay: RelayProp;
-  setHasLocalWorkspaceChanges: (hasChanges: boolean) => void;
   author: AuthorKeypair;
+  setIsWorkspaceDirty: (isDirty: boolean) => void;
 };
 
 const MessageComposer: React.FC<MessageComposerProps> = ({
   workspace,
   relay,
-  setHasLocalWorkspaceChanges,
   author,
+  setIsWorkspaceDirty,
 }) => {
   const [message, setMessage] = useState("");
   const [isEphemeral, setIsEphemeral] = useState(false);
@@ -105,7 +105,7 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
                 },
                 (result) => {
                   if (result.set.__typename === "SetDataSuccessResult") {
-                    setHasLocalWorkspaceChanges(true);
+                    setIsWorkspaceDirty(true);
                     setMessage("");
                   }
                 }

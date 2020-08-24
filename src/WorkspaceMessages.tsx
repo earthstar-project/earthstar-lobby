@@ -1,26 +1,24 @@
-import React from "react";
+import React, { useContext } from "react";
 import { createFragmentContainer, RelayProp } from "react-relay";
 import graphql from "babel-plugin-relay/macro";
 import { WorkspaceMessages_workspace } from "./__generated__/WorkspaceMessages_workspace.graphql";
 import Message from "./Message";
-import { AuthorKeypair } from "earthstar";
 import { css } from "styled-components/macro";
 import MaxWidth from "./MaxWidth";
+import { LobbyContext } from "./util/lobby-context";
 
 type WorkspaceMessagesProps = {
   workspace: WorkspaceMessages_workspace;
   relay: RelayProp;
-  author: AuthorKeypair | null;
-  setHasLocalWorkspaceChanges: (hasChanges: boolean) => void;
-  stickAt: number;
+  setIsWorkspaceDirty: (isDirty: boolean) => void;
 };
 
 const WorkspaceMessages: React.FC<WorkspaceMessagesProps> = ({
   workspace,
-  author,
-  setHasLocalWorkspaceChanges,
-  stickAt,
+  setIsWorkspaceDirty,
 }) => {
+  const { statusBarHeight } = useContext(LobbyContext);
+
   // Partition the documents by day (local)
   const docsByDate = workspace.documents.reduce((acc, doc) => {
     if (doc.__typename !== "ES4Document") {
@@ -54,7 +52,7 @@ const WorkspaceMessages: React.FC<WorkspaceMessagesProps> = ({
             <div
               css={css`
                 position: sticky;
-                top: ${stickAt}px;
+                top: ${statusBarHeight}px;
                 z-index: 0;
                 background: ${(props) => props.theme.colours.bg};
                 border-bottom: 1px solid
@@ -87,9 +85,8 @@ const WorkspaceMessages: React.FC<WorkspaceMessagesProps> = ({
                 return (
                   <>
                     <Message
+                      setIsWorkspaceDirty={setIsWorkspaceDirty}
                       key={doc.id}
-                      setHasLocalWorkspaceChanges={setHasLocalWorkspaceChanges}
-                      author={author}
                       document={doc}
                     />
                     {i < documents.length - 1 ? (

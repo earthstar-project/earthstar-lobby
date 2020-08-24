@@ -4,23 +4,23 @@
 
 import { ConcreteRequest } from "relay-runtime";
 import { FragmentRefs } from "relay-runtime";
-export type AppQueryVariables = {
+export type WorkspaceViewerQueryVariables = {
     workspace: string;
 };
-export type AppQueryResponse = {
+export type WorkspaceViewerQueryResponse = {
     readonly workspace: {
         readonly " $fragmentRefs": FragmentRefs<"StatusBar_workspace" | "WorkspaceMessages_workspace" | "MessageComposer_workspace">;
     } | null;
 };
-export type AppQuery = {
-    readonly response: AppQueryResponse;
-    readonly variables: AppQueryVariables;
+export type WorkspaceViewerQuery = {
+    readonly response: WorkspaceViewerQueryResponse;
+    readonly variables: WorkspaceViewerQueryVariables;
 };
 
 
 
 /*
-query AppQuery(
+query WorkspaceViewerQuery(
   $workspace: String!
 ) {
   workspace(address: $workspace) {
@@ -114,7 +114,7 @@ return {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
-    "name": "AppQuery",
+    "name": "WorkspaceViewerQuery",
     "selections": [
       {
         "alias": null,
@@ -150,7 +150,7 @@ return {
   "operation": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
-    "name": "AppQuery",
+    "name": "WorkspaceViewerQuery",
     "selections": [
       {
         "alias": null,
@@ -290,14 +290,14 @@ return {
     ]
   },
   "params": {
-    "cacheID": "8e0ef71b994d4edf4dd8a56389dc222d",
+    "cacheID": "78eb5f0f4d01087dc1e575992e13e2aa",
     "id": null,
     "metadata": {},
-    "name": "AppQuery",
+    "name": "WorkspaceViewerQuery",
     "operationKind": "query",
-    "text": "query AppQuery(\n  $workspace: String!\n) {\n  workspace(address: $workspace) {\n    ...StatusBar_workspace\n    ...WorkspaceMessages_workspace\n    ...MessageComposer_workspace\n    id\n  }\n}\n\nfragment MessageComposer_workspace on Workspace {\n  address\n}\n\nfragment MessageEditor_document on ES4Document {\n  content\n}\n\nfragment Message_document on ES4Document {\n  ...MessageEditor_document\n  id\n  content\n  path\n  timestamp\n  deleteAfter\n  workspace {\n    address\n    id\n  }\n  author {\n    address\n    displayName\n    shortName\n    id\n  }\n}\n\nfragment StatusBar_workspace on Workspace {\n  address\n  name\n}\n\nfragment WorkspaceMessages_workspace on Workspace {\n  address\n  documents(sortedBy: NEWEST, pathPrefixes: [\"/lobby\"]) {\n    __typename\n    ... on ES4Document {\n      id\n      timestamp\n      ...Message_document\n    }\n    ... on Node {\n      __isNode: __typename\n      id\n    }\n  }\n}\n"
+    "text": "query WorkspaceViewerQuery(\n  $workspace: String!\n) {\n  workspace(address: $workspace) {\n    ...StatusBar_workspace\n    ...WorkspaceMessages_workspace\n    ...MessageComposer_workspace\n    id\n  }\n}\n\nfragment MessageComposer_workspace on Workspace {\n  address\n}\n\nfragment MessageEditor_document on ES4Document {\n  content\n}\n\nfragment Message_document on ES4Document {\n  ...MessageEditor_document\n  id\n  content\n  path\n  timestamp\n  deleteAfter\n  workspace {\n    address\n    id\n  }\n  author {\n    address\n    displayName\n    shortName\n    id\n  }\n}\n\nfragment StatusBar_workspace on Workspace {\n  address\n  name\n}\n\nfragment WorkspaceMessages_workspace on Workspace {\n  address\n  documents(sortedBy: NEWEST, pathPrefixes: [\"/lobby\"]) {\n    __typename\n    ... on ES4Document {\n      id\n      timestamp\n      ...Message_document\n    }\n    ... on Node {\n      __isNode: __typename\n      id\n    }\n  }\n}\n"
   }
 };
 })();
-(node as any).hash = '08bcc2b19a69e27c434b6eb74dcd9fe1';
+(node as any).hash = '15a3725f576f7553ecdcee5f14da02b4';
 export default node;

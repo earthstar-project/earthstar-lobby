@@ -1,8 +1,14 @@
-import React, { useState, useCallback, useEffect, useRef } from "react";
+import React, {
+  useState,
+  useCallback,
+  useEffect,
+  useRef,
+  useContext,
+} from "react";
 import { css } from "styled-components/macro";
 import graphql from "babel-plugin-relay/macro";
 import { createFragmentContainer, RelayProp } from "react-relay";
-import { AuthorKeypair, generateAuthorKeypair, isErr } from "earthstar";
+import { generateAuthorKeypair, isErr } from "earthstar";
 import { StatusBar_workspace } from "./__generated__/StatusBar_workspace.graphql";
 import { getAuthorShortname, isKeypair } from "./util/handy";
 import useInternetTime from "use-internet-time";
@@ -18,28 +24,25 @@ import MaxWidth from "./MaxWidth";
 import SetMutation from "./mutations/SetMutation";
 import TextInput from "./TextInput";
 import AuthorIdenticon from "./AuthorIdenticon";
+import { LobbyContext } from "./util/lobby-context";
 
 type StatusBarProps = {
-  author: AuthorKeypair | null;
-  setAuthor: (keypair: AuthorKeypair | null) => void;
   workspace: StatusBar_workspace;
   relay: RelayProp;
-  setHeight: (height: number) => void;
-  hasLocalWorkspaceChanges: boolean;
-  setHasLocalWorkspaceChanges: (hasChanges: boolean) => void;
+  isWorkspaceDirty: boolean;
+  setIsWorkspaceDirty: (isDirty: boolean) => void;
 };
 
 type Panel = "workspace" | "author" | "author-management" | "no-identity";
 
 const StatusBar: React.FC<StatusBarProps> = ({
   workspace,
-  author,
-  setAuthor,
   relay,
-  setHeight,
-  setHasLocalWorkspaceChanges,
-  hasLocalWorkspaceChanges,
+  setIsWorkspaceDirty,
+  isWorkspaceDirty,
 }) => {
+  const { author, setAuthor, setStatusBarHeight } = useContext(LobbyContext);
+
   const [openPanel, setOpenPanel] = useState<Panel | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
   const [tempMessage, setTempMessage] = useState<string | null>(null);
@@ -113,7 +116,7 @@ const StatusBar: React.FC<StatusBarProps> = ({
         workspace: workspace.address,
       },
       () => {
-        setHasLocalWorkspaceChanges(true);
+        setIsWorkspaceDirty(true);
       }
     );
   };
@@ -128,10 +131,10 @@ const StatusBar: React.FC<StatusBarProps> = ({
   const measuredRef = useCallback(
     (node) => {
       if (node !== null && prevOpenPanel !== openPanel) {
-        setHeight(node.getBoundingClientRect().height);
+        setStatusBarHeight(node.getBoundingClientRect().height);
       }
     },
-    [prevOpenPanel, openPanel, setHeight]
+    [prevOpenPanel, openPanel, setStatusBarHeight]
   );
 
   useEffect(() => {
@@ -177,7 +180,7 @@ const StatusBar: React.FC<StatusBarProps> = ({
                     },
                     (res) => {
                       console.log("Sync Complete ✅");
-                      setHasLocalWorkspaceChanges(false);
+                      setIsWorkspaceDirty(false);
                       setIsSyncing(false);
 
                       if (
@@ -351,7 +354,7 @@ const StatusBar: React.FC<StatusBarProps> = ({
                   >
                     {isSyncing
                       ? " is syncing..."
-                      : hasLocalWorkspaceChanges
+                      : isWorkspaceDirty
                       ? " has unsynced changes"
                       : null}
                   </span>
