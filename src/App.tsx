@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useReducer } from "react";
 import createEnvironment from "./util/relay-environment";
 import { createSchemaContext } from "earthstar-graphql";
 import { AuthorKeypair } from "earthstar";
@@ -10,6 +10,25 @@ import { useModeSelector } from "use-light-switch";
 import WorkspaceViewer from "./WorkspaceViewer";
 import { LobbyContext } from "./util/lobby-context";
 
+type AppState =
+  | { screen: "WORKSPACE"; address: string }
+  | { screen: "DASHBOARD" };
+
+export type AppAction =
+  | { type: "OPEN_WORKSPACE"; address: string }
+  | { type: "OPEN_DASHBOARD" };
+
+function appStateReducer(state: AppState, action: AppAction): AppState {
+  switch (action.type) {
+    case "OPEN_WORKSPACE":
+      return { screen: "WORKSPACE", address: action.address };
+    case "OPEN_DASHBOARD":
+      return { screen: "DASHBOARD" };
+    default:
+      return state;
+  }
+}
+
 const App: React.FC = () => {
   // Dark or light mode
   const theme = useModeSelector({
@@ -18,15 +37,17 @@ const App: React.FC = () => {
     unset: lightTheme,
   });
 
-  // Preparing for later when you can have different workspaces
-  const [workspaceAddr] = useState(WORKSPACE_ADDR);
+  const [appState, dispatch] = useReducer(appStateReducer, {
+    screen: "WORKSPACE",
+    address: WORKSPACE_ADDR,
+  });
 
   // This is a Relay environment, which is where Relay stores its data cache
   // and configurations for how to fetch data
   const [env] = useState(
     createEnvironment(
       createSchemaContext("MEMORY", {
-        workspaceAddresses: [workspaceAddr],
+        workspaceAddresses: [WORKSPACE_ADDR],
       })
     )
   );
@@ -67,9 +88,12 @@ const App: React.FC = () => {
           setAuthor,
           statusBarHeight,
           setStatusBarHeight,
+          appStateDispatch: dispatch,
         }}
       >
-        <WorkspaceViewer workspaceAddress={workspaceAddr} relayEnv={env} />
+        {appState.screen === "WORKSPACE" ? (
+          <WorkspaceViewer workspaceAddress={appState.address} relayEnv={env} />
+        ) : null}
       </LobbyContext.Provider>
     </ThemeProvider>
   );
