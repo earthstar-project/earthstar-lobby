@@ -9,7 +9,7 @@ export type WorkspaceViewerQueryVariables = {
 };
 export type WorkspaceViewerQueryResponse = {
     readonly workspace: {
-        readonly " $fragmentRefs": FragmentRefs<"StatusBar_workspace" | "WorkspaceMessages_workspace" | "MessageComposer_workspace">;
+        readonly " $fragmentRefs": FragmentRefs<"WorkspaceStatusBit_workspace" | "WorkspaceMessages_workspace" | "MessageComposer_workspace">;
     } | null;
 };
 export type WorkspaceViewerQuery = {
@@ -24,7 +24,7 @@ query WorkspaceViewerQuery(
   $workspace: String!
 ) {
   workspace(address: $workspace) {
-    ...StatusBar_workspace
+    ...WorkspaceStatusBit_workspace
     ...WorkspaceMessages_workspace
     ...MessageComposer_workspace
     id
@@ -58,11 +58,6 @@ fragment Message_document on ES4Document {
   }
 }
 
-fragment StatusBar_workspace on Workspace {
-  address
-  name
-}
-
 fragment WorkspaceMessages_workspace on Workspace {
   address
   documents(sortedBy: NEWEST, pathPrefixes: ["/lobby"]) {
@@ -77,6 +72,11 @@ fragment WorkspaceMessages_workspace on Workspace {
       id
     }
   }
+}
+
+fragment WorkspaceStatusBit_workspace on Workspace {
+  name
+  address
 }
 */
 
@@ -127,7 +127,7 @@ return {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "StatusBar_workspace"
+            "name": "WorkspaceStatusBit_workspace"
           },
           {
             "args": null,
@@ -160,7 +160,6 @@ return {
         "name": "workspace",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
           {
             "alias": null,
             "args": null,
@@ -168,6 +167,7 @@ return {
             "name": "name",
             "storageKey": null
           },
+          (v2/*: any*/),
           {
             "alias": null,
             "args": [
@@ -290,14 +290,14 @@ return {
     ]
   },
   "params": {
-    "cacheID": "78eb5f0f4d01087dc1e575992e13e2aa",
+    "cacheID": "6ca6f72c30bec27e14f94b6a75670d00",
     "id": null,
     "metadata": {},
     "name": "WorkspaceViewerQuery",
     "operationKind": "query",
-    "text": "query WorkspaceViewerQuery(\n  $workspace: String!\n) {\n  workspace(address: $workspace) {\n    ...StatusBar_workspace\n    ...WorkspaceMessages_workspace\n    ...MessageComposer_workspace\n    id\n  }\n}\n\nfragment MessageComposer_workspace on Workspace {\n  address\n}\n\nfragment MessageEditor_document on ES4Document {\n  content\n}\n\nfragment Message_document on ES4Document {\n  ...MessageEditor_document\n  id\n  content\n  path\n  timestamp\n  deleteAfter\n  workspace {\n    address\n    id\n  }\n  author {\n    address\n    displayName\n    shortName\n    id\n  }\n}\n\nfragment StatusBar_workspace on Workspace {\n  address\n  name\n}\n\nfragment WorkspaceMessages_workspace on Workspace {\n  address\n  documents(sortedBy: NEWEST, pathPrefixes: [\"/lobby\"]) {\n    __typename\n    ... on ES4Document {\n      id\n      timestamp\n      ...Message_document\n    }\n    ... on Node {\n      __isNode: __typename\n      id\n    }\n  }\n}\n"
+    "text": "query WorkspaceViewerQuery(\n  $workspace: String!\n) {\n  workspace(address: $workspace) {\n    ...WorkspaceStatusBit_workspace\n    ...WorkspaceMessages_workspace\n    ...MessageComposer_workspace\n    id\n  }\n}\n\nfragment MessageComposer_workspace on Workspace {\n  address\n}\n\nfragment MessageEditor_document on ES4Document {\n  content\n}\n\nfragment Message_document on ES4Document {\n  ...MessageEditor_document\n  id\n  content\n  path\n  timestamp\n  deleteAfter\n  workspace {\n    address\n    id\n  }\n  author {\n    address\n    displayName\n    shortName\n    id\n  }\n}\n\nfragment WorkspaceMessages_workspace on Workspace {\n  address\n  documents(sortedBy: NEWEST, pathPrefixes: [\"/lobby\"]) {\n    __typename\n    ... on ES4Document {\n      id\n      timestamp\n      ...Message_document\n    }\n    ... on Node {\n      __isNode: __typename\n      id\n    }\n  }\n}\n\nfragment WorkspaceStatusBit_workspace on Workspace {\n  name\n  address\n}\n"
   }
 };
 })();
-(node as any).hash = '15a3725f576f7553ecdcee5f14da02b4';
+(node as any).hash = 'db0c286de47cd62e6eeecf6e7bc03e94';
 export default node;

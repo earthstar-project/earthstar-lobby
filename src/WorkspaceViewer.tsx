@@ -4,12 +4,15 @@ import { Environment } from "relay-runtime";
 import { css } from "styled-components/macro";
 import graphql from "babel-plugin-relay/macro";
 
-import StatusBar from "./StatusBar";
+import StatusBar from "./NewStatusBar";
 import MessageComposer from "./MessageComposer";
 import WorkspaceMessages from "./WorkspaceMessages";
+import AuthorStatusBit from "./AuthorStatusBit";
+import WorkspaceStatusBit from "./WorkspaceStatusBit";
 
 import SyncMutation from "./mutations/SyncMutation";
 import { LobbyContext } from "./util/lobby-context";
+import SetMutation from "./mutations/SetMutation";
 
 import { WorkspaceViewerQuery } from "./__generated__/WorkspaceViewerQuery.graphql";
 
@@ -19,6 +22,16 @@ type WorkspaceViewerProps = {
   workspaceAddress: string;
   relayEnv: Environment;
 };
+
+export const WorkspaceViewerContext = React.createContext<{
+  isWorkspaceDirty: boolean;
+  setIsWorkspaceDirty: (isDirty: boolean) => void;
+  setToWorkspace: (content: string, path: string) => void;
+}>({
+  isWorkspaceDirty: false,
+  setIsWorkspaceDirty: () => {},
+  setToWorkspace: () => {},
+});
 
 const WorkspaceViewer: React.FC<WorkspaceViewerProps> = ({
   workspaceAddress,
@@ -59,6 +72,27 @@ const WorkspaceViewer: React.FC<WorkspaceViewerProps> = ({
 
   const { author } = useContext(LobbyContext);
 
+  const setToWorkspace = (content: string, path: string) => {
+    if (!author) {
+      return;
+    }
+
+    SetMutation.commit(
+      relayEnv,
+      {
+        author,
+        document: {
+          content,
+          path,
+        },
+        workspace: workspaceAddress,
+      },
+      () => {
+        setIsWorkspaceDirty(true);
+      }
+    );
+  };
+
   return (
     /* https://relay.dev/docs/en/query-renderer */
     /* Data for the app is fetched here from earthstar-graphql */
@@ -70,7 +104,7 @@ const WorkspaceViewer: React.FC<WorkspaceViewerProps> = ({
           workspace(address: $workspace) {
             # https://graphql.org/learn/queries/#fragments
             # Components declare their own data dependencies independently
-            ...StatusBar_workspace
+            ...WorkspaceStatusBit_workspace
             ...WorkspaceMessages_workspace
             ...MessageComposer_workspace
           }
@@ -88,29 +122,38 @@ const WorkspaceViewer: React.FC<WorkspaceViewerProps> = ({
           return <div>Loading...</div>;
         }
         return props.workspace ? (
-          <div
-            css={css`
+          <WorkspaceViewerContext.Provider
+            value={{
+              isWorkspaceDirty,
+              setIsWorkspaceDirty,
+              setToWorkspace,
+            }}
+          >
+            <div
+              css={css`
 				font: ${(props) => `${props.theme.font.size}px ${props.theme.font.family}`};}
 				  background: ${(props) => props.theme.colours.bg}
 			  `}
-          >
-            <StatusBar
-              isWorkspaceDirty={isWorkspaceDirty}
-              setIsWorkspaceDirty={setIsWorkspaceDirty}
-              workspace={props.workspace}
-            />
-            {author ? (
-              <MessageComposer
+            >
+              <StatusBar
+                leftChildren={
+                  <WorkspaceStatusBit workspace={props.workspace} />
+                }
+                rightChildren={<AuthorStatusBit />}
+              />
+              {author ? (
+                <MessageComposer
+                  setIsWorkspaceDirty={setIsWorkspaceDirty}
+                  workspace={props.workspace}
+                  author={author}
+                />
+              ) : null}
+              <WorkspaceMessages
                 setIsWorkspaceDirty={setIsWorkspaceDirty}
                 workspace={props.workspace}
-                author={author}
               />
-            ) : null}
-            <WorkspaceMessages
-              setIsWorkspaceDirty={setIsWorkspaceDirty}
-              workspace={props.workspace}
-            />
-          </div>
+            </div>
+          </WorkspaceViewerContext.Provider>
         ) : (
           <div>Couldn't find the workspace!</div>
         );

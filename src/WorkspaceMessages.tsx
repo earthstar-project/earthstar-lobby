@@ -83,7 +83,7 @@ const WorkspaceMessages: React.FC<WorkspaceMessagesProps> = ({
                 }
 
                 return (
-                  <>
+                  <React.Fragment key={doc.id}>
                     <Message
                       setIsWorkspaceDirty={setIsWorkspaceDirty}
                       key={doc.id}
@@ -100,7 +100,7 @@ const WorkspaceMessages: React.FC<WorkspaceMessagesProps> = ({
                         />
                       </MaxWidth>
                     ) : null}
-                  </>
+                  </React.Fragment>
                 );
               })}
             </ol>
