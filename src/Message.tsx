@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { createFragmentContainer, RelayProp } from "react-relay";
 import graphql from "babel-plugin-relay/macro";
 import { Message_document } from "./__generated__/Message_document.graphql";
@@ -35,7 +35,7 @@ const Message: React.FC<MessageProps> = ({
   const { author } = useContext(LobbyContext);
 
   // For pointing the contextual panel at the right place
-  const buttonRef = useRef(null);
+  const [buttonNode, setButtonNode] = useState<HTMLElement | null>(null);
 
   // Sync the deletion of the post after the deleteAfter has passed
   useEffect(() => {
@@ -84,7 +84,7 @@ const Message: React.FC<MessageProps> = ({
   return (
     <div style={{ marginBottom: 16 }}>
       {openPanel !== "none" ? (
-        <ContextualPanel pointsToRef={buttonRef} accentColour={"gamma"}>
+        <ContextualPanel pointsToNode={buttonNode} accentColour={"gamma"}>
           {openPanel === "editing" ? (
             <MessageEditor
               cancelEditing={() => setOpenPanel("none")}
@@ -119,7 +119,7 @@ const Message: React.FC<MessageProps> = ({
         <div
           title={document.author.address}
           css={`
-            padding: 12px 8px 0 8px;
+            padding: 12px 0 0 0;
             align-items: baseline;
           `}
         >
@@ -155,7 +155,7 @@ const Message: React.FC<MessageProps> = ({
                   color: ${(props) => props.theme.colours.fgHint};
                 `}
                 accent={"gamma"}
-                ref={buttonRef}
+                ref={(inst) => setButtonNode(inst)}
                 onClick={() => {
                   setOpenPanel((prev) =>
                     prev === "none" ? "options" : "none"
@@ -172,7 +172,7 @@ const Message: React.FC<MessageProps> = ({
         <div
           css={css`
             color: ${(props) => props.theme.colours.fg};
-            padding: 4px 8px 0 8px;
+            padding: 4px 0 0 0;
             a {
               overflow-wrap: break-word;
               word-wrap: break-word;

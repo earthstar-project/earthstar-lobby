@@ -57,7 +57,7 @@ const WorkspaceMessages: React.FC<WorkspaceMessagesProps> = ({
                 background: ${(props) => props.theme.colours.bg};
                 border-bottom: 1px solid
                   ${(props) => props.theme.colours.bgHint};
-                padding: 12px 8px;
+                padding: 12px 0;
                 display: flex;
                 justify-content: center;
                 box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.04);

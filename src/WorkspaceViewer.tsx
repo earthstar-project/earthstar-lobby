@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { QueryRenderer } from "react-relay";
 import { Environment } from "relay-runtime";
-import { css } from "styled-components/macro";
 import graphql from "babel-plugin-relay/macro";
 
 import StatusBar from "./NewStatusBar";
@@ -10,13 +9,10 @@ import WorkspaceMessages from "./WorkspaceMessages";
 import AuthorStatusBit from "./AuthorStatusBit";
 import WorkspaceStatusBit from "./WorkspaceStatusBit";
 
-import SyncMutation from "./mutations/SyncMutation";
 import { LobbyContext } from "./util/lobby-context";
 import SetMutation from "./mutations/SetMutation";
 
 import { WorkspaceViewerQuery } from "./__generated__/WorkspaceViewerQuery.graphql";
-
-import { PUB_URL } from "./constants";
 
 type WorkspaceViewerProps = {
   workspaceAddress: string;
@@ -37,22 +33,6 @@ const WorkspaceViewer: React.FC<WorkspaceViewerProps> = ({
   workspaceAddress,
   relayEnv,
 }) => {
-  // Sync with the pub once when the app starts up.
-  useEffect(() => {
-    const disposable = SyncMutation.commit(
-      relayEnv,
-      {
-        pubUrl: PUB_URL,
-        workspace: workspaceAddress,
-      },
-      () => {
-        console.log("Inital sync ✅");
-      }
-    );
-
-    return () => disposable.dispose();
-  }, [relayEnv]);
-
   const [isWorkspaceDirty, setIsWorkspaceDirty] = useState(false);
 
   // Stop the window from closing if there are unsynced changes.
@@ -129,15 +109,12 @@ const WorkspaceViewer: React.FC<WorkspaceViewerProps> = ({
               setToWorkspace,
             }}
           >
-            <div
-              css={css`
-				font: ${(props) => `${props.theme.font.size}px ${props.theme.font.family}`};}
-				  background: ${(props) => props.theme.colours.bg}
-			  `}
-            >
+            <>
               <StatusBar
                 leftChildren={
-                  <WorkspaceStatusBit workspace={props.workspace} />
+                  <>
+                    <WorkspaceStatusBit workspace={props.workspace} />
+                  </>
                 }
                 rightChildren={<AuthorStatusBit />}
               />
@@ -152,7 +129,7 @@ const WorkspaceViewer: React.FC<WorkspaceViewerProps> = ({
                 setIsWorkspaceDirty={setIsWorkspaceDirty}
                 workspace={props.workspace}
               />
-            </div>
+            </>
           </WorkspaceViewerContext.Provider>
         ) : (
           <div>Couldn't find the workspace!</div>

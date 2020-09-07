@@ -5,7 +5,7 @@ import MaxWidth from "./MaxWidth";
 
 type ContextPanelProps = {
   accentColour: Accent;
-  pointsToRef?: React.RefObject<HTMLElement>;
+  pointsToNode: HTMLElement | null;
 };
 
 // Determine where to place the little speech bubble tail using a ref
@@ -15,7 +15,7 @@ function getCenterXOfElement(el: HTMLElement) {
 
 const ContextualPanel: React.FC<ContextPanelProps> = ({
   accentColour,
-  pointsToRef,
+  pointsToNode,
   children,
 }) => {
   return (
@@ -23,13 +23,13 @@ const ContextualPanel: React.FC<ContextPanelProps> = ({
       css={css`
         background: ${(props) => props.theme.colours[accentColour]};
         color: ${(props) => props.theme.colours.fg};
-        padding: 12px 8px;
+        padding: 12px 0;
         position: relative;
         box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.06);
       `}
     >
       <MaxWidth>{children}</MaxWidth>
-      {pointsToRef && pointsToRef.current ? (
+      {pointsToNode ? (
         <div
           css={css`
             width: 0;
@@ -40,7 +40,7 @@ const ContextualPanel: React.FC<ContextPanelProps> = ({
               ${(props) => props.theme.colours[accentColour]};
             position: absolute;
             bottom: -10px;
-            left: ${getCenterXOfElement(pointsToRef.current) - 10}px;
+            left: ${getCenterXOfElement(pointsToNode) - 10}px;
           `}
         ></div>
       ) : null}

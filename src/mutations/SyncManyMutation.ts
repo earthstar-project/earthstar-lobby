@@ -1,15 +1,15 @@
 import { commitMutation, Environment } from "react-relay";
 import graphql from "babel-plugin-relay/macro";
 import {
-  SyncMutation,
-  SyncMutationVariables,
-  SyncMutationResponse,
-} from "./__generated__/SyncMutation.graphql";
+  SyncManyMutation,
+  SyncManyMutationVariables,
+  SyncManyMutationResponse,
+} from "./__generated__/SyncManyMutation.graphql";
 import { PayloadError } from "relay-runtime";
 
 const mutation = graphql`
-  mutation SyncMutation($workspace: String!, $pubUrl: String!) {
-    syncWithPub(workspace: $workspace, pubUrl: $pubUrl) {
+  mutation SyncManyMutation($workspaces: [SyncInput!]!) {
+    syncMany(workspaces: $workspaces) {
       __typename
       ... on SyncError {
         reason
@@ -32,8 +32,8 @@ const mutation = graphql`
           acceptedCount
         }
         syncedWorkspace {
-          ...WorkspaceSummary_workspace
           ...WorkspaceMessages_workspace
+          ...WorkspaceSummary_workspace
         }
       }
     }
@@ -42,36 +42,45 @@ const mutation = graphql`
 
 function commit(
   environment: Environment,
-  variables: SyncMutationVariables,
+  variables: SyncManyMutationVariables,
   onCompleted?: (
-    response: SyncMutationResponse,
+    response: SyncManyMutationResponse,
     errors: readonly PayloadError[] | null | undefined
   ) => void
 ) {
-  return commitMutation<SyncMutation>(environment, {
+  return commitMutation<SyncManyMutation>(environment, {
     mutation,
     variables,
     onCompleted,
     updater: (store) => {
-      const result = store.getRootField("syncWithPub");
+      const results = store.getPluralRootField("syncMany");
 
-      if (!result) {
+      if (!results) {
         return;
       }
 
-      const workspace =
-        result.getType() === "DetailedSyncSuccess" || "SyncSuccess"
-          ? result.getLinkedRecord("syncedWorkspace")
-          : null;
+      const workspaces = results.map((res) => {
+        if (!res) {
+          return null;
+        }
+
+        const resType = res.getType();
+
+        if (resType === "DetailedSyncSuccess" || resType === "SyncSuccess") {
+          return res.getLinkedRecord("syncedWorkspace");
+        }
+
+        return null;
+      });
 
       const prevWorkspaces = store.getRoot().getLinkedRecords("workspaces");
 
       if (!prevWorkspaces) {
-        store.getRoot().setLinkedRecords([workspace], "workspaces");
+        store.getRoot().setLinkedRecords(workspaces, "workspaces");
         return;
       }
 
-      const next = Array.from(new Set([...prevWorkspaces, workspace]));
+      const next = Array.from(new Set([...prevWorkspaces, ...workspaces]));
 
       store.getRoot().setLinkedRecords(next, "workspaces");
     },

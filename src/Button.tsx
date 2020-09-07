@@ -19,6 +19,10 @@ const Button = styled.button`
     left: 2px;
     box-shadow: 0px 0px 0px 0px;
   }
+  &:hover {
+    color: ${(props) => props.theme.colours.inputBg};
+    background: ${(props) => props.theme.colours.fg};
+  }
 `;
 
 export default Button;

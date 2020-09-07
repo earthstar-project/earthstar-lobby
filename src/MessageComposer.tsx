@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { createFragmentContainer, RelayProp } from "react-relay";
 import graphql from "babel-plugin-relay/macro";
 import { MessageComposer_workspace } from "./__generated__/MessageComposer_workspace.graphql";
@@ -39,7 +39,7 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
         css={css`
           display: flex;
           flex-direction: column;
-          padding: 8px;
+          padding: 8px 0;
         `}
       >
         <TextArea

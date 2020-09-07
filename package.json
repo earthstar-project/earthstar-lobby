@@ -16,7 +16,7 @@
     "babel-plugin-relay": "^10.0.1",
     "dot-beat-time": "^1.2.1",
     "earthstar": "5.2.3",
-    "earthstar-graphql": "5.0.0",
+    "earthstar-graphql": "5.1.0",
     "graphql": "^15.3.0",
     "identicon.js": "^2.3.3",
     "react": "^16.13.1",

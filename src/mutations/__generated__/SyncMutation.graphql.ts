@@ -15,7 +15,7 @@ export type SyncMutationResponse = {
     } | {
         readonly __typename: "SyncSuccess";
         readonly syncedWorkspace: {
-            readonly " $fragmentRefs": FragmentRefs<"WorkspaceMessages_workspace">;
+            readonly " $fragmentRefs": FragmentRefs<"WorkspaceSummary_workspace" | "WorkspaceMessages_workspace">;
         };
     } | {
         readonly __typename: "DetailedSyncSuccess";
@@ -30,7 +30,7 @@ export type SyncMutationResponse = {
             readonly acceptedCount: number;
         };
         readonly syncedWorkspace: {
-            readonly " $fragmentRefs": FragmentRefs<"WorkspaceMessages_workspace">;
+            readonly " $fragmentRefs": FragmentRefs<"WorkspaceSummary_workspace" | "WorkspaceMessages_workspace">;
         };
     } | {
         /*This will never be '%other', but we need some
@@ -57,6 +57,7 @@ mutation SyncMutation(
     }
     ... on SyncSuccess {
       syncedWorkspace {
+        ...WorkspaceSummary_workspace
         ...WorkspaceMessages_workspace
         id
       }
@@ -73,6 +74,7 @@ mutation SyncMutation(
         acceptedCount
       }
       syncedWorkspace {
+        ...WorkspaceSummary_workspace
         ...WorkspaceMessages_workspace
         id
       }
@@ -111,6 +113,28 @@ fragment WorkspaceMessages_workspace on Workspace {
       id
       timestamp
       ...Message_document
+    }
+    ... on Node {
+      __isNode: __typename
+      id
+    }
+  }
+}
+
+fragment WorkspaceSummary_workspace on Workspace {
+  name
+  address
+  population
+  documents(sortedBy: NEWEST, pathPrefixes: ["/lobby"]) {
+    __typename
+    ... on ES4Document {
+      id
+      content
+      author {
+        shortName
+        address
+        id
+      }
     }
     ... on Node {
       __isNode: __typename
@@ -172,6 +196,11 @@ v5 = {
   "name": "syncedWorkspace",
   "plural": false,
   "selections": [
+    {
+      "args": null,
+      "kind": "FragmentSpread",
+      "name": "WorkspaceSummary_workspace"
+    },
     {
       "args": null,
       "kind": "FragmentSpread",
@@ -245,7 +274,21 @@ v11 = {
   "name": "syncedWorkspace",
   "plural": false,
   "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "name",
+      "storageKey": null
+    },
     (v9/*: any*/),
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "population",
+      "storageKey": null
+    },
     {
       "alias": null,
       "args": [
@@ -276,14 +319,41 @@ v11 = {
               "alias": null,
               "args": null,
               "kind": "ScalarField",
-              "name": "timestamp",
+              "name": "content",
+              "storageKey": null
+            },
+            {
+              "alias": null,
+              "args": null,
+              "concreteType": "Author",
+              "kind": "LinkedField",
+              "name": "author",
+              "plural": false,
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "shortName",
+                  "storageKey": null
+                },
+                (v9/*: any*/),
+                (v10/*: any*/),
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "displayName",
+                  "storageKey": null
+                }
+              ],
               "storageKey": null
             },
             {
               "alias": null,
               "args": null,
               "kind": "ScalarField",
-              "name": "content",
+              "name": "timestamp",
               "storageKey": null
             },
             {
@@ -309,33 +379,6 @@ v11 = {
               "plural": false,
               "selections": [
                 (v9/*: any*/),
-                (v10/*: any*/)
-              ],
-              "storageKey": null
-            },
-            {
-              "alias": null,
-              "args": null,
-              "concreteType": "Author",
-              "kind": "LinkedField",
-              "name": "author",
-              "plural": false,
-              "selections": [
-                (v9/*: any*/),
-                {
-                  "alias": null,
-                  "args": null,
-                  "kind": "ScalarField",
-                  "name": "displayName",
-                  "storageKey": null
-                },
-                {
-                  "alias": null,
-                  "args": null,
-                  "kind": "ScalarField",
-                  "name": "shortName",
-                  "storageKey": null
-                },
                 (v10/*: any*/)
               ],
               "storageKey": null
@@ -447,14 +490,14 @@ return {
     ]
   },
   "params": {
-    "cacheID": "6a91b75233085183bf64a3dd4b46b9cd",
+    "cacheID": "c621b4ba7f758dc1ca8937a5e6212d33",
     "id": null,
     "metadata": {},
     "name": "SyncMutation",
     "operationKind": "mutation",
-    "text": "mutation SyncMutation(\n  $workspace: String!\n  $pubUrl: String!\n) {\n  syncWithPub(workspace: $workspace, pubUrl: $pubUrl) {\n    __typename\n    ... on SyncError {\n      reason\n    }\n    ... on SyncSuccess {\n      syncedWorkspace {\n        ...WorkspaceMessages_workspace\n        id\n      }\n    }\n    ... on DetailedSyncSuccess {\n      pushed {\n        rejectedCount\n        ignoredCount\n        acceptedCount\n      }\n      pulled {\n        rejectedCount\n        ignoredCount\n        acceptedCount\n      }\n      syncedWorkspace {\n        ...WorkspaceMessages_workspace\n        id\n      }\n    }\n  }\n}\n\nfragment MessageEditor_document on ES4Document {\n  content\n}\n\nfragment Message_document on ES4Document {\n  ...MessageEditor_document\n  id\n  content\n  path\n  timestamp\n  deleteAfter\n  workspace {\n    address\n    id\n  }\n  author {\n    address\n    displayName\n    shortName\n    id\n  }\n}\n\nfragment WorkspaceMessages_workspace on Workspace {\n  address\n  documents(sortedBy: NEWEST, pathPrefixes: [\"/lobby\"]) {\n    __typename\n    ... on ES4Document {\n      id\n      timestamp\n      ...Message_document\n    }\n    ... on Node {\n      __isNode: __typename\n      id\n    }\n  }\n}\n"
+    "text": "mutation SyncMutation(\n  $workspace: String!\n  $pubUrl: String!\n) {\n  syncWithPub(workspace: $workspace, pubUrl: $pubUrl) {\n    __typename\n    ... on SyncError {\n      reason\n    }\n    ... on SyncSuccess {\n      syncedWorkspace {\n        ...WorkspaceSummary_workspace\n        ...WorkspaceMessages_workspace\n        id\n      }\n    }\n    ... on DetailedSyncSuccess {\n      pushed {\n        rejectedCount\n        ignoredCount\n        acceptedCount\n      }\n      pulled {\n        rejectedCount\n        ignoredCount\n        acceptedCount\n      }\n      syncedWorkspace {\n        ...WorkspaceSummary_workspace\n        ...WorkspaceMessages_workspace\n        id\n      }\n    }\n  }\n}\n\nfragment MessageEditor_document on ES4Document {\n  content\n}\n\nfragment Message_document on ES4Document {\n  ...MessageEditor_document\n  id\n  content\n  path\n  timestamp\n  deleteAfter\n  workspace {\n    address\n    id\n  }\n  author {\n    address\n    displayName\n    shortName\n    id\n  }\n}\n\nfragment WorkspaceMessages_workspace on Workspace {\n  address\n  documents(sortedBy: NEWEST, pathPrefixes: [\"/lobby\"]) {\n    __typename\n    ... on ES4Document {\n      id\n      timestamp\n      ...Message_document\n    }\n    ... on Node {\n      __isNode: __typename\n      id\n    }\n  }\n}\n\nfragment WorkspaceSummary_workspace on Workspace {\n  name\n  address\n  population\n  documents(sortedBy: NEWEST, pathPrefixes: [\"/lobby\"]) {\n    __typename\n    ... on ES4Document {\n      id\n      content\n      author {\n        shortName\n        address\n        id\n      }\n    }\n    ... on Node {\n      __isNode: __typename\n      id\n    }\n  }\n}\n"
   }
 };
 })();
-(node as any).hash = '146eaea39a1cfd9ed944834fab8f3d6e';
+(node as any).hash = '267f5e1d03d5a292cc654325b3a42047';
 export default node;

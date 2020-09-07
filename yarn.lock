@@ -4447,10 +4447,10 @@ duplexify@^3.4.2, duplexify@^3.6.0:
     readable-stream "^2.0.0"
     stream-shift "^1.0.0"
 
-earthstar-graphql@5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/earthstar-graphql/-/earthstar-graphql-5.0.0.tgz#94eba2e3f044ae28ca3c0db5f148c870c4f23958"
-  integrity sha512-MQTX01vjWOhjt8soh7mC+qYQmj8WWR8Juv/5SrkqmvgCuWZR+yY1uOl62sX/dAGbKYpoTNys0OSdP8jtBM5z2w==
+earthstar-graphql@5.1.0:
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/earthstar-graphql/-/earthstar-graphql-5.1.0.tgz#8a54b5e1e7850952408cc57a4d34520c015d7829"
+  integrity sha512-OBFf3dvJ335yVk5HhopmfTS8XjjvTwCMabcVcO8cKFbFc12QSacX3rK6dEuwaLuLAQQecFju+qrL16HbV+3DNQ==
   dependencies:
     cross-fetch "^3.0.5"
     graphql-type-json "0.3.2"

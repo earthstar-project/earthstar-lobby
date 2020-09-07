@@ -1,4 +1,7 @@
-import { useCallback, useRef, useEffect } from "react";
+import { useCallback, useRef, useEffect, useState, useMemo } from "react";
+import { useWindupString } from "windups";
+import { isKeypair } from "./handy";
+import { WORKSPACE_ADDR, PUB_URL } from "../constants";
 
 export function useDownload(data: string, filename: string): () => void {
   return useCallback(() => {
@@ -24,4 +27,166 @@ export function usePrevious<T>(value: T): T | undefined {
   }, [value]); // Only re-run if value changes
 
   return ref.current;
+}
+
+export function useWindupAlert(
+  delay: number = 3000
+): [string | null, (message: string) => void] {
+  const [tempMessage, setTempMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (tempMessage) {
+      const timeout = setTimeout(() => {
+        setTempMessage(null);
+      }, delay);
+
+      return () => {
+        clearTimeout(timeout);
+      };
+    }
+  }, [tempMessage, delay]);
+
+  const [windup] = useWindupString(tempMessage || "");
+
+  const set = useCallback((message: string) => {
+    setTempMessage(message);
+  }, []);
+
+  return [windup === "" ? null : windup, set];
+}
+
+function isStringList(list: any): list is string[] {
+  if (!Array.isArray(list)) {
+    return false;
+  }
+
+  if (!list.every((item) => typeof item === "string")) {
+    return false;
+  }
+
+  return true;
+}
+
+export function usePersistedAuthor() {
+  const maybeSessionAuthor = localStorage.getItem("authorKeypair");
+
+  return useMemo(() => {
+    if (!maybeSessionAuthor) {
+      return null;
+    }
+
+    const parsed = JSON.parse(maybeSessionAuthor);
+
+    if (parsed && !isKeypair(parsed)) {
+      return null;
+    }
+
+    return parsed;
+  }, [maybeSessionAuthor]);
+}
+
+const INIT_WORKSPACES = [WORKSPACE_ADDR];
+
+export function usePersistedWorkspaces() {
+  const wsInStorage = localStorage.getItem("workspaces");
+
+  useEffect(() => {
+    if (!wsInStorage) {
+      localStorage.setItem("workspaces", JSON.stringify(INIT_WORKSPACES));
+    }
+
+    if (wsInStorage) {
+      const parsed = JSON.parse(wsInStorage);
+
+      if (parsed && !isStringList(parsed)) {
+        localStorage.setItem("workspaces", JSON.stringify(INIT_WORKSPACES));
+      }
+    }
+  }, [wsInStorage]);
+
+  return useMemo(() => {
+    if (!wsInStorage) {
+      return INIT_WORKSPACES;
+    }
+
+    const parsed = JSON.parse(wsInStorage);
+
+    if (parsed && !isStringList(parsed)) {
+      return INIT_WORKSPACES;
+    }
+
+    return parsed as string[];
+  }, [wsInStorage]);
+}
+
+export function usePersistWorkspace() {
+  const existing = usePersistedWorkspaces();
+
+  return useCallback(
+    (address: string) => {
+      const prev = existing ? existing : [WORKSPACE_ADDR];
+
+      prev.push(address);
+
+      const next = Array.from(new Set(prev));
+
+      localStorage.setItem("workspaces", JSON.stringify(next));
+    },
+    [existing]
+  );
+}
+
+const INIT_PUBS = { [WORKSPACE_ADDR]: [PUB_URL] };
+
+export function usePubs() {
+  const pubsInStorage = localStorage.getItem("pubs");
+
+  useEffect(() => {
+    if (!pubsInStorage) {
+      localStorage.setItem("pubs", JSON.stringify(INIT_PUBS));
+    }
+
+    if (pubsInStorage) {
+      const parsed = JSON.parse(pubsInStorage);
+
+      if (parsed && typeof parsed !== "object") {
+        localStorage.setItem("pubs", JSON.stringify(INIT_PUBS));
+      }
+    }
+  }, [pubsInStorage]);
+
+  return useMemo(() => {
+    if (!pubsInStorage) {
+      return INIT_PUBS;
+    }
+
+    const parsed = JSON.parse(pubsInStorage);
+
+    if (parsed && typeof parsed !== "object") {
+      return INIT_PUBS;
+    }
+
+    return parsed as Record<string, string[]>;
+  }, [pubsInStorage]);
+}
+
+export function useWorkspacePubs(address: string) {
+  const pubs = usePubs();
+
+  return useMemo(() => {
+    return pubs[address];
+  }, [address, pubs]);
+}
+
+export function useSetPubs() {
+  const existingPubs = usePubs();
+
+  return useCallback(
+    (address: string, pubs: string[]) => {
+      const nextPubs = { ...existingPubs, [address]: pubs };
+
+      localStorage.setItem("pubs", JSON.stringify(nextPubs));
+    },
+    [existingPubs]
+  );
 }

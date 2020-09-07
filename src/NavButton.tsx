@@ -22,6 +22,15 @@ const NavButton = styled.button<{
   text-decoration-color: ${(props) =>
     props.theme.colours[lineMap[props.accent]]};
   font: inherit;
+  position: relative;
+  transition: 250ms all;
+  &:hover {
+    text-decoration-thickness: 3px;
+    text-decoration-color: ${(props) => props.theme.colours.fg};
+  }
+  &:active {
+    top: 1px;
+  }
 `;
 
 export default NavButton;

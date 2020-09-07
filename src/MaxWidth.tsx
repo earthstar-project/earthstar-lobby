@@ -4,6 +4,7 @@ import styled from "styled-components/macro";
 const MaxWidth = styled.div`
   max-width: 30em;
   margin: auto;
+  padding: 0;
 `;
 
 export default MaxWidth;

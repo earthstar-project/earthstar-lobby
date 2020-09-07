@@ -1,19 +1,18 @@
-import React, { useState, useRef, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { createFragmentContainer, RelayProp } from "react-relay";
 import graphql from "babel-plugin-relay/macro";
 import { css } from "styled-components/macro";
 import { WindupChildren } from "windups";
 
-import { PUB_URL } from "./constants";
-
 import Button from "./Button";
 import NavButton from "./NavButton";
 import { WorkspaceViewerContext } from "./WorkspaceViewer";
 import { StatusBarContext } from "./NewStatusBar";
 import ContextualPanel from "./ContextualPanel";
-import SyncMutation from "./mutations/SyncMutation";
+import SyncManyMutation from "./mutations/SyncManyMutation";
 import { LobbyContext } from "./util/lobby-context";
+import { useWorkspacePubs } from "./util/hooks";
 
 import { WorkspaceStatusBit_workspace } from "./__generated__/WorkspaceStatusBit_workspace.graphql";
 
@@ -35,7 +34,10 @@ const WorkspaceStatusBit: React.FC<WorkspaceStatusBitProps> = ({
   );
   const { setPanelState, isOn, panelNode } = useContext(StatusBarContext);
 
-  const workspaceNameRef = useRef(null);
+  const [
+    workspaceNameNode,
+    setWorkspaceNameNode,
+  ] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
     if (tempMessage) {
@@ -49,75 +51,50 @@ const WorkspaceStatusBit: React.FC<WorkspaceStatusBitProps> = ({
     }
   }, [tempMessage]);
 
+  const pubs = useWorkspacePubs(workspace.address);
+
   return (
     <>
       {createPortal(
-        <ContextualPanel accentColour={"alpha"}>
+        <ContextualPanel
+          accentColour={"alpha"}
+          pointsToNode={workspaceNameNode}
+        >
           <>
-            <Button
-              onClick={() => {
-                setIsSyncing(true);
-                SyncMutation.commit(
-                  relay.environment,
-                  {
-                    pubUrl: PUB_URL,
-                    workspace: workspace.address,
-                  },
-                  (res) => {
-                    console.log("Sync Complete ✅");
-                    setIsWorkspaceDirty(false);
-                    setIsSyncing(false);
-
-                    if (res.syncWithPub.__typename !== "DetailedSyncSuccess") {
-                      return;
-                    }
-
-                    if (
-                      res.syncWithPub.pulled.acceptedCount === 0 &&
-                      res.syncWithPub.pushed.acceptedCount === 0
-                    ) {
-                      setTempMessage("No updates.");
-                      return;
-                    }
-
-                    if (res.syncWithPub.pulled.acceptedCount === 0) {
-                      setTempMessage(
-                        `Pushed ${res.syncWithPub.pushed.acceptedCount} update${
-                          res.syncWithPub.pushed.acceptedCount > 1 ? "s" : ""
-                        }.`
-                      );
-                      return;
-                    }
-
-                    if (res.syncWithPub.pushed.acceptedCount === 0) {
-                      setTempMessage(
-                        `Pulled ${res.syncWithPub.pulled.acceptedCount} update${
-                          res.syncWithPub.pulled.acceptedCount > 1 ? "s" : ""
-                        }.`
-                      );
-                      return;
-                    }
-
-                    setTempMessage(
-                      `Downloaded ${res.syncWithPub.pulled.acceptedCount}, uploaded ${res.syncWithPub.pushed.acceptedCount} posts.`
+            {pubs ? (
+              <>
+                <Button
+                  onClick={() => {
+                    setIsSyncing(true);
+                    SyncManyMutation.commit(
+                      relay.environment,
+                      {
+                        workspaces: [{ address: workspace.address, pubs }],
+                      },
+                      (res) => {
+                        setIsWorkspaceDirty(false);
+                        setIsSyncing(false);
+                        // TODO: make messages from multi sync result
+                        setTempMessage("Synced!");
+                      }
                     );
-                  }
-                );
-              }}
-            >
-              Sync this workspace
-            </Button>
-            {" or "}
+                  }}
+                >
+                  Sync this workspace
+                </Button>
+                {" or "}
+              </>
+            ) : null}
             <Button
               onClick={() => appStateDispatch({ type: "OPEN_DASHBOARD" })}
             >
-              View another one
+              Open another workspace
             </Button>
           </>
         </ContextualPanel>,
         panelNode
       )}
-      <div ref={workspaceNameRef}>
+      <div ref={(inst) => setWorkspaceNameNode(inst)}>
         <WindupChildren>
           {tempMessage ? (
             <span

@@ -1,10 +1,4 @@
-import React, {
-  useContext,
-  useEffect,
-  useCallback,
-  useState,
-  useRef,
-} from "react";
+import React, { useContext, useEffect, useCallback, useState } from "react";
 import { createPortal } from "react-dom";
 import { useDropzone } from "react-dropzone";
 import { useDownload } from "./util/hooks";
@@ -28,8 +22,6 @@ const AuthorStatusBit = () => {
 
   const isAuthorDefined = author !== null;
 
-  const authorRef = useRef(null);
-
   const { setPanelState, panelNode, panelState, isOn } = useContext(
     StatusBarContext
   );
@@ -37,7 +29,7 @@ const AuthorStatusBit = () => {
   // Close the contextual panel if the author changes (i.e. signs out or in)
   useEffect(() => {
     setPanelState("NONE");
-  }, [isAuthorDefined]);
+  }, [isAuthorDefined, setPanelState]);
 
   // What to do when a keypair is uploaded
   const onDrop = useCallback(
@@ -89,10 +81,12 @@ const AuthorStatusBit = () => {
     "author-management" | "no-identity" | "author-options"
   >(author ? "author-options" : "no-identity");
 
+  const [authorNode, setAuthorNode] = useState<HTMLDivElement | null>(null);
+
   return (
     <>
       {createPortal(
-        <ContextualPanel accentColour={"beta"} pointsToRef={authorRef}>
+        <ContextualPanel accentColour={"beta"} pointsToNode={authorNode}>
           {internalPanelState === "no-identity" ? (
             <div
               css={`
@@ -199,7 +193,7 @@ const AuthorStatusBit = () => {
         `}
       >
         <div
-          ref={authorRef}
+          ref={(inst) => setAuthorNode(inst)}
           css={`
             margin-right: 4px;
           `}

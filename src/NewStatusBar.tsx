@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useContext, useReducer } from "react";
+import React, { useState, useCallback, useContext, useReducer } from "react";
 import { css } from "styled-components/macro";
 
 import MaxWidth from "./MaxWidth";
@@ -30,7 +30,6 @@ function statusBarPanelReducer(
   state: StatusBarPanelState,
   action: StatusBarPanelAction
 ): StatusBarPanelState {
-  console.log({ state, action });
   switch (action) {
     case "LEFT":
       return state === "LEFT" ? "NONE" : "LEFT";
@@ -55,10 +54,8 @@ const StatusBar: React.FC<StatusBarProps> = ({
   );
 
   // Using these to make the contextual panel's arrow point to the right place
-  const leftContextualPanelRef = useRef<HTMLDivElement>(null);
-  const rightContextualPanelRef = useRef<HTMLDivElement>(null);
-
-  console.log({ panelState });
+  const [lCtxNode, setLCtxNode] = useState<HTMLDivElement | null>(null);
+  const [rCtxNode, setRCtxNode] = useState<HTMLDivElement | null>(null);
 
   const prevPanelState = usePrevious(panelState);
 
@@ -69,7 +66,7 @@ const StatusBar: React.FC<StatusBarProps> = ({
         setStatusBarHeight(node.getBoundingClientRect().height);
       }
     },
-    [prevPanelState, prevPanelState, setStatusBarHeight]
+    [prevPanelState, panelState, setStatusBarHeight]
   );
 
   return (
@@ -88,45 +85,51 @@ const StatusBar: React.FC<StatusBarProps> = ({
         css={css`
           display: ${panelState === "LEFT" ? "auto" : "none"};
         `}
-        ref={leftContextualPanelRef}
+        ref={(inst) => {
+          if (inst) {
+            setLCtxNode(inst);
+          }
+        }}
       ></div>
       <div
         css={css`
           display: ${panelState === "RIGHT" ? "auto" : "none"};
         `}
-        ref={rightContextualPanelRef}
+        ref={(inst) => {
+          if (inst) {
+            setRCtxNode(inst);
+          }
+        }}
       ></div>
       <MaxWidth>
         <div
           css={`
             display: flex;
             justify-content: space-between;
-            padding: 12px 8px;
+            padding: 12px 0;
             align-items: baseline;
           `}
         >
-          {React.isValidElement(leftChildren) &&
-          leftContextualPanelRef.current ? (
+          {React.isValidElement(leftChildren) && lCtxNode ? (
             <StatusBarContext.Provider
               value={{
                 setPanelState: dispatch,
                 panelState,
                 isOn: "LEFT",
-                panelNode: leftContextualPanelRef.current,
+                panelNode: lCtxNode,
               }}
             >
               {leftChildren}
             </StatusBarContext.Provider>
           ) : null}
           <div></div>
-          {React.isValidElement(rightChildren) &&
-          rightContextualPanelRef.current ? (
+          {React.isValidElement(rightChildren) && rCtxNode ? (
             <StatusBarContext.Provider
               value={{
                 setPanelState: dispatch,
                 panelState,
                 isOn: "RIGHT",
-                panelNode: rightContextualPanelRef.current,
+                panelNode: rCtxNode,
               }}
             >
               {rightChildren}
