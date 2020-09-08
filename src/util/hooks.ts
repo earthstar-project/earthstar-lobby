@@ -138,24 +138,13 @@ export function usePersistWorkspace() {
 
 const INIT_PUBS = { [WORKSPACE_ADDR]: [PUB_URL] };
 
-export function usePubs() {
-  const pubsInStorage = localStorage.getItem("pubs");
+export function usePubs(): [
+  Record<string, string[]>,
+  React.Dispatch<React.SetStateAction<Record<string, string[]>>>
+] {
+  const initVal = useMemo(() => {
+    const pubsInStorage = localStorage.getItem("pubs");
 
-  useEffect(() => {
-    if (!pubsInStorage) {
-      localStorage.setItem("pubs", JSON.stringify(INIT_PUBS));
-    }
-
-    if (pubsInStorage) {
-      const parsed = JSON.parse(pubsInStorage);
-
-      if (parsed && typeof parsed !== "object") {
-        localStorage.setItem("pubs", JSON.stringify(INIT_PUBS));
-      }
-    }
-  }, [pubsInStorage]);
-
-  return useMemo(() => {
     if (!pubsInStorage) {
       return INIT_PUBS;
     }
@@ -167,26 +156,15 @@ export function usePubs() {
     }
 
     return parsed as Record<string, string[]>;
-  }, [pubsInStorage]);
-}
+  }, []);
 
-export function useWorkspacePubs(address: string) {
-  const pubs = usePubs();
+  const [pubs, setPubs] = useState(initVal);
 
-  return useMemo(() => {
-    return pubs[address];
-  }, [address, pubs]);
-}
+  useEffect(() => {
+    localStorage.setItem("pubs", JSON.stringify(pubs));
+  }, [pubs]);
 
-export function useSetPubs() {
-  const existingPubs = usePubs();
+  console.log(pubs);
 
-  return useCallback(
-    (address: string, pubs: string[]) => {
-      const nextPubs = { ...existingPubs, [address]: pubs };
-
-      localStorage.setItem("pubs", JSON.stringify(nextPubs));
-    },
-    [existingPubs]
-  );
+  return [pubs, setPubs];
 }

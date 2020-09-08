@@ -9,11 +9,78 @@ import Button from "./Button";
 import AuthorIdenticon from "./AuthorIdenticon";
 import ContextualPanel from "./ContextualPanel";
 import { LobbyContext } from "./util/lobby-context";
-import { useWindupAlert, useWorkspacePubs } from "./util/hooks";
+import { useWindupAlert, usePubs } from "./util/hooks";
+import TextInput from "./TextInput";
 
 import SyncManyMutation from "./mutations/SyncManyMutation";
 
 import { WorkspaceSummary_workspace } from "./__generated__/WorkspaceSummary_workspace.graphql";
+
+const PubEditor = ({ workspace }: { workspace: string }) => {
+  const [pubs, setPubs] = usePubs();
+  const [newPub, setNewPub] = useState("");
+  const remove = (pubToRemove: string) => {
+    setPubs((prev) => {
+      const currentPubs = prev[workspace] || [];
+
+      return {
+        ...prev,
+        [workspace]: (currentPubs || []).filter((pub) => pub !== pubToRemove),
+      };
+    });
+  };
+  const add = (pubToAdd: string) => {
+    setNewPub("");
+    setPubs((prev) => {
+      const currentPubs = prev[workspace] || [];
+
+      return {
+        ...prev,
+        [workspace]: Array.from(new Set([...(currentPubs || []), pubToAdd])),
+      };
+    });
+  };
+
+  return (
+    <>
+      {pubs[workspace]
+        ? pubs[workspace].map((pub) => {
+            return (
+              <li
+                css={css`
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: baseline;
+                  margin-bottom: 0.5em;
+                `}
+              >
+                {pub}
+                <Button
+                  onClick={() => {
+                    remove(pub);
+                  }}
+                >
+                  {"Remove"}
+                </Button>
+              </li>
+            );
+          })
+        : null}
+      <TextInput
+        placeholder={"https://my.pub"}
+        value={newPub}
+        onChange={(e) => setNewPub(e.target.value)}
+      />
+      <Button
+        onClick={() => {
+          add(newPub);
+        }}
+      >
+        {"Add pub"}
+      </Button>
+    </>
+  );
+};
 
 type WorkspaceSummaryProps = {
   relay: RelayProp;
@@ -39,7 +106,7 @@ const WorkspaceSummary: React.FC<WorkspaceSummaryProps> = ({
 
   const [tempMessage, setTempMessage] = useWindupAlert();
 
-  const pubs = useWorkspacePubs(workspace.address);
+  const [pubs] = usePubs();
 
   return (
     <>
@@ -62,7 +129,7 @@ const WorkspaceSummary: React.FC<WorkspaceSummaryProps> = ({
                           workspaces: [
                             {
                               address: workspace.address,
-                              pubs,
+                              pubs: pubs[workspace.address] || [],
                             },
                           ],
                         },
@@ -81,10 +148,15 @@ const WorkspaceSummary: React.FC<WorkspaceSummaryProps> = ({
                   {" or "}
                 </>
               ) : null}
-              <Button>{"Edit Pubs"}</Button>
+              <Button onClick={() => setPanelState("pubs")}>
+                {"Edit Pubs"}
+              </Button>
               {" or "}
               <Button>{"Remove"}</Button>
             </>
+          ) : null}
+          {panelState === "pubs" ? (
+            <PubEditor workspace={workspace.address} />
           ) : null}
         </ContextualPanel>
       ) : null}
@@ -116,6 +188,9 @@ const WorkspaceSummary: React.FC<WorkspaceSummaryProps> = ({
             >
               {tempMessage
                 ? ` ${tempMessage}`
+                : pubs[workspace.address] === undefined ||
+                  pubs[workspace.address].length === 0
+                ? " has no pubs!"
                 : ` ${workspace.population} members`}
             </span>
           </div>

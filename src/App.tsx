@@ -59,7 +59,7 @@ const App: React.FC = () => {
     )
   );
 
-  const pubs = usePubs();
+  const [pubs] = usePubs();
 
   useEffect(() => {
     SyncManyMutation.commit(env, {

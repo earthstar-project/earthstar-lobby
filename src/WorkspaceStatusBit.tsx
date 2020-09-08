@@ -12,7 +12,7 @@ import { StatusBarContext } from "./NewStatusBar";
 import ContextualPanel from "./ContextualPanel";
 import SyncManyMutation from "./mutations/SyncManyMutation";
 import { LobbyContext } from "./util/lobby-context";
-import { useWorkspacePubs } from "./util/hooks";
+import { usePubs } from "./util/hooks";
 
 import { WorkspaceStatusBit_workspace } from "./__generated__/WorkspaceStatusBit_workspace.graphql";
 
@@ -51,7 +51,7 @@ const WorkspaceStatusBit: React.FC<WorkspaceStatusBitProps> = ({
     }
   }, [tempMessage]);
 
-  const pubs = useWorkspacePubs(workspace.address);
+  const [pubs] = usePubs();
 
   return (
     <>
@@ -69,9 +69,14 @@ const WorkspaceStatusBit: React.FC<WorkspaceStatusBitProps> = ({
                     SyncManyMutation.commit(
                       relay.environment,
                       {
-                        workspaces: [{ address: workspace.address, pubs }],
+                        workspaces: [
+                          {
+                            address: workspace.address,
+                            pubs: pubs[workspace.address] || [],
+                          },
+                        ],
                       },
-                      (res) => {
+                      () => {
                         setIsWorkspaceDirty(false);
                         setIsSyncing(false);
                         // TODO: make messages from multi sync result

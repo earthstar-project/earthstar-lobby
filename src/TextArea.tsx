@@ -8,7 +8,7 @@ const TextArea = styled.textarea`
   background: ${(props) => props.theme.colours.inputBg};
   font: ${(props) => `${props.theme.font.size}px ${props.theme.font.family}`};
   margin: 0;
-  padding: 12px 0;
+  padding: 12px 8px;
   box-sizing: border-box;
 `;
 
