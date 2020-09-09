@@ -1,5 +1,12 @@
-import { useCallback, useRef, useEffect, useState, useMemo } from "react";
-import { useWindupString } from "windups";
+import {
+  useCallback,
+  useRef,
+  useEffect,
+  useState,
+  useMemo,
+  createContext,
+  useContext,
+} from "react";
 import { isKeypair } from "./handy";
 import { WORKSPACE_ADDR, PUB_URL } from "../constants";
 
@@ -49,24 +56,6 @@ export function useTempString(
   return [tempString, setTempString];
 }
 
-export function useWindupAlert(
-  defaultMessage: string,
-  delay?: number
-): [string, (message: string) => void] {
-  const [tempMessage, setTempMessage] = useTempString(delay);
-
-  const [windup] = useWindupString(tempMessage || defaultMessage);
-
-  const set = useCallback(
-    (message: string) => {
-      setTempMessage(message);
-    },
-    [setTempMessage]
-  );
-
-  return [windup, set];
-}
-
 function isStringList(list: any): list is string[] {
   if (!Array.isArray(list)) {
     return false;
@@ -98,74 +87,10 @@ export function usePersistedAuthor() {
 }
 
 const INIT_WORKSPACES = [WORKSPACE_ADDR];
-
-export function usePersistedWorkspaces() {
-  const wsInStorage = localStorage.getItem("workspaces");
-
-  useEffect(() => {
-    if (!wsInStorage) {
-      localStorage.setItem("workspaces", JSON.stringify(INIT_WORKSPACES));
-    }
-
-    if (wsInStorage) {
-      const parsed = JSON.parse(wsInStorage);
-
-      if (parsed && !isStringList(parsed)) {
-        localStorage.setItem("workspaces", JSON.stringify(INIT_WORKSPACES));
-      }
-    }
-  }, [wsInStorage]);
-
-  return useMemo(() => {
-    if (!wsInStorage) {
-      return INIT_WORKSPACES;
-    }
-
-    const parsed = JSON.parse(wsInStorage);
-
-    if (parsed && !isStringList(parsed)) {
-      return INIT_WORKSPACES;
-    }
-
-    return parsed as string[];
-  }, [wsInStorage]);
-}
-
-export function usePersistWorkspace() {
-  const existing = usePersistedWorkspaces();
-
-  return useCallback(
-    (address: string) => {
-      existing.push(address);
-
-      const next = Array.from(new Set(existing));
-
-      localStorage.setItem("workspaces", JSON.stringify(next));
-    },
-    [existing]
-  );
-}
-
-export function useUnpersistWorkspace() {
-  const existing = usePersistedWorkspaces();
-
-  return useCallback(
-    (address: string) => {
-      const next = existing.filter((ws) => ws !== address);
-
-      localStorage.setItem("workspaces", JSON.stringify(next));
-    },
-    [existing]
-  );
-}
-
 const INIT_PUBS = { [WORKSPACE_ADDR]: [PUB_URL] };
 
-export function usePubs(): [
-  Record<string, string[]>,
-  React.Dispatch<React.SetStateAction<Record<string, string[]>>>
-] {
-  const initVal = useMemo(() => {
+export function usePubsFromStorage() {
+  return useMemo(() => {
     const pubsInStorage = localStorage.getItem("pubs");
 
     if (!pubsInStorage) {
@@ -180,12 +105,89 @@ export function usePubs(): [
 
     return parsed as Record<string, string[]>;
   }, []);
+}
 
-  const [pubs, setPubs] = useState(initVal);
+export function useWorkspacesFromStorage() {
+  return useMemo(() => {
+    const wsInStorage = localStorage.getItem("workspaces");
+
+    if (!wsInStorage) {
+      return INIT_WORKSPACES;
+    }
+
+    const parsed = JSON.parse(wsInStorage);
+
+    if (parsed && !isStringList(parsed)) {
+      return INIT_WORKSPACES;
+    }
+
+    return parsed as string[];
+  }, []);
+}
+
+export const StorageContext = createContext<{
+  workspaces: string[];
+  pubs: Record<string, string[]>;
+  setPubs: React.Dispatch<React.SetStateAction<Record<string, string[]>>>;
+  setWorkspaces: React.Dispatch<React.SetStateAction<string[]>>;
+}>({
+  workspaces: [],
+  pubs: {},
+  setPubs: () => {},
+  setWorkspaces: () => {},
+});
+
+export function usePersistingWorkspacesAndPubs() {
+  const initWorkspaces = useWorkspacesFromStorage();
+  const initPubs = usePubsFromStorage();
+
+  const [workspaces, setWorkspaces] = useState(initWorkspaces);
+  const [pubs, setPubs] = useState(initPubs);
+
+  useEffect(() => {
+    localStorage.setItem("workspaces", JSON.stringify(workspaces));
+  }, [workspaces]);
 
   useEffect(() => {
     localStorage.setItem("pubs", JSON.stringify(pubs));
   }, [pubs]);
 
+  return { workspaces, setWorkspaces, pubs, setPubs };
+}
+
+export function usePubs(): [
+  Record<string, string[]>,
+  React.Dispatch<React.SetStateAction<Record<string, string[]>>>
+] {
+  const { pubs, setPubs } = useContext(StorageContext);
+
   return [pubs, setPubs];
+}
+
+export function useWorkspacePubs(
+  workspace: string
+): [string[], (value: React.SetStateAction<string[]>) => void] {
+  const { pubs, setPubs } = useContext(StorageContext);
+
+  return [
+    pubs[workspace] || [],
+    (value: React.SetStateAction<string[]>) => {
+      setPubs(({ [workspace]: prevWorkspacePubs, ...rest }) => {
+        if (Array.isArray(value)) {
+          return { ...rest, [workspace]: value };
+        }
+        const next = value(prevWorkspacePubs || []);
+        return { ...rest, [workspace]: next };
+      });
+    },
+  ];
+}
+
+export function useWorkspaces(): [
+  string[],
+  React.Dispatch<React.SetStateAction<string[]>>
+] {
+  const { workspaces, setWorkspaces } = useContext(StorageContext);
+
+  return [workspaces, setWorkspaces];
 }

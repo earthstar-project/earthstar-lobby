@@ -2,6 +2,7 @@ import React, { useContext, useState } from "react";
 import { createFragmentContainer, RelayProp } from "react-relay";
 import graphql from "babel-plugin-relay/macro";
 import { css } from "styled-components/macro";
+import { WindupChildren } from "windups";
 
 import MaxWidth from "./MaxWidth";
 import NavButton from "./NavButton";
@@ -9,7 +10,7 @@ import Button from "./Button";
 import AuthorIdenticon from "./AuthorIdenticon";
 import ContextualPanel from "./ContextualPanel";
 import { LobbyContext } from "./util/lobby-context";
-import { useWindupAlert, usePubs, useUnpersistWorkspace } from "./util/hooks";
+import { usePubs, useTempString } from "./util/hooks";
 import { getSyncSummaryMessage } from "./util/handy";
 import TextInput from "./TextInput";
 
@@ -20,6 +21,7 @@ import { WorkspaceSummary_workspace } from "./__generated__/WorkspaceSummary_wor
 
 const PubEditor = ({ workspace }: { workspace: string }) => {
   const [pubs, setPubs] = usePubs();
+
   const [newPub, setNewPub] = useState("");
   const remove = (pubToRemove: string) => {
     setPubs((prev) => {
@@ -116,16 +118,9 @@ const WorkspaceSummary: React.FC<WorkspaceSummaryProps> = ({
 
   const [panelState, setPanelState] = useState<PanelState>("closed");
 
-  const [pubs] = usePubs();
+  const [pubs, setPubs] = usePubs();
 
-  const [status, setStatus] = useWindupAlert(
-    pubs[workspace.address] === undefined ||
-      pubs[workspace.address].length === 0
-      ? " has no known pubs!"
-      : ` ${workspace.population} members`
-  );
-
-  const unpersist = useUnpersistWorkspace();
+  const [status, setStatus] = useTempString();
 
   return (
     <>
@@ -180,9 +175,21 @@ const WorkspaceSummary: React.FC<WorkspaceSummaryProps> = ({
                           res.removeWorkspace.__typename ===
                           "WorkspaceRemovedResult"
                         ) {
-                          unpersist(res.removeWorkspace.address);
+                          setPubs((prev) => {
+                            if (
+                              res.removeWorkspace.__typename ===
+                              "WorkspaceRemovedResult"
+                            ) {
+                              const next = { ...prev };
+
+                              console.log(next);
+                              delete next[res.removeWorkspace.address];
+                              return next;
+                            }
+
+                            return prev;
+                          });
                         }
-                        setPanelState("closed");
                       }
                     );
                   }}
@@ -218,13 +225,20 @@ const WorkspaceSummary: React.FC<WorkspaceSummaryProps> = ({
             >
               <b>{workspace.name}</b>
             </NavButton>
-            <span
-              css={css`
-                color: ${(props) => props.theme.colours.fgHint};
-              `}
-            >
-              {` ${status}`}
-            </span>
+            <WindupChildren>
+              <span
+                css={css`
+                  color: ${(props) => props.theme.colours.fgHint};
+                `}
+              >
+                {status
+                  ? status
+                  : pubs[workspace.address] === undefined ||
+                    pubs[workspace.address].length === 0
+                  ? " has no known pubs!"
+                  : ` ${workspace.population} members`}
+              </span>
+            </WindupChildren>
           </div>
           <NavButton
             accent={"alpha"}

@@ -16,38 +16,51 @@ type DashboardProps = {
 
 const Dashboard = ({ relayEnv }: DashboardProps) => {
   return (
-    <>
-      <QueryRenderer<DashboardQuery>
-        environment={relayEnv}
-        query={graphql`
-          query DashboardQuery {
-            ...DashboardStatusBit_rootQuery
-            workspaces {
-              id
-              ...WorkspaceSummary_workspace
-            }
+    <QueryRenderer<DashboardQuery>
+      environment={relayEnv}
+      query={graphql`
+        query DashboardQuery {
+          ...DashboardStatusBit_rootQuery
+          workspaces {
+            id
+            ...WorkspaceSummary_workspace
           }
-        `}
-        variables={{}}
-        render={({ error, props }) => {
-          if (error) {
-            return <div>{"Error!"}</div>;
-          }
+        }
+      `}
+      variables={{}}
+      render={({ error, props }) => {
+        if (error) {
+          return <div>{"Error!"}</div>;
+        }
 
-          if (!props) {
-            return <div>{"Initialising..."}</div>;
-          }
+        if (!props) {
+          return null;
+        }
 
-          return (
-            <>
-              <StatusBar
-                leftChildren={<DashboardStatusBit rootQuery={props} />}
-                rightChildren={<AuthorStatusBit />}
-              />
+        return (
+          <>
+            <StatusBar
+              leftChildren={
+                props.workspaces.length === 0 ? (
+                  <div
+                    css={css`
+                      line-height: 1;
+                    `}
+                  >
+                    {"⏳"}
+                  </div>
+                ) : (
+                  <DashboardStatusBit rootQuery={props} />
+                )
+              }
+              rightChildren={<AuthorStatusBit />}
+            />
+            {props.workspaces.length > 0 ? (
               <ul
                 css={css`
                   margin: 1em 0 0 0;
                   padding: 0;
+                  animation-delay: 500ms;
                 `}
               >
                 {props.workspaces.map((ws) => {
@@ -63,11 +76,11 @@ const Dashboard = ({ relayEnv }: DashboardProps) => {
                   );
                 })}
               </ul>
-            </>
-          );
-        }}
-      />
-    </>
+            ) : null}
+          </>
+        );
+      }}
+    />
   );
 };
 

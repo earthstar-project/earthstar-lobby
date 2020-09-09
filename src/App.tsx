@@ -10,9 +10,11 @@ import WorkspaceViewer from "./WorkspaceViewer";
 import { LobbyContext } from "./util/lobby-context";
 import Dashboard from "./Dashboard";
 import {
-  usePersistedWorkspaces,
-  usePubs,
   usePersistedAuthor,
+  useWorkspacesFromStorage,
+  usePersistingWorkspacesAndPubs,
+  usePubsFromStorage,
+  StorageContext,
 } from "./util/hooks";
 
 type AppState =
@@ -46,28 +48,44 @@ const App: React.FC = () => {
     screen: "DASHBOARD",
   });
 
+  const persistedWorkspaces = useWorkspacesFromStorage();
+  const persistedPubs = usePubsFromStorage();
+
   // Try and get workspaces from localstorage
-  const persistedWorkspaces = usePersistedWorkspaces();
+  const {
+    workspaces,
+    pubs,
+    setWorkspaces,
+    setPubs,
+  } = usePersistingWorkspacesAndPubs();
 
   // This is a Relay environment, which is where Relay stores its data cache
   // and configurations for how to fetch data
   const [env] = useState(
     createEnvironment(
       createSchemaContext("MEMORY", {
-        workspaceAddresses: [],
+        workspaceAddresses: workspaces,
       })
     )
   );
 
-  const [pubs] = usePubs();
-
   useEffect(() => {
-    persistedWorkspaces.forEach((workspace) => {
-      SyncMutation.commit(env, {
-        workspace,
-        pubUrls: pubs[workspace] || [],
-      });
-    });
+    Promise.all(
+      persistedWorkspaces.map((ws) => {
+        return new Promise((res) => {
+          SyncMutation.commit(
+            env,
+            {
+              workspace: ws,
+              pubUrls: persistedPubs[ws] || [],
+            },
+            () => {
+              res();
+            }
+          );
+        });
+      })
+    );
   }, [env, persistedWorkspaces, pubs]);
 
   // Try and get the author from localstorage.
@@ -102,24 +120,28 @@ const App: React.FC = () => {
           appStateDispatch: dispatch,
         }}
       >
-        <div
-          css={css`
+        <StorageContext.Provider
+          value={{ pubs, workspaces, setPubs, setWorkspaces }}
+        >
+          <div
+            css={css`
       font: ${(props) =>
         `${props.theme.font.size}px ${props.theme.font.family}`};}
         color: ${(props) => props.theme.colours.fg};
         background: ${(props) => props.theme.colours.bg}
       `}
-        >
-          {appState.screen === "DASHBOARD" ? (
-            <Dashboard relayEnv={env} />
-          ) : null}
-          {appState.screen === "WORKSPACE" ? (
-            <WorkspaceViewer
-              workspaceAddress={appState.address}
-              relayEnv={env}
-            />
-          ) : null}
-        </div>
+          >
+            {appState.screen === "DASHBOARD" ? (
+              <Dashboard relayEnv={env} />
+            ) : null}
+            {appState.screen === "WORKSPACE" ? (
+              <WorkspaceViewer
+                workspaceAddress={appState.address}
+                relayEnv={env}
+              />
+            ) : null}
+          </div>
+        </StorageContext.Provider>
       </LobbyContext.Provider>
     </ThemeProvider>
   );

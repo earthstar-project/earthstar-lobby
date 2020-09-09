@@ -11,7 +11,7 @@ import TextInput from "./TextInput";
 import LabelledElement from "./LabelledElement";
 import ContextualPanel from "./ContextualPanel";
 import { StatusBarContext } from "./NewStatusBar";
-import { usePersistWorkspace, usePubs, useTempString } from "./util/hooks";
+import { usePubs, useTempString } from "./util/hooks";
 
 import SyncMutation from "./mutations/SyncMutation";
 import AddWorkspaceMutation from "./mutations/AddWorkspaceMutation";
@@ -32,8 +32,6 @@ const DashboardStatusBit = ({ relay, rootQuery }: DashboardStatusBitProps) => {
     "options" | "add-workspace"
   >("options");
 
-  const persistWorkspace = usePersistWorkspace();
-
   const [pubs, setPubs] = usePubs();
 
   const addPub = (workspace: string, pubToAdd: string) => {
@@ -42,7 +40,7 @@ const DashboardStatusBit = ({ relay, rootQuery }: DashboardStatusBitProps) => {
 
       return {
         ...prev,
-        [workspace]: Array.from(new Set([...(currentPubs || []), pubToAdd])),
+        [workspace]: Array.from(new Set([...currentPubs, pubToAdd])),
       };
     });
   };
@@ -174,8 +172,6 @@ const DashboardStatusBit = ({ relay, rootQuery }: DashboardStatusBitProps) => {
                       ) {
                         const { address } = res.addWorkspace.workspace;
                         addPub(address, manualPubAddress);
-                        persistWorkspace(address);
-
                         setPanelState("NONE");
                         setManualWorkspaceAddress("");
                         setManualPubAddress("");
