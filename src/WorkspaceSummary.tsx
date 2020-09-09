@@ -3,6 +3,7 @@ import { createFragmentContainer, RelayProp } from "react-relay";
 import graphql from "babel-plugin-relay/macro";
 import { css } from "styled-components/macro";
 import { WindupChildren } from "windups";
+import useClipboard from "react-use-clipboard";
 
 import MaxWidth from "./MaxWidth";
 import NavButton from "./NavButton";
@@ -10,7 +11,7 @@ import Button from "./Button";
 import AuthorIdenticon from "./AuthorIdenticon";
 import ContextualPanel from "./ContextualPanel";
 import { LobbyContext } from "./util/lobby-context";
-import { usePubs, useTempString, useWorkspaces } from "./util/hooks";
+import { usePubs, useTempString } from "./util/hooks";
 import { getSyncSummaryMessage } from "./util/handy";
 import TextInput from "./TextInput";
 
@@ -120,9 +121,10 @@ const WorkspaceSummary: React.FC<WorkspaceSummaryProps> = ({
   const [panelState, setPanelState] = useState<PanelState>("closed");
 
   const [pubs, setPubs] = usePubs();
-  const [workspaces, setWorkspaces] = useWorkspaces();
 
   const [status, setStatus] = useTempString();
+
+  const [isCopied, setCopied] = useClipboard(workspace.address);
 
   return (
     <>
@@ -161,6 +163,15 @@ const WorkspaceSummary: React.FC<WorkspaceSummaryProps> = ({
                     {" or "}
                   </>
                 ) : null}
+                <Button
+                  onClick={() => {
+                    setCopied();
+                    setPanelState("closed");
+                  }}
+                >
+                  {"Copy address to clipboard"}
+                </Button>
+                {" or "}
                 <Button onClick={() => setPanelState("pubs")}>
                   {"Edit Pubs"}
                 </Button>
