@@ -86,7 +86,7 @@ const App: React.FC = () => {
         });
       })
     );
-  }, [env, persistedWorkspaces, pubs]);
+  }, [env, persistedWorkspaces, pubs, persistedPubs]);
 
   // Try and get the author from localstorage.
   const initAuthor = usePersistedAuthor();

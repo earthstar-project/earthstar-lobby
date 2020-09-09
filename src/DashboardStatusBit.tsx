@@ -12,7 +12,7 @@ import TextInput from "./TextInput";
 import LabelledElement from "./LabelledElement";
 import ContextualPanel from "./ContextualPanel";
 import { StatusBarContext } from "./NewStatusBar";
-import { usePubs, useTempString, useWorkspaces } from "./util/hooks";
+import { usePubs, useTempString } from "./util/hooks";
 
 import SyncMutation from "./mutations/SyncMutation";
 import AddWorkspaceMutation from "./mutations/AddWorkspaceMutation";

@@ -124,7 +124,7 @@ const WorkspaceSummary: React.FC<WorkspaceSummaryProps> = ({
 
   const [status, setStatus] = useTempString();
 
-  const [isCopied, setCopied] = useClipboard(workspace.address);
+  const [_isCopied, setCopied] = useClipboard(workspace.address);
 
   return (
     <>

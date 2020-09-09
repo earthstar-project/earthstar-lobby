@@ -14,7 +14,7 @@ const WorkspacePersistor = ({ workspaces }: WorkspacePersistorProps) => {
 
   useEffect(() => {
     setWorkspaces(workspaces.map(({ address }) => address));
-  }, [workspaces]);
+  }, [workspaces, setWorkspaces]);
 
   return null;
 };
