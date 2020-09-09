@@ -8,32 +8,34 @@ import {
 import { PayloadError } from "relay-runtime";
 
 const mutation = graphql`
-  mutation SyncMutation($workspace: String!, $pubUrl: String!) {
-    syncWithPub(workspace: $workspace, pubUrl: $pubUrl) {
+  mutation SyncMutation($workspace: String!, $pubUrls: [String!]!) {
+    syncWithPubs(workspace: $workspace, pubUrls: $pubUrls) {
       __typename
-      ... on SyncError {
-        reason
-      }
-      ... on SyncSuccess {
+      ... on SyncReport {
         syncedWorkspace {
           ...WorkspaceSummary_workspace
           ...WorkspaceMessages_workspace
         }
-      }
-      ... on DetailedSyncSuccess {
-        pushed {
-          rejectedCount
-          ignoredCount
-          acceptedCount
-        }
-        pulled {
-          rejectedCount
-          ignoredCount
-          acceptedCount
-        }
-        syncedWorkspace {
-          ...WorkspaceSummary_workspace
-          ...WorkspaceMessages_workspace
+        pubSyncResults {
+          __typename
+          ... on PubSyncDetails {
+            pubUrl
+          }
+          ... on SyncSuccess {
+            __typename
+          }
+          ... on DetailedSyncSuccess {
+            pushed {
+              rejectedCount
+              ignoredCount
+              acceptedCount
+            }
+            pulled {
+              rejectedCount
+              ignoredCount
+              acceptedCount
+            }
+          }
         }
       }
     }
@@ -53,16 +55,13 @@ function commit(
     variables,
     onCompleted,
     updater: (store) => {
-      const result = store.getRootField("syncWithPub");
+      const result = store.getRootField("syncWithPubs");
 
-      if (!result) {
+      if (!result || result.getType() !== "SyncReport") {
         return;
       }
 
-      const workspace =
-        result.getType() === "DetailedSyncSuccess" || "SyncSuccess"
-          ? result.getLinkedRecord("syncedWorkspace")
-          : null;
+      const workspace = result.getLinkedRecord("syncedWorkspace");
 
       const prevWorkspaces = store.getRoot().getLinkedRecords("workspaces");
 

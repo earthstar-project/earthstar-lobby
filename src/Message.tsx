@@ -13,8 +13,6 @@ import MaxWidth from "./MaxWidth";
 import AuthorIdenticon from "./AuthorIdenticon";
 import { getAuthorShortname } from "./util/handy";
 import { css } from "styled-components/macro";
-import SyncMutation from "./mutations/SyncMutation";
-import { PUB_URL } from "./constants";
 import Linkify from "react-linkify";
 import { LobbyContext } from "./util/lobby-context";
 
@@ -42,10 +40,7 @@ const Message: React.FC<MessageProps> = ({
     if (document.deleteAfter !== null) {
       const interval = setInterval(() => {
         if (document.deleteAfter && document.deleteAfter >= Date.now() * 1000) {
-          SyncMutation.commit(relay.environment, {
-            pubUrl: PUB_URL,
-            workspace: document.workspace.address,
-          });
+          console.log("invalidate the cache somehow...");
         }
       }, 86400);
 

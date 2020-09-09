@@ -5,6 +5,7 @@ import { useDownload } from "./util/hooks";
 import { css } from "styled-components/macro";
 import useInternetTime from "use-internet-time";
 import { generateAuthorKeypair, isErr } from "earthstar";
+import { WindupChildren } from "windups";
 
 import NavButton from "./NavButton";
 import AuthorIdenticon from "./AuthorIdenticon";
@@ -200,12 +201,10 @@ const AuthorStatusBit = () => {
         >
           <NavButton
             onClick={() => {
-              console.log({ isOn, panelState });
               if (panelState === isOn) {
                 setInternalPanelState(
                   author ? "author-options" : "no-identity"
                 );
-                console.log("uh");
               }
               setPanelState(isOn);
             }}
@@ -213,7 +212,9 @@ const AuthorStatusBit = () => {
             accent={"beta"}
             title={author ? author.address : undefined}
           >
-            {author ? getAuthorShortname(author.address) : "Not Signed In"}
+            <WindupChildren>
+              {author ? getAuthorShortname(author.address) : "Not Signed In"}
+            </WindupChildren>
           </NavButton>
           {author ? <AuthorIdenticon address={author.address} /> : null}
         </div>

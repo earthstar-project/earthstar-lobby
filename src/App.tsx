@@ -3,7 +3,7 @@ import createEnvironment from "./util/relay-environment";
 import { createSchemaContext } from "earthstar-graphql";
 import { AuthorKeypair } from "earthstar";
 import { ThemeProvider, css, createGlobalStyle } from "styled-components/macro";
-import SyncManyMutation from "./mutations/SyncManyMutation";
+import SyncMutation from "./mutations/SyncMutation";
 import { lightTheme, makeThemeForFont, darkTheme } from "./themes";
 import { useModeSelector } from "use-light-switch";
 import WorkspaceViewer from "./WorkspaceViewer";
@@ -54,7 +54,7 @@ const App: React.FC = () => {
   const [env] = useState(
     createEnvironment(
       createSchemaContext("MEMORY", {
-        workspaceAddresses: persistedWorkspaces,
+        workspaceAddresses: [],
       })
     )
   );
@@ -62,11 +62,11 @@ const App: React.FC = () => {
   const [pubs] = usePubs();
 
   useEffect(() => {
-    SyncManyMutation.commit(env, {
-      workspaces: persistedWorkspaces.map((address) => ({
-        address,
-        pubs: pubs[address] || [],
-      })),
+    persistedWorkspaces.forEach((workspace) => {
+      SyncMutation.commit(env, {
+        workspace,
+        pubUrls: pubs[workspace] || [],
+      });
     });
   }, [env, persistedWorkspaces, pubs]);
 

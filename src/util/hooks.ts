@@ -29,30 +29,42 @@ export function usePrevious<T>(value: T): T | undefined {
   return ref.current;
 }
 
-export function useWindupAlert(
+export function useTempString(
   delay: number = 3000
-): [string | null, (message: string) => void] {
-  const [tempMessage, setTempMessage] = useState<string | null>(null);
+): [string | null, React.Dispatch<React.SetStateAction<string | null>>] {
+  const [tempString, setTempString] = useState<string | null>(null);
 
   useEffect(() => {
-    if (tempMessage) {
+    if (tempString) {
       const timeout = setTimeout(() => {
-        setTempMessage(null);
+        setTempString(null);
       }, delay);
 
       return () => {
         clearTimeout(timeout);
       };
     }
-  }, [tempMessage, delay]);
+  }, [tempString, delay]);
 
-  const [windup] = useWindupString(tempMessage || "");
+  return [tempString, setTempString];
+}
 
-  const set = useCallback((message: string) => {
-    setTempMessage(message);
-  }, []);
+export function useWindupAlert(
+  defaultMessage: string,
+  delay?: number
+): [string, (message: string) => void] {
+  const [tempMessage, setTempMessage] = useTempString(delay);
 
-  return [windup === "" ? null : windup, set];
+  const [windup] = useWindupString(tempMessage || defaultMessage);
+
+  const set = useCallback(
+    (message: string) => {
+      setTempMessage(message);
+    },
+    [setTempMessage]
+  );
+
+  return [windup, set];
 }
 
 function isStringList(list: any): list is string[] {
@@ -124,11 +136,22 @@ export function usePersistWorkspace() {
 
   return useCallback(
     (address: string) => {
-      const prev = existing ? existing : [WORKSPACE_ADDR];
+      existing.push(address);
 
-      prev.push(address);
+      const next = Array.from(new Set(existing));
 
-      const next = Array.from(new Set(prev));
+      localStorage.setItem("workspaces", JSON.stringify(next));
+    },
+    [existing]
+  );
+}
+
+export function useUnpersistWorkspace() {
+  const existing = usePersistedWorkspaces();
+
+  return useCallback(
+    (address: string) => {
+      const next = existing.filter((ws) => ws !== address);
 
       localStorage.setItem("workspaces", JSON.stringify(next));
     },
@@ -163,8 +186,6 @@ export function usePubs(): [
   useEffect(() => {
     localStorage.setItem("pubs", JSON.stringify(pubs));
   }, [pubs]);
-
-  console.log(pubs);
 
   return [pubs, setPubs];
 }

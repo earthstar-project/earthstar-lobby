@@ -7,9 +7,10 @@ import { FragmentRefs } from "relay-runtime";
 export type DashboardQueryVariables = {};
 export type DashboardQueryResponse = {
     readonly workspaces: ReadonlyArray<{
-        readonly address: string;
+        readonly id: string;
         readonly " $fragmentRefs": FragmentRefs<"WorkspaceSummary_workspace">;
     }>;
+    readonly " $fragmentRefs": FragmentRefs<"DashboardStatusBit_rootQuery">;
 };
 export type DashboardQuery = {
     readonly response: DashboardQueryResponse;
@@ -20,9 +21,16 @@ export type DashboardQuery = {
 
 /*
 query DashboardQuery {
+  ...DashboardStatusBit_rootQuery
+  workspaces {
+    id
+    ...WorkspaceSummary_workspace
+  }
+}
+
+fragment DashboardStatusBit_rootQuery on Query {
   workspaces {
     address
-    ...WorkspaceSummary_workspace
     id
   }
 }
@@ -55,14 +63,14 @@ var v0 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
-  "name": "address",
+  "name": "id",
   "storageKey": null
 },
 v1 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
-  "name": "id",
+  "name": "address",
   "storageKey": null
 };
 return {
@@ -88,6 +96,11 @@ return {
           }
         ],
         "storageKey": null
+      },
+      {
+        "args": null,
+        "kind": "FragmentSpread",
+        "name": "DashboardStatusBit_rootQuery"
       }
     ],
     "type": "Query",
@@ -107,6 +120,7 @@ return {
         "name": "workspaces",
         "plural": true,
         "selections": [
+          (v1/*: any*/),
           (v0/*: any*/),
           {
             "alias": null,
@@ -153,7 +167,7 @@ return {
               {
                 "kind": "InlineFragment",
                 "selections": [
-                  (v1/*: any*/),
+                  (v0/*: any*/),
                   {
                     "alias": null,
                     "args": null,
@@ -176,8 +190,8 @@ return {
                         "name": "shortName",
                         "storageKey": null
                       },
-                      (v0/*: any*/),
-                      (v1/*: any*/)
+                      (v1/*: any*/),
+                      (v0/*: any*/)
                     ],
                     "storageKey": null
                   }
@@ -188,29 +202,28 @@ return {
               {
                 "kind": "InlineFragment",
                 "selections": [
-                  (v1/*: any*/)
+                  (v0/*: any*/)
                 ],
                 "type": "Node",
                 "abstractKey": "__isNode"
               }
             ],
             "storageKey": "documents(pathPrefixes:[\"/lobby\"],sortedBy:\"NEWEST\")"
-          },
-          (v1/*: any*/)
+          }
         ],
         "storageKey": null
       }
     ]
   },
   "params": {
-    "cacheID": "f77c4594a09b839d274aaff8b719a1d7",
+    "cacheID": "b18e6d7c1816192970094a4ca29fbed9",
     "id": null,
     "metadata": {},
     "name": "DashboardQuery",
     "operationKind": "query",
-    "text": "query DashboardQuery {\n  workspaces {\n    address\n    ...WorkspaceSummary_workspace\n    id\n  }\n}\n\nfragment WorkspaceSummary_workspace on Workspace {\n  name\n  address\n  population\n  documents(sortedBy: NEWEST, pathPrefixes: [\"/lobby\"]) {\n    __typename\n    ... on ES4Document {\n      id\n      content\n      author {\n        shortName\n        address\n        id\n      }\n    }\n    ... on Node {\n      __isNode: __typename\n      id\n    }\n  }\n}\n"
+    "text": "query DashboardQuery {\n  ...DashboardStatusBit_rootQuery\n  workspaces {\n    id\n    ...WorkspaceSummary_workspace\n  }\n}\n\nfragment DashboardStatusBit_rootQuery on Query {\n  workspaces {\n    address\n    id\n  }\n}\n\nfragment WorkspaceSummary_workspace on Workspace {\n  name\n  address\n  population\n  documents(sortedBy: NEWEST, pathPrefixes: [\"/lobby\"]) {\n    __typename\n    ... on ES4Document {\n      id\n      content\n      author {\n        shortName\n        address\n        id\n      }\n    }\n    ... on Node {\n      __isNode: __typename\n      id\n    }\n  }\n}\n"
   }
 };
 })();
-(node as any).hash = '95f1276a0ae9cc952c939ce6abc8ffcc';
+(node as any).hash = '8c9d5cdb01a7440cffc9fa194ef57795';
 export default node;

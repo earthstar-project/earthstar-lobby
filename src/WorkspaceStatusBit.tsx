@@ -10,7 +10,7 @@ import NavButton from "./NavButton";
 import { WorkspaceViewerContext } from "./WorkspaceViewer";
 import { StatusBarContext } from "./NewStatusBar";
 import ContextualPanel from "./ContextualPanel";
-import SyncManyMutation from "./mutations/SyncManyMutation";
+import SyncMutation from "./mutations/SyncMutation";
 import { LobbyContext } from "./util/lobby-context";
 import { usePubs } from "./util/hooks";
 
@@ -61,20 +61,22 @@ const WorkspaceStatusBit: React.FC<WorkspaceStatusBitProps> = ({
           pointsToNode={workspaceNameNode}
         >
           <>
+            <Button
+              onClick={() => appStateDispatch({ type: "OPEN_DASHBOARD" })}
+            >
+              {"← Return to dashboard"}
+            </Button>
             {pubs ? (
               <>
+                {" or "}
                 <Button
                   onClick={() => {
                     setIsSyncing(true);
-                    SyncManyMutation.commit(
+                    SyncMutation.commit(
                       relay.environment,
                       {
-                        workspaces: [
-                          {
-                            address: workspace.address,
-                            pubs: pubs[workspace.address] || [],
-                          },
-                        ],
+                        workspace: workspace.address,
+                        pubUrls: pubs[workspace.address] || [],
                       },
                       () => {
                         setIsWorkspaceDirty(false);
@@ -85,16 +87,10 @@ const WorkspaceStatusBit: React.FC<WorkspaceStatusBitProps> = ({
                     );
                   }}
                 >
-                  Sync this workspace
+                  {"Sync this workspace"}
                 </Button>
-                {" or "}
               </>
             ) : null}
-            <Button
-              onClick={() => appStateDispatch({ type: "OPEN_DASHBOARD" })}
-            >
-              Open another workspace
-            </Button>
           </>
         </ContextualPanel>,
         panelNode
