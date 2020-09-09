@@ -7,6 +7,7 @@ import StatusBar from "./NewStatusBar";
 import AuthorStatusBit from "./AuthorStatusBit";
 import DashboardStatusBit from "./DashboardStatusBit";
 import WorkspaceSummary from "./WorkspaceSummary";
+import WorkspacePersistor from "./WorkspacePersistor";
 
 import { DashboardQuery } from "./__generated__/DashboardQuery.graphql";
 
@@ -24,6 +25,7 @@ const Dashboard = ({ relayEnv }: DashboardProps) => {
           workspaces {
             id
             ...WorkspaceSummary_workspace
+            ...WorkspacePersistor_workspaces
           }
         }
       `}
@@ -39,6 +41,7 @@ const Dashboard = ({ relayEnv }: DashboardProps) => {
 
         return (
           <>
+            <WorkspacePersistor workspaces={props.workspaces} />
             <StatusBar
               leftChildren={
                 props.workspaces.length === 0 ? (

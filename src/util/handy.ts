@@ -70,6 +70,7 @@ export function getSyncSummaryMessage(res: SyncMutationResponse): string {
       (result) => result.__typename === "SyncError"
     )
   ) {
+    console.error(res);
     return "None of the pubs could be reached!";
   }
 
@@ -116,7 +117,7 @@ export function getSyncSummaryMessage(res: SyncMutationResponse): string {
     }
 
     if (pushedCount !== 0 && pulledCount === 0) {
-      return `Pushed ${pulledCount} documents.`;
+      return `Pushed ${pushedCount} documents.`;
     }
 
     return `Pushed ${pushedCount}, pulled ${pulledCount}.`;

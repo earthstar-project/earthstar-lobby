@@ -8,7 +8,7 @@ export type DashboardQueryVariables = {};
 export type DashboardQueryResponse = {
     readonly workspaces: ReadonlyArray<{
         readonly id: string;
-        readonly " $fragmentRefs": FragmentRefs<"WorkspaceSummary_workspace">;
+        readonly " $fragmentRefs": FragmentRefs<"WorkspaceSummary_workspace" | "WorkspacePersistor_workspaces">;
     }>;
     readonly " $fragmentRefs": FragmentRefs<"DashboardStatusBit_rootQuery">;
 };
@@ -25,6 +25,7 @@ query DashboardQuery {
   workspaces {
     id
     ...WorkspaceSummary_workspace
+    ...WorkspacePersistor_workspaces
   }
 }
 
@@ -33,6 +34,10 @@ fragment DashboardStatusBit_rootQuery on Query {
     address
     id
   }
+}
+
+fragment WorkspacePersistor_workspaces on Workspace {
+  address
 }
 
 fragment WorkspaceSummary_workspace on Workspace {
@@ -93,6 +98,11 @@ return {
             "args": null,
             "kind": "FragmentSpread",
             "name": "WorkspaceSummary_workspace"
+          },
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "WorkspacePersistor_workspaces"
           }
         ],
         "storageKey": null
@@ -216,14 +226,14 @@ return {
     ]
   },
   "params": {
-    "cacheID": "b18e6d7c1816192970094a4ca29fbed9",
+    "cacheID": "7e419803170d33f5f45fe96300484a2d",
     "id": null,
     "metadata": {},
     "name": "DashboardQuery",
     "operationKind": "query",
-    "text": "query DashboardQuery {\n  ...DashboardStatusBit_rootQuery\n  workspaces {\n    id\n    ...WorkspaceSummary_workspace\n  }\n}\n\nfragment DashboardStatusBit_rootQuery on Query {\n  workspaces {\n    address\n    id\n  }\n}\n\nfragment WorkspaceSummary_workspace on Workspace {\n  name\n  address\n  population\n  documents(sortedBy: NEWEST, pathPrefixes: [\"/lobby\"]) {\n    __typename\n    ... on ES4Document {\n      id\n      content\n      author {\n        shortName\n        address\n        id\n      }\n    }\n    ... on Node {\n      __isNode: __typename\n      id\n    }\n  }\n}\n"
+    "text": "query DashboardQuery {\n  ...DashboardStatusBit_rootQuery\n  workspaces {\n    id\n    ...WorkspaceSummary_workspace\n    ...WorkspacePersistor_workspaces\n  }\n}\n\nfragment DashboardStatusBit_rootQuery on Query {\n  workspaces {\n    address\n    id\n  }\n}\n\nfragment WorkspacePersistor_workspaces on Workspace {\n  address\n}\n\nfragment WorkspaceSummary_workspace on Workspace {\n  name\n  address\n  population\n  documents(sortedBy: NEWEST, pathPrefixes: [\"/lobby\"]) {\n    __typename\n    ... on ES4Document {\n      id\n      content\n      author {\n        shortName\n        address\n        id\n      }\n    }\n    ... on Node {\n      __isNode: __typename\n      id\n    }\n  }\n}\n"
   }
 };
 })();
-(node as any).hash = '8c9d5cdb01a7440cffc9fa194ef57795';
+(node as any).hash = '06fc14c5dfbca33c35d3398454e47aa6';
 export default node;

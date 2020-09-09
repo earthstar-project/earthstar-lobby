@@ -10,7 +10,7 @@ import Button from "./Button";
 import AuthorIdenticon from "./AuthorIdenticon";
 import ContextualPanel from "./ContextualPanel";
 import { LobbyContext } from "./util/lobby-context";
-import { usePubs, useTempString } from "./util/hooks";
+import { usePubs, useTempString, useWorkspaces } from "./util/hooks";
 import { getSyncSummaryMessage } from "./util/handy";
 import TextInput from "./TextInput";
 
@@ -51,6 +51,7 @@ const PubEditor = ({ workspace }: { workspace: string }) => {
         ? pubs[workspace].map((pub) => {
             return (
               <li
+                key={pub}
                 css={css`
                   display: flex;
                   justify-content: flex-end;
@@ -119,6 +120,7 @@ const WorkspaceSummary: React.FC<WorkspaceSummaryProps> = ({
   const [panelState, setPanelState] = useState<PanelState>("closed");
 
   const [pubs, setPubs] = usePubs();
+  const [workspaces, setWorkspaces] = useWorkspaces();
 
   const [status, setStatus] = useTempString();
 
@@ -181,8 +183,6 @@ const WorkspaceSummary: React.FC<WorkspaceSummaryProps> = ({
                               "WorkspaceRemovedResult"
                             ) {
                               const next = { ...prev };
-
-                              console.log(next);
                               delete next[res.removeWorkspace.address];
                               return next;
                             }

@@ -4,6 +4,7 @@ import graphql from "babel-plugin-relay/macro";
 import { css } from "styled-components/macro";
 import { createPortal } from "react-dom";
 import { WindupChildren } from "windups";
+import { isGraphQlPub } from "earthstar-graphql";
 
 import NavButton from "./NavButton";
 import Button from "./Button";
@@ -11,7 +12,7 @@ import TextInput from "./TextInput";
 import LabelledElement from "./LabelledElement";
 import ContextualPanel from "./ContextualPanel";
 import { StatusBarContext } from "./NewStatusBar";
-import { usePubs, useTempString } from "./util/hooks";
+import { usePubs, useTempString, useWorkspaces } from "./util/hooks";
 
 import SyncMutation from "./mutations/SyncMutation";
 import AddWorkspaceMutation from "./mutations/AddWorkspaceMutation";
@@ -177,10 +178,44 @@ const DashboardStatusBit = ({ relay, rootQuery }: DashboardStatusBitProps) => {
                         setManualPubAddress("");
                         setStatus(`Added ${address}`);
 
-                        SyncMutation.commit(relay.environment, {
-                          workspace: address,
-                          pubUrls: [manualPubAddress],
-                        });
+                        SyncMutation.commit(
+                          relay.environment,
+                          {
+                            workspace: address,
+                            pubUrls: [manualPubAddress],
+                          },
+                          (res) => {
+                            // For now, attempt to create the pub if it doesn't exist on a GraphQL pub
+                            if (res.syncWithPubs.__typename === "SyncReport") {
+                              res.syncWithPubs.pubSyncResults.forEach(
+                                (result) => {
+                                  if (
+                                    result.reason ===
+                                      "The pub didn't have the workspace requested" &&
+                                    isGraphQlPub(result.pubUrl as string)
+                                  ) {
+                                    fetch(result.pubUrl as string, {
+                                      method: "POST",
+                                      headers: {
+                                        "Content-Type": "application/json",
+                                      },
+                                      body: JSON.stringify({
+                                        query: `mutation AddWorkspace($workspaceAddress: String!) {
+                                          addWorkspace(workspaceAddress: $workspaceAddress) {
+                                            __typename
+                                          }
+                                        }`,
+                                        variables: {
+                                          workspaceAddress: address,
+                                        },
+                                      }),
+                                    });
+                                  }
+                                }
+                              );
+                            }
+                          }
+                        );
                       }
                     }
                   );
