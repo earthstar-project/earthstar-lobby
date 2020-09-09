@@ -13,6 +13,7 @@ import ContextualPanel from "./ContextualPanel";
 import SyncMutation from "./mutations/SyncMutation";
 import { LobbyContext } from "./util/lobby-context";
 import { usePubs } from "./util/hooks";
+import { getSyncSummaryMessage } from "./util/handy";
 
 import { WorkspaceStatusBit_workspace } from "./__generated__/WorkspaceStatusBit_workspace.graphql";
 
@@ -78,11 +79,10 @@ const WorkspaceStatusBit: React.FC<WorkspaceStatusBitProps> = ({
                         workspace: workspace.address,
                         pubUrls: pubs[workspace.address] || [],
                       },
-                      () => {
+                      (res) => {
                         setIsWorkspaceDirty(false);
                         setIsSyncing(false);
-                        // TODO: make messages from multi sync result
-                        setTempMessage("Synced!");
+                        setTempMessage(getSyncSummaryMessage(res));
                       }
                     );
                   }}

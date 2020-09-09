@@ -10,6 +10,7 @@ import AuthorIdenticon from "./AuthorIdenticon";
 import ContextualPanel from "./ContextualPanel";
 import { LobbyContext } from "./util/lobby-context";
 import { useWindupAlert, usePubs, useUnpersistWorkspace } from "./util/hooks";
+import { getSyncSummaryMessage } from "./util/handy";
 import TextInput from "./TextInput";
 
 import SyncMutation from "./mutations/SyncMutation";
@@ -153,11 +154,7 @@ const WorkspaceSummary: React.FC<WorkspaceSummaryProps> = ({
                             pubUrls: pubs[workspace.address] || [],
                           },
                           (res) => {
-                            if (res.syncWithPubs.__typename !== "SyncReport") {
-                              return;
-                            }
-
-                            setStatus("was synced");
+                            setStatus(getSyncSummaryMessage(res));
                           }
                         );
                       }}

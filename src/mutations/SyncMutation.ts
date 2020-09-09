@@ -11,6 +11,12 @@ const mutation = graphql`
   mutation SyncMutation($workspace: String!, $pubUrls: [String!]!) {
     syncWithPubs(workspace: $workspace, pubUrls: $pubUrls) {
       __typename
+      ... on WorkspaceNotValidError {
+        reason
+      }
+      ... on WorkspaceNotFoundError {
+        address
+      }
       ... on SyncReport {
         syncedWorkspace {
           ...WorkspaceSummary_workspace
@@ -21,16 +27,39 @@ const mutation = graphql`
           ... on PubSyncDetails {
             pubUrl
           }
+          ... on SyncError {
+            reason
+          }
           ... on SyncSuccess {
-            __typename
+            pubUrl
           }
           ... on DetailedSyncSuccess {
             pushed {
+              documents {
+                ... on DocumentIngestion {
+                  document {
+                    ... on ES4Document {
+                      id
+                    }
+                  }
+                }
+                __typename
+              }
               rejectedCount
               ignoredCount
               acceptedCount
             }
             pulled {
+              documents {
+                __typename
+                ... on DocumentIngestion {
+                  document {
+                    ... on ES4Document {
+                      id
+                    }
+                  }
+                }
+              }
               rejectedCount
               ignoredCount
               acceptedCount
