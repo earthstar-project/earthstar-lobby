@@ -62,7 +62,7 @@ const StatusBar: React.FC<StatusBarProps> = ({
   // Here for a good sticky effect
   const measuredRef = useCallback(
     (node) => {
-      if (node !== null && prevPanelState !== panelState) {
+      if (node !== null) {
         setStatusBarHeight(node.getBoundingClientRect().height);
       }
     },

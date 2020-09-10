@@ -234,6 +234,7 @@ const WorkspaceSummary: React.FC<WorkspaceSummaryProps> = ({
               }}
               accent={"alpha"}
             >
+              {"+"}
               <b>{workspace.name}</b>
             </NavButton>
             <WindupChildren>
