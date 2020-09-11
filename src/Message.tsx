@@ -122,6 +122,7 @@ const Message: React.FC<MessageProps> = ({
             <b
               css={css`
                 color: ${(props) => props.theme.colours.fg};
+                overflow-wrap: break-word;
               `}
             >
               {document.author.displayName || document.author.shortName}
@@ -168,6 +169,7 @@ const Message: React.FC<MessageProps> = ({
           css={css`
             color: ${(props) => props.theme.colours.fg};
             padding: 4px 0 0 0;
+            overflow-wrap: break-word;
             a {
               overflow-wrap: break-word;
               word-wrap: break-word;
