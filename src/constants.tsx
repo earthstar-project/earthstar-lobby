@@ -1,2 +1,5 @@
 export const WORKSPACE_ADDR = "+lobbydev.a1";
-export const PUB_URL = "https://earthstar-graphql-pub.glitch.me";
+export const BOOTSTRAP_PUBS = [
+  "https://earthstar-graphql-pub.glitch.me",
+  "https://earthstar-demo-pub-v5-a.glitch.me/",
+];

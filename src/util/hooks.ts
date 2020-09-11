@@ -8,7 +8,7 @@ import {
   useContext,
 } from "react";
 import { isKeypair } from "./handy";
-import { WORKSPACE_ADDR, PUB_URL } from "../constants";
+import { WORKSPACE_ADDR, BOOTSTRAP_PUBS } from "../constants";
 
 export function useDownload(data: string, filename: string): () => void {
   return useCallback(() => {
@@ -87,7 +87,7 @@ export function usePersistedAuthor() {
 }
 
 const INIT_WORKSPACES = [WORKSPACE_ADDR];
-const INIT_PUBS = { [WORKSPACE_ADDR]: [PUB_URL] };
+const INIT_PUBS = { [WORKSPACE_ADDR]: BOOTSTRAP_PUBS };
 
 export function usePubsFromStorage() {
   return useMemo(() => {
