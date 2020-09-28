@@ -11,7 +11,7 @@ import Button from "./Button";
 import AuthorIdenticon from "./AuthorIdenticon";
 import ContextualPanel from "./ContextualPanel";
 import { LobbyContext } from "./util/lobby-context";
-import { usePubs, useTempString } from "./util/hooks";
+import { usePubs, useTempString, useWorkspaces } from "./util/hooks";
 import { getSyncSummaryMessage } from "./util/handy";
 import TextInput from "./TextInput";
 
@@ -122,6 +122,8 @@ const WorkspaceSummary: React.FC<WorkspaceSummaryProps> = ({
 
   const [pubs, setPubs] = usePubs();
 
+  const [, setWorkspaces] = useWorkspaces();
+
   const [status, setStatus] = useTempString();
 
   const [_isCopied, setCopied] = useClipboard(workspace.address);
@@ -188,17 +190,16 @@ const WorkspaceSummary: React.FC<WorkspaceSummaryProps> = ({
                           res.removeWorkspace.__typename ===
                           "WorkspaceRemovedResult"
                         ) {
-                          setPubs((prev) => {
-                            if (
-                              res.removeWorkspace.__typename ===
-                              "WorkspaceRemovedResult"
-                            ) {
-                              const next = { ...prev };
-                              delete next[res.removeWorkspace.address];
-                              return next;
-                            }
+                          const removedAddress = res.removeWorkspace.address;
 
-                            return prev;
+                          setWorkspaces((prev) =>
+                            prev.filter((ws) => ws !== removedAddress)
+                          );
+
+                          setPubs((prev) => {
+                            const next = { ...prev };
+                            delete next[removedAddress];
+                            return next;
                           });
                         }
                       }
