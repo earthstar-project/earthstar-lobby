@@ -151,7 +151,7 @@ const AuthorStatusBit = () => {
                     if (author) {
                       setToWorkspace(
                         newDisplayName,
-                        `/about/${author.address}/name`
+                        `/about/~${author.address}/displayName.txt`
                       );
                     }
                   }}
