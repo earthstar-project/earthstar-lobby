@@ -3,12 +3,10 @@ import {
   useRef,
   useEffect,
   useState,
-  useMemo,
-  createContext,
-  useContext,
+  
 } from "react";
-import { isKeypair } from "./handy";
-import { WORKSPACE_ADDR, BOOTSTRAP_PUBS } from "../constants";
+import { useLocalStorage } from '@rehooks/local-storage'
+import { AuthorKeypair } from "earthstar";
 
 export function useDownload(data: string, filename: string): () => void {
   return useCallback(() => {
@@ -56,138 +54,28 @@ export function useTempString(
   return [tempString, setTempString];
 }
 
-function isStringList(list: any): list is string[] {
-  if (!Array.isArray(list)) {
-    return false;
-  }
-
-  if (!list.every((item) => typeof item === "string")) {
-    return false;
-  }
-
-  return true;
-}
-
 export function usePersistedAuthor() {
-  const maybeSessionAuthor = localStorage.getItem("authorKeypair");
+  
+  
+  const [maybeAuthor] = useLocalStorage<AuthorKeypair>('authorKeypair')
 
-  return useMemo(() => {
-    if (!maybeSessionAuthor) {
-      return null;
-    }
-
-    const parsed = JSON.parse(maybeSessionAuthor);
-
-    if (parsed && !isKeypair(parsed)) {
-      return null;
-    }
-
-    return parsed;
-  }, [maybeSessionAuthor]);
+  return maybeAuthor
 }
-
-const INIT_WORKSPACES = [WORKSPACE_ADDR];
-const INIT_PUBS = { [WORKSPACE_ADDR]: BOOTSTRAP_PUBS };
 
 export function usePubsFromStorage() {
-  return useMemo(() => {
-    const pubsInStorage = localStorage.getItem("pubs");
-
-    if (!pubsInStorage) {
-      return INIT_PUBS;
-    }
-
-    const parsed = JSON.parse(pubsInStorage);
-
-    if (parsed && typeof parsed !== "object") {
-      return INIT_PUBS;
-    }
-
-    return parsed as Record<string, string[]>;
-  }, []);
+  const [pubs] = useLocalStorage<Record<string, string[]>>('pubs')
+  
+  return pubs
 }
 
 export function useWorkspacesFromStorage() {
-  return useMemo(() => {
-    const wsInStorage = localStorage.getItem("workspaces");
-
-    if (!wsInStorage) {
-      return INIT_WORKSPACES;
-    }
-
-    const parsed = JSON.parse(wsInStorage);
-
-    if (parsed && !isStringList(parsed)) {
-      return INIT_WORKSPACES;
-    }
-
-    return parsed as string[];
-  }, []);
+  const [workspaces] = useLocalStorage<string[]>('workspaces')
+  
+return workspaces
 }
 
-export const StorageContext = createContext<{
-  workspaces: string[];
-  pubs: Record<string, string[]>;
-  setPubs: React.Dispatch<React.SetStateAction<Record<string, string[]>>>;
-  setWorkspaces: React.Dispatch<React.SetStateAction<string[]>>;
-}>({
-  workspaces: [],
-  pubs: {},
-  setPubs: () => {},
-  setWorkspaces: () => {},
-});
 
-export function usePersistingWorkspacesAndPubs() {
-  const initWorkspaces = useWorkspacesFromStorage();
-  const initPubs = usePubsFromStorage();
 
-  const [workspaces, setWorkspaces] = useState(initWorkspaces);
-  const [pubs, setPubs] = useState(initPubs);
 
-  useEffect(() => {
-    localStorage.setItem("workspaces", JSON.stringify(workspaces));
-  }, [workspaces]);
 
-  useEffect(() => {
-    localStorage.setItem("pubs", JSON.stringify(pubs));
-  }, [pubs]);
 
-  return { workspaces, setWorkspaces, pubs, setPubs };
-}
-
-export function usePubs(): [
-  Record<string, string[]>,
-  React.Dispatch<React.SetStateAction<Record<string, string[]>>>
-] {
-  const { pubs, setPubs } = useContext(StorageContext);
-
-  return [pubs, setPubs];
-}
-
-export function useWorkspacePubs(
-  workspace: string
-): [string[], (value: React.SetStateAction<string[]>) => void] {
-  const { pubs, setPubs } = useContext(StorageContext);
-
-  return [
-    pubs[workspace] || [],
-    (value: React.SetStateAction<string[]>) => {
-      setPubs(({ [workspace]: prevWorkspacePubs, ...rest }) => {
-        if (Array.isArray(value)) {
-          return { ...rest, [workspace]: value };
-        }
-        const next = value(prevWorkspacePubs || []);
-        return { ...rest, [workspace]: next };
-      });
-    },
-  ];
-}
-
-export function useWorkspaces(): [
-  string[],
-  React.Dispatch<React.SetStateAction<string[]>>
-] {
-  const { workspaces, setWorkspaces } = useContext(StorageContext);
-
-  return [workspaces, setWorkspaces];
-}

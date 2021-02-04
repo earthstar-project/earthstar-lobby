@@ -1,21 +1,37 @@
-import React, { useState, useEffect, useReducer } from "react";
-import createEnvironment from "./util/relay-environment";
-import { createSchemaContext } from "earthstar-graphql";
-import { AuthorKeypair } from "earthstar";
+import React, { useReducer } from "react";
+
 import { ThemeProvider, css, createGlobalStyle } from "styled-components/macro";
-import SyncMutation from "./mutations/SyncMutation";
+
 import { lightTheme, makeThemeForFont, darkTheme } from "./themes";
 import { useModeSelector } from "use-light-switch";
 import WorkspaceViewer from "./WorkspaceViewer";
 import { LobbyContext } from "./util/lobby-context";
 import Dashboard from "./Dashboard";
+import useInternetTime from "use-internet-time";
+import {
+  EarthstarPeer,
+  Earthbar,
+  useLocalStorageEarthstarSettings,
+  LocalStorageSettingsWriter,
+  MultiWorkspaceTab,
+  AuthorTab,
+  Spacer,
+  useCurrentAuthor,
+  useAddWorkspace,
+  useWorkspaces,
+  usePubs,
+} from "react-earthstar";
+import "react-earthstar/styles/layout.css";
+import "react-earthstar/styles/junior.css";
+import MaxWidth from "./MaxWidth";
 import {
   usePersistedAuthor,
   useWorkspacesFromStorage,
-  usePersistingWorkspacesAndPubs,
   usePubsFromStorage,
-  StorageContext,
 } from "./util/hooks";
+import { deleteFromStorage } from "@rehooks/local-storage";
+import NavButton from "./NavButton";
+import { WindupChildren } from "windups";
 
 type AppState =
   | { screen: "WORKSPACE"; address: string }
@@ -48,80 +64,37 @@ const App: React.FC = () => {
     screen: "DASHBOARD",
   });
 
-  const persistedWorkspaces = useWorkspacesFromStorage();
-  const persistedPubs = usePubsFromStorage();
-
-  // Try and get workspaces from localstorage
-  const {
-    workspaces,
-    pubs,
-    setWorkspaces,
-    setPubs,
-  } = usePersistingWorkspacesAndPubs();
-
-  // This is a Relay environment, which is where Relay stores its data cache
-  // and configurations for how to fetch data
-  const [env] = useState(
-    createEnvironment(
-      createSchemaContext("MEMORY", {
-        workspaceAddresses: workspaces,
-      })
-    )
-  );
-
-  useEffect(() => {
-    Promise.all(
-      persistedWorkspaces.map((ws) => {
-        return new Promise((res) => {
-          SyncMutation.commit(
-            env,
-            {
-              workspace: ws,
-              pubUrls: persistedPubs[ws] || [],
-            },
-            () => {
-              res();
-            }
-          );
-        });
-      })
-    );
-  }, [env, persistedWorkspaces, pubs, persistedPubs]);
-
-  // Try and get the author from localstorage.
-  const initAuthor = usePersistedAuthor();
-
-  const [author, setAuthor] = useState<AuthorKeypair | null>(initAuthor);
-
-  // Write the current keypair to localstorage whenever the value changes
-  useEffect(() => {
-    localStorage.setItem("authorKeypair", JSON.stringify(author));
-  }, [author]);
-
-  // Using this to make the sticky header effects work well
-  const [statusBarHeight, setStatusBarHeight] = useState(0);
-
   const GlobalStyle = createGlobalStyle`
     html, body {
       background: ${(props) => props.theme.colours.bg}
     }
   `;
 
+  const initValues = useLocalStorageEarthstarSettings("lobby");
+
   return (
     // Pass a theme into the app for styled components to use.
     <ThemeProvider theme={makeThemeForFont("Gill Sans", theme || lightTheme)}>
       <GlobalStyle />
-      <LobbyContext.Provider
-        value={{
-          author,
-          setAuthor,
-          statusBarHeight,
-          setStatusBarHeight,
-          appStateDispatch: dispatch,
-        }}
-      >
-        <StorageContext.Provider
-          value={{ pubs, workspaces, setPubs, setWorkspaces }}
+      <EarthstarPeer {...initValues}>
+        <WorkspaceMigrator />
+        <MaxWidth
+          css={`
+            margin-top: 8px;
+          `}
+        >
+          <Earthbar>
+            <MultiWorkspaceTab />
+            <Spacer />
+            <AuthorTab />
+            <InternetClock />
+          </Earthbar>
+        </MaxWidth>
+        <LocalStorageSettingsWriter storageKey={"lobby"} />
+        <LobbyContext.Provider
+          value={{
+            appStateDispatch: dispatch,
+          }}
         >
           <div
             css={css`
@@ -131,20 +104,86 @@ const App: React.FC = () => {
         background: ${(props) => props.theme.colours.bg}
       `}
           >
-            {appState.screen === "DASHBOARD" ? (
-              <Dashboard relayEnv={env} />
-            ) : null}
+            {appState.screen === "DASHBOARD" ? <Dashboard /> : null}
             {appState.screen === "WORKSPACE" ? (
-              <WorkspaceViewer
-                workspaceAddress={appState.address}
-                relayEnv={env}
-              />
+              <WorkspaceViewer workspaceAddress={appState.address} />
             ) : null}
           </div>
-        </StorageContext.Provider>
-      </LobbyContext.Provider>
+        </LobbyContext.Provider>
+      </EarthstarPeer>
     </ThemeProvider>
   );
 };
 
 export default App;
+
+function WorkspaceMigrator() {
+  const oldCurrentAuthor = usePersistedAuthor();
+  const oldWorkspaces = useWorkspacesFromStorage();
+  const oldPubs = usePubsFromStorage();
+
+  const [currentAuthor, setCurrentAuthor] = useCurrentAuthor();
+
+  const workspaces = useWorkspaces();
+  const addWorkspace = useAddWorkspace();
+
+  const [pubs, setPubs] = usePubs();
+
+  React.useEffect(() => {
+    if (oldCurrentAuthor && currentAuthor === null) {
+      setCurrentAuthor(oldCurrentAuthor);
+      deleteFromStorage("authorKeypair");
+    }
+  }, [oldCurrentAuthor, currentAuthor, setCurrentAuthor]);
+
+  React.useEffect(() => {
+    if (oldWorkspaces) {
+      oldWorkspaces.forEach((ws) => {
+        if (!workspaces.includes(ws)) {
+          addWorkspace(ws);
+        }
+      });
+      deleteFromStorage("workspaces");
+    }
+  }, [oldWorkspaces, workspaces, addWorkspace]);
+
+  React.useEffect(() => {
+    if (oldPubs) {
+      const nextPubs = Object.entries(oldPubs).reduce((acc, [ws, wsPubs]) => {
+        const current = pubs[ws] || [];
+
+        const next = [
+          ...wsPubs.filter(
+            (url) => url !== "https://earthstar-graphql-pub.glitch.me"
+          ),
+          ...current,
+        ];
+
+        return { ...acc, [ws]: next };
+      }, {} as Record<string, string[]>);
+
+      setPubs(nextPubs);
+
+      deleteFromStorage("pubs");
+    }
+  }, [oldPubs, pubs, setPubs]);
+
+  return null;
+}
+
+function InternetClock() {
+  const time = useInternetTime({ fractional: true });
+
+  return (
+    <div
+      css={css`
+        font-feature-settings: "tnum";
+        font-variant-numeric: tabular-nums;
+        color: "var(--gr3)";
+        align-self: center;
+      `}
+    >
+      {time}
+    </div>
+  );
+}

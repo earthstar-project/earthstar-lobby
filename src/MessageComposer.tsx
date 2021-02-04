@@ -1,37 +1,29 @@
 import React, { useState } from "react";
-import { createFragmentContainer, RelayProp } from "react-relay";
-import graphql from "babel-plugin-relay/macro";
-import { MessageComposer_workspace } from "./__generated__/MessageComposer_workspace.graphql";
-import SetMutation from "./mutations/SetMutation";
-import { AuthorKeypair } from "earthstar";
 import Button from "./Button";
 import TextArea from "./TextArea";
 import { css } from "styled-components/macro";
 import MaxWidth from "./MaxWidth";
 import LabelledCheckbox from "./LabelledCheckbox";
 import NumberInput from "./NumberInput";
+import { useDocument, useCurrentAuthor } from "react-earthstar";
 
 type MessageComposerProps = {
-  workspace: MessageComposer_workspace;
-  relay: RelayProp;
-  author: AuthorKeypair;
-  setIsWorkspaceDirty: (isDirty: boolean) => void;
+  workspace: string;
 };
 
-const MessageComposer: React.FC<MessageComposerProps> = ({
-  workspace,
-  relay,
-  author,
-  setIsWorkspaceDirty,
-}) => {
+const MessageComposer: React.FC<MessageComposerProps> = ({ workspace }) => {
   const [message, setMessage] = useState("");
   const [isEphemeral, setIsEphemeral] = useState(false);
   const [deleteAfterHours, setDeleteAfterHours] = useState(1);
 
+  const [currentAuthor] = useCurrentAuthor();
+
   // The path the document will be stored at
-  const path = `/lobby/~${author.address}/${
+  const path = `/lobby/~${currentAuthor?.address}/${
     isEphemeral ? "!" : ""
   }${Date.now()}.txt`;
+
+  const [, setMessageDoc] = useDocument(path, workspace);
 
   return (
     <MaxWidth>
@@ -90,26 +82,13 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
           </LabelledCheckbox>
           <Button
             onClick={() => {
-              SetMutation.commit(
-                relay.environment,
-                {
-                  author,
-                  document: {
-                    content: message,
-                    path,
-                    deleteAfter: isEphemeral
-                      ? Date.now() * 1000 + deleteAfterHours * 1000000 * 60 * 60
-                      : null,
-                  },
-                  workspace: workspace.address,
-                },
-                (result) => {
-                  if (result.set.__typename === "SetDataSuccessResult") {
-                    setIsWorkspaceDirty(true);
-                    setMessage("");
-                  }
-                }
+              setMessageDoc(
+                message,
+                isEphemeral
+                  ? Date.now() * 1000 + deleteAfterHours * 1000000 * 60 * 60
+                  : null
               );
+
               setMessage("");
             }}
           >
@@ -121,12 +100,4 @@ const MessageComposer: React.FC<MessageComposerProps> = ({
   );
 };
 
-// This declares which data MessageComposer wants from Relay.
-// workspace will be fed in as a prop
-export default createFragmentContainer(MessageComposer, {
-  workspace: graphql`
-    fragment MessageComposer_workspace on Workspace {
-      address
-    }
-  `,
-});
+export default MessageComposer;

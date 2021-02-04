@@ -1,12 +1,10 @@
 import React, { useState } from "react";
-import { createFragmentContainer } from "react-relay";
-import graphql from "babel-plugin-relay/macro";
-import { MessageEditor_document } from "./__generated__/MessageEditor_document.graphql";
 import TextArea from "./TextArea";
 import Button from "./Button";
+import { Document } from "earthstar";
 
 type MessageEditorProps = {
-  document: MessageEditor_document;
+  document: Document;
   cancelEditing: () => void;
   updateMessage: (newMessage: string) => void;
 };
@@ -28,10 +26,4 @@ const MessageEditor: React.FC<MessageEditorProps> = ({
   );
 };
 
-export default createFragmentContainer(MessageEditor, {
-  document: graphql`
-    fragment MessageEditor_document on ES4Document {
-      content
-    }
-  `,
-});
+export default MessageEditor;
