@@ -1,8 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
-import { createFragmentContainer, RelayProp } from "react-relay";
-import graphql from "babel-plugin-relay/macro";
-import { Message_document } from "./__generated__/Message_document.graphql";
-import SetMutation from "./mutations/SetMutation";
+import React, { useState } from "react";
 import MessageEditor from "./MessageEditor";
 import { fromDate } from "dot-beat-time";
 import NavButton from "./NavButton";
@@ -11,70 +7,35 @@ import "styled-components/macro";
 import Button from "./Button";
 import MaxWidth from "./MaxWidth";
 import AuthorIdenticon from "./AuthorIdenticon";
-import { getAuthorShortname } from "./util/handy";
 import { css } from "styled-components/macro";
 import Linkify from "react-linkify";
-import { LobbyContext } from "./util/lobby-context";
+
+import { Document } from "earthstar";
+import { useDocument, useCurrentAuthor, AuthorLabel } from "react-earthstar";
 
 type MessageProps = {
-  document: Message_document;
-  relay: RelayProp;
-  setIsWorkspaceDirty: (isDirty: boolean) => void;
+  document: Document;
 };
 
 type MessagePanel = "options" | "editing" | "none";
 
-const Message: React.FC<MessageProps> = ({
-  document,
-  relay,
-  setIsWorkspaceDirty,
-}) => {
+const Message: React.FC<MessageProps> = ({ document }) => {
   const [openPanel, setOpenPanel] = useState<MessagePanel>("none");
-  const { author } = useContext(LobbyContext);
+  const [currentAuthor] = useCurrentAuthor();
 
   // For pointing the contextual panel at the right place
   const [buttonNode, setButtonNode] = useState<HTMLElement | null>(null);
 
-  // Sync the deletion of the post after the deleteAfter has passed
-  useEffect(() => {
-    if (document.deleteAfter !== null) {
-      const interval = setInterval(() => {
-        if (document.deleteAfter && document.deleteAfter >= Date.now() * 1000) {
-          console.log("invalidate the cache somehow...");
-        }
-      }, 86400);
-
-      return () => {
-        clearInterval(interval);
-      };
-    }
-  }, [document.deleteAfter, document.workspace.address, relay.environment]);
-
   // A function for editing/deleting the document
-  const set = author
-    ? (message: string) => {
-        SetMutation.commit(
-          relay.environment,
-          {
-            author,
-            document: {
-              content: message,
-              path: document.path,
-              deleteAfter: document.deleteAfter,
-            },
-            workspace: document.workspace.address,
-          },
-          (res) => {
-            if (res.set.__typename === "SetDataSuccessResult") {
-              setIsWorkspaceDirty(true);
-            }
-            if (res.set.__typename === "DocumentRejectedError") {
-              console.error("Document was not edited: ", res.set.reason);
-            }
-          }
-        );
-      }
-    : () => {};
+  const [, setDocument] = useDocument(document.path, document.workspace);
+  const set = (message: string) => {
+    setDocument(message, document.deleteAfter);
+  };
+
+  const [authorDisplayNameDoc] = useDocument(
+    `/about/~${document.author}/displayName.txt`,
+    document.workspace
+  );
 
   return (
     <div style={{ marginBottom: 16 }}>
@@ -89,7 +50,7 @@ const Message: React.FC<MessageProps> = ({
                 setOpenPanel("none");
               }}
             />
-          ) : author && author.address === document.author.address ? (
+          ) : currentAuthor?.address === document.author ? (
             <div>
               <Button onClick={() => setOpenPanel("editing")}>{"Edit"}</Button>
               {" or "}
@@ -112,7 +73,7 @@ const Message: React.FC<MessageProps> = ({
       ) : null}
       <MaxWidth>
         <div
-          title={document.author.address}
+          title={document.author}
           css={`
             padding: 12px 0 0 0;
             align-items: baseline;
@@ -125,18 +86,22 @@ const Message: React.FC<MessageProps> = ({
                 overflow-wrap: break-word;
               `}
             >
-              {document.author.displayName || document.author.shortName}
+              {authorDisplayNameDoc?.content || (
+                <AuthorLabel address={document.author} />
+              )}
             </b>{" "}
             <span
               css={css`
                 color: ${(props) => props.theme.colours.fgHint};
               `}
             >
-              {document.author.displayName
-                ? getAuthorShortname(document.author.address)
-                : ""}{" "}
+              {authorDisplayNameDoc ? (
+                <AuthorLabel address={document.author} />
+              ) : (
+                ""
+              )}{" "}
             </span>
-            <AuthorIdenticon address={document.author.address} />
+            <AuthorIdenticon address={document.author} />
           </span>{" "}
           <span
             css={css`
@@ -145,7 +110,7 @@ const Message: React.FC<MessageProps> = ({
               font-variant-numeric: tabular-nums;
             `}
           >
-            {author && author.address === document.author.address ? (
+            {currentAuthor?.address === document.author ? (
               <NavButton
                 css={css`
                   color: ${(props) => props.theme.colours.fgHint};
@@ -200,25 +165,4 @@ const Message: React.FC<MessageProps> = ({
   );
 };
 
-// This declares which data Message wants from Relay.
-// document will be fed in as a prop
-export default createFragmentContainer(Message, {
-  document: graphql`
-    fragment Message_document on ES4Document {
-      ...MessageEditor_document
-      id
-      content
-      path
-      timestamp
-      deleteAfter
-      workspace {
-        address
-      }
-      author {
-        address
-        displayName
-        shortName
-      }
-    }
-  `,
-});
+export default Message;

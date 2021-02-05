@@ -1,39 +1,30 @@
-import React, { useContext } from "react";
-import { createFragmentContainer, RelayProp } from "react-relay";
-import graphql from "babel-plugin-relay/macro";
-import { WorkspaceMessages_workspace } from "./__generated__/WorkspaceMessages_workspace.graphql";
+import React from "react";
 import Message from "./Message";
 import { css } from "styled-components/macro";
 import MaxWidth from "./MaxWidth";
-import { LobbyContext } from "./util/lobby-context";
+import { useDocuments } from "react-earthstar";
+import { Document } from "earthstar";
 
 type WorkspaceMessagesProps = {
-  workspace: WorkspaceMessages_workspace;
-  relay: RelayProp;
-  setIsWorkspaceDirty: (isDirty: boolean) => void;
+  workspace: string;
 };
 
-const WorkspaceMessages: React.FC<WorkspaceMessagesProps> = ({
-  workspace,
-  setIsWorkspaceDirty,
-}) => {
-  const { statusBarHeight } = useContext(LobbyContext);
+const WorkspaceMessages: React.FC<WorkspaceMessagesProps> = ({ workspace }) => {
+  const documents = useDocuments({ pathPrefix: "/lobby/" }, workspace);
 
   // Partition the documents by day (local)
-  const docsByDate = workspace.documents.reduce((acc, doc) => {
-    if (doc.__typename !== "ES4Document") {
-      return acc;
-    }
+  const docsByDate = documents
+    .sort((a, b) => (a.timestamp > b.timestamp ? -1 : 1))
+    .reduce((acc, doc) => {
+      const docDate = new Date(doc.timestamp / 1000);
+      const docDateString = docDate.toDateString();
+      const accDateCollection = acc[docDateString] || [];
 
-    const docDate = new Date(doc.timestamp / 1000);
-    const docDateString = docDate.toDateString();
-    const accDateCollection = acc[docDateString] || [];
-
-    return {
-      ...acc,
-      [docDateString]: [...accDateCollection, doc],
-    };
-  }, {} as Record<string, WorkspaceMessages_workspace["documents"][0][]>);
+      return {
+        ...acc,
+        [docDateString]: [...accDateCollection, doc],
+      };
+    }, {} as Record<string, Document[]>);
 
   return (
     <div>
@@ -52,7 +43,6 @@ const WorkspaceMessages: React.FC<WorkspaceMessagesProps> = ({
             <div
               css={css`
                 position: sticky;
-                top: ${statusBarHeight}px;
                 z-index: 0;
                 background: ${(props) => props.theme.colours.bg};
                 border-bottom: 1px solid
@@ -78,17 +68,9 @@ const WorkspaceMessages: React.FC<WorkspaceMessagesProps> = ({
               `}
             >
               {documents.map((doc, i) => {
-                if (doc.__typename !== "ES4Document") {
-                  return null;
-                }
-
                 return (
-                  <React.Fragment key={doc.id}>
-                    <Message
-                      setIsWorkspaceDirty={setIsWorkspaceDirty}
-                      key={doc.id}
-                      document={doc}
-                    />
+                  <React.Fragment key={doc.path}>
+                    <Message document={doc} />
                     {i < documents.length - 1 ? (
                       <MaxWidth>
                         <hr
@@ -113,18 +95,4 @@ const WorkspaceMessages: React.FC<WorkspaceMessagesProps> = ({
 
 // This declares which data WorkspaceMessages wants from Relay.
 // workspace will be fed in as a prop
-export default createFragmentContainer(WorkspaceMessages, {
-  workspace: graphql`
-    fragment WorkspaceMessages_workspace on Workspace {
-      address
-      documents(sortedBy: NEWEST, pathPrefixes: ["/lobby"]) {
-        __typename
-        ... on ES4Document {
-          id
-          timestamp
-          ...Message_document
-        }
-      }
-    }
-  `,
-});
+export default WorkspaceMessages;

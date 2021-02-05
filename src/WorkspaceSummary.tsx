@@ -1,221 +1,33 @@
-import React, { useContext, useState } from "react";
-import { createFragmentContainer, RelayProp } from "react-relay";
-import graphql from "babel-plugin-relay/macro";
+import React, { useContext } from "react";
 import { css } from "styled-components/macro";
 import { WindupChildren } from "windups";
-import useClipboard from "react-use-clipboard";
-
 import MaxWidth from "./MaxWidth";
 import NavButton from "./NavButton";
-import Button from "./Button";
 import AuthorIdenticon from "./AuthorIdenticon";
-import ContextualPanel from "./ContextualPanel";
 import { LobbyContext } from "./util/lobby-context";
-import { usePubs, useTempString, useWorkspaces } from "./util/hooks";
-import { getSyncSummaryMessage } from "./util/handy";
-import TextInput from "./TextInput";
 
-import SyncMutation from "./mutations/SyncMutation";
-import RemoveWorkspaceMutation from "./mutations/RemoveWorkspaceMutation";
-
-import { WorkspaceSummary_workspace } from "./__generated__/WorkspaceSummary_workspace.graphql";
-
-const PubEditor = ({ workspace }: { workspace: string }) => {
-  const [pubs, setPubs] = usePubs();
-
-  const [newPub, setNewPub] = useState("");
-  const remove = (pubToRemove: string) => {
-    setPubs((prev) => {
-      const currentPubs = prev[workspace] || [];
-
-      return {
-        ...prev,
-        [workspace]: (currentPubs || []).filter((pub) => pub !== pubToRemove),
-      };
-    });
-  };
-  const add = (pubToAdd: string) => {
-    setNewPub("");
-    setPubs((prev) => {
-      const currentPubs = prev[workspace] || [];
-
-      return {
-        ...prev,
-        [workspace]: Array.from(new Set([...(currentPubs || []), pubToAdd])),
-      };
-    });
-  };
-
-  return (
-    <>
-      {pubs[workspace]
-        ? pubs[workspace].map((pub) => {
-            return (
-              <li
-                key={pub}
-                css={css`
-                  display: flex;
-                  justify-content: flex-end;
-                  align-items: baseline;
-                  margin-bottom: 0.5em;
-                  color: ${(props) => props.theme.colours.fgHint};
-                `}
-              >
-                {pub}
-                <Button
-                  css={css`
-                    margin-left: 0.4em;
-                  `}
-                  onClick={() => {
-                    remove(pub);
-                  }}
-                >
-                  {"Remove"}
-                </Button>
-              </li>
-            );
-          })
-        : null}
-      <div
-        css={css`
-          margin-top: 0.8em;
-        `}
-      >
-        <TextInput
-          placeholder={"https://my.pub"}
-          value={newPub}
-          onChange={(e) => setNewPub(e.target.value)}
-        />
-        <Button
-          onClick={() => {
-            add(newPub);
-          }}
-        >
-          {"Add another pub"}
-        </Button>
-      </div>
-    </>
-  );
-};
+import {
+  useDocuments,
+  WorkspaceLabel,
+  useStorage,
+  AuthorLabel,
+} from "react-earthstar";
 
 type WorkspaceSummaryProps = {
-  relay: RelayProp;
-  workspace: WorkspaceSummary_workspace;
+  workspace: string;
 };
 
-type PanelState = "options" | "pubs" | "closed";
-
-const WorkspaceSummary: React.FC<WorkspaceSummaryProps> = ({
-  workspace,
-  relay,
-}) => {
+const WorkspaceSummary: React.FC<WorkspaceSummaryProps> = ({ workspace }) => {
   const { appStateDispatch } = useContext(LobbyContext);
 
-  const firstThreePosts = workspace.documents.slice(0, 3);
+  const firstThreePosts = useDocuments({ pathPrefix: "/lobby/" }, workspace)
+    .sort((aDoc, bDoc) => (aDoc.timestamp > bDoc.timestamp ? -1 : 0))
+    .slice(0, 3);
 
-  const [
-    workspaceNameNode,
-    setWorkspaceNameNode,
-  ] = useState<HTMLElement | null>(null);
-
-  const [panelState, setPanelState] = useState<PanelState>("closed");
-
-  const [pubs, setPubs] = usePubs();
-
-  const [, setWorkspaces] = useWorkspaces();
-
-  const [status, setStatus] = useTempString();
-
-  const [_isCopied, setCopied] = useClipboard(workspace.address);
+  const storage = useStorage(workspace);
 
   return (
     <>
-      {panelState !== "closed" ? (
-        <ContextualPanel
-          accentColour={"alpha"}
-          pointsToNode={workspaceNameNode}
-        >
-          <div
-            css={css`
-              text-align: right;
-            `}
-          >
-            {panelState === "options" ? (
-              <>
-                {pubs[workspace.address] ? (
-                  <>
-                    <Button
-                      onClick={() => {
-                        setPanelState("closed");
-                        setStatus("is syncing...");
-                        SyncMutation.commit(
-                          relay.environment,
-                          {
-                            workspace: workspace.address,
-                            pubUrls: pubs[workspace.address] || [],
-                          },
-                          (res) => {
-                            setStatus(getSyncSummaryMessage(res));
-                          }
-                        );
-                      }}
-                    >
-                      {"Sync"}
-                    </Button>
-                    {" or "}
-                  </>
-                ) : null}
-                <Button
-                  onClick={() => {
-                    setCopied();
-                    setPanelState("closed");
-                  }}
-                >
-                  {"Copy address to clipboard"}
-                </Button>
-                {" or "}
-                <Button onClick={() => setPanelState("pubs")}>
-                  {"Edit Pubs"}
-                </Button>
-                {" or "}
-                <Button
-                  onClick={() => {
-                    RemoveWorkspaceMutation.commit(
-                      relay.environment,
-                      {
-                        workspaceAddress: workspace.address,
-                      },
-                      (res) => {
-                        if (
-                          res.removeWorkspace.__typename ===
-                          "WorkspaceRemovedResult"
-                        ) {
-                          const removedAddress = res.removeWorkspace.address;
-
-                          setWorkspaces((prev) =>
-                            prev.filter((ws) => ws !== removedAddress)
-                          );
-
-                          setPubs((prev) => {
-                            const next = { ...prev };
-                            delete next[removedAddress];
-                            return next;
-                          });
-                        }
-                      }
-                    );
-                  }}
-                >
-                  {"Remove"}
-                </Button>
-              </>
-            ) : null}
-            {panelState === "pubs" ? (
-              <PubEditor workspace={workspace.address} />
-            ) : null}
-          </div>
-        </ContextualPanel>
-      ) : null}
       <MaxWidth>
         <div
           css={css`
@@ -230,13 +42,12 @@ const WorkspaceSummary: React.FC<WorkspaceSummaryProps> = ({
               onClick={() => {
                 appStateDispatch({
                   type: "OPEN_WORKSPACE",
-                  address: workspace.address,
+                  address: workspace,
                 });
               }}
               accent={"alpha"}
             >
-              {"+"}
-              <b>{workspace.name}</b>
+              <WorkspaceLabel address={workspace} />
             </NavButton>
             <WindupChildren>
               <span
@@ -244,29 +55,10 @@ const WorkspaceSummary: React.FC<WorkspaceSummaryProps> = ({
                   color: ${(props) => props.theme.colours.fgHint};
                 `}
               >
-                {status
-                  ? status
-                  : pubs[workspace.address] === undefined ||
-                    pubs[workspace.address].length === 0
-                  ? " has no known pubs!"
-                  : ` ${workspace.population} members`}
+                {` ${storage?.authors().length} members`}
               </span>
             </WindupChildren>
           </div>
-          <NavButton
-            accent={"alpha"}
-            css={css`
-              margin-left: 8px;
-            `}
-            onClick={() => {
-              setPanelState((prev) =>
-                prev !== "closed" ? "closed" : "options"
-              );
-            }}
-            ref={(inst) => setWorkspaceNameNode(inst)}
-          >
-            {"options"}
-          </NavButton>
         </div>
         <div
           css={css`
@@ -274,30 +66,26 @@ const WorkspaceSummary: React.FC<WorkspaceSummaryProps> = ({
           `}
         >
           {firstThreePosts.map((post) => {
-            if (post.__typename === "ES4Document") {
-              return (
-                <div
-                  key={post.id}
+            return (
+              <div
+                key={post.path}
+                css={css`
+                  text-overflow: ellipsis;
+                  overflow: hidden;
+                  white-space: nowrap;
+                  line-height: 1.5;
+                `}
+              >
+                <span
                   css={css`
-                    text-overflow: ellipsis;
-                    overflow: hidden;
-                    white-space: nowrap;
-                    line-height: 1.5;
+                    color: ${(props) => props.theme.colours.fgHint};
                   `}
                 >
-                  <span
-                    css={css`
-                      color: ${(props) => props.theme.colours.fgHint};
-                    `}
-                  >
-                    {post.author.shortName}{" "}
-                    <AuthorIdenticon address={post.author.address} />{" "}
-                    {post.content}
-                  </span>
-                </div>
-              );
-            }
-            return null;
+                  <AuthorLabel address={post.author} />{" "}
+                  <AuthorIdenticon address={post.author} /> {post.content}
+                </span>
+              </div>
+            );
           })}
         </div>
       </MaxWidth>
@@ -305,23 +93,4 @@ const WorkspaceSummary: React.FC<WorkspaceSummaryProps> = ({
   );
 };
 
-export default createFragmentContainer(WorkspaceSummary, {
-  workspace: graphql`
-    fragment WorkspaceSummary_workspace on Workspace {
-      name
-      address
-      population
-      documents(sortedBy: NEWEST, pathPrefixes: ["/lobby"]) {
-        __typename
-        ... on ES4Document {
-          id
-          content
-          author {
-            shortName
-            address
-          }
-        }
-      }
-    }
-  `,
-});
+export default WorkspaceSummary;
