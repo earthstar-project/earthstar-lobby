@@ -18,7 +18,7 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-dropzone": "^11.0.2",
-    "react-earthstar": "^1.0.1",
+    "react-earthstar": "^1.0.3",
     "react-linkify": "^1.0.0-alpha",
     "react-scripts": "3.4.0",
     "react-use-clipboard": "^1.0.1",
