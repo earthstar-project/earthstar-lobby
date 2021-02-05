@@ -18,16 +18,6 @@ const WorkspaceViewer: React.FC<WorkspaceViewerProps> = ({
 
   return (
     <>
-      <MaxWidth>
-        <Button
-          css={`
-            margin: 8px 0;
-          `}
-          onClick={() => appStateDispatch({ type: "OPEN_DASHBOARD" })}
-        >
-          {"← View all workspaces"}
-        </Button>
-      </MaxWidth>
       {currentAuthor ? <MessageComposer workspace={workspaceAddress} /> : null}
       <WorkspaceMessages workspace={workspaceAddress} />
     </>

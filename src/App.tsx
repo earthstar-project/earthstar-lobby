@@ -32,6 +32,7 @@ import {
 import { deleteFromStorage } from "@rehooks/local-storage";
 import NavButton from "./NavButton";
 import { WindupChildren } from "windups";
+import Button from "./Button";
 
 type AppState =
   | { screen: "WORKSPACE"; address: string }
@@ -84,6 +85,17 @@ const App: React.FC = () => {
           `}
         >
           <Earthbar>
+            {appState.screen === "WORKSPACE" ? (
+              <Button
+                css={`
+                  align-self: baseline;
+                `}
+                onClick={() => dispatch({ type: "OPEN_DASHBOARD" })}
+              >
+                {"← Back"}
+              </Button>
+            ) : null}
+
             <MultiWorkspaceTab />
             <Spacer />
             <AuthorTab />
