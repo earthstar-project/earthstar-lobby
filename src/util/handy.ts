@@ -1,4 +1,4 @@
-import { AuthorKeypair, ValidatorEs4 } from "earthstar";
+import { AuthorKeypair, ValidatorEs4, Document } from "earthstar";
 
 export function isKeypair(val: any): val is AuthorKeypair {
   if (!val.address || !val.secret) {
@@ -49,5 +49,25 @@ export function hexToRgb(hex: string) {
         b: parseInt(result[3], 16),
       }
     : { r: 0, g: 0, b: 0 };
+}
+
+const pathTimestampRegex = /(\d*)(?:\.txt)/
+
+
+export function getLobbyDocPublishedTimestamp(doc: Document): number {
+  const result = pathTimestampRegex.exec(doc.path);
+  
+  if (result === null) {
+    return 0
+  }
+  
+  return parseInt(result[0])
+}
+
+export function sortByPublished(docA: Document, docB: Document) {
+  const aTimestamp = getLobbyDocPublishedTimestamp(docA)
+  const bTimestamp = getLobbyDocPublishedTimestamp(docB);
+  
+  return aTimestamp > bTimestamp ? -1 : 1
 }
 

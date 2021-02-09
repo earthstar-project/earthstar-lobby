@@ -2,7 +2,6 @@ import React from "react";
 import MessageComposer from "./MessageComposer";
 import WorkspaceMessages from "./WorkspaceMessages";
 import { useCurrentAuthor } from "react-earthstar";
-import { LobbyContext } from "./util/lobby-context";
 
 type WorkspaceViewerProps = {
   workspaceAddress: string;

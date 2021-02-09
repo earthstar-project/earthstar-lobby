@@ -3,11 +3,12 @@ import { css } from "styled-components/macro";
 import WorkspaceSummary from "./WorkspaceSummary";
 import { useStorages } from "react-earthstar";
 import { IStorage } from "earthstar";
+import { sortByPublished, getLobbyDocPublishedTimestamp } from "./util/handy";
 
 function getLatestDocument(storage: IStorage) {
   return storage
     .documents({ pathPrefix: "/lobby/" })
-    .sort((aDoc, bDoc) => (aDoc.timestamp > bDoc.timestamp ? -1 : 1))
+    .sort(sortByPublished)
     .shift();
 }
 
@@ -37,7 +38,10 @@ const Dashboard = () => {
                 return -1;
               }
 
-              return aLatest?.timestamp > bLatest?.timestamp ? -1 : 1;
+              return getLobbyDocPublishedTimestamp(aLatest) >
+                getLobbyDocPublishedTimestamp(bLatest)
+                ? -1
+                : 1;
             })
             .map((storage) => {
               return (
