@@ -4,6 +4,7 @@ import { css } from "styled-components/macro";
 import MaxWidth from "./MaxWidth";
 import { useDocuments } from "react-earthstar";
 import { Document } from "earthstar";
+import { sortByPublished, getLobbyDocPublishedTimestamp } from "./util/handy";
 
 type WorkspaceMessagesProps = {
   workspace: string;
@@ -13,18 +14,16 @@ const WorkspaceMessages: React.FC<WorkspaceMessagesProps> = ({ workspace }) => {
   const documents = useDocuments({ pathPrefix: "/lobby/" }, workspace);
 
   // Partition the documents by day (local)
-  const docsByDate = documents
-    .sort((a, b) => (a.timestamp > b.timestamp ? -1 : 1))
-    .reduce((acc, doc) => {
-      const docDate = new Date(doc.timestamp / 1000);
-      const docDateString = docDate.toDateString();
-      const accDateCollection = acc[docDateString] || [];
+  const docsByDate = documents.sort(sortByPublished).reduce((acc, doc) => {
+    const docDate = new Date(getLobbyDocPublishedTimestamp(doc));
+    const docDateString = docDate.toDateString();
+    const accDateCollection = acc[docDateString] || [];
 
-      return {
-        ...acc,
-        [docDateString]: [...accDateCollection, doc],
-      };
-    }, {} as Record<string, Document[]>);
+    return {
+      ...acc,
+      [docDateString]: [...accDateCollection, doc],
+    };
+  }, {} as Record<string, Document[]>);
 
   return (
     <div>

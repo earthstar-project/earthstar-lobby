@@ -12,6 +12,7 @@ import {
   useStorage,
   AuthorLabel,
 } from "react-earthstar";
+import { sortByPublished } from "./util/handy";
 
 type WorkspaceSummaryProps = {
   workspace: string;
@@ -21,7 +22,7 @@ const WorkspaceSummary: React.FC<WorkspaceSummaryProps> = ({ workspace }) => {
   const { appStateDispatch } = useContext(LobbyContext);
 
   const firstThreePosts = useDocuments({ pathPrefix: "/lobby/" }, workspace)
-    .sort((aDoc, bDoc) => (aDoc.timestamp > bDoc.timestamp ? -1 : 0))
+    .sort(sortByPublished)
     .slice(0, 3);
 
   const storage = useStorage(workspace);

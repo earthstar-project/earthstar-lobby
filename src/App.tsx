@@ -73,6 +73,8 @@ const App: React.FC = () => {
 
   const initValues = useLocalStorageEarthstarSettings("lobby");
 
+  console.log("rendered");
+
   return (
     // Pass a theme into the app for styled components to use.
     <ThemeProvider theme={makeThemeForFont("Gill Sans", theme || lightTheme)}>
