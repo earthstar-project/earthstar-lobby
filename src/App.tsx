@@ -1,7 +1,5 @@
 import React, { useReducer } from "react";
-
 import { ThemeProvider, css, createGlobalStyle } from "styled-components/macro";
-
 import { lightTheme, makeThemeForFont, darkTheme } from "./themes";
 import { useModeSelector } from "use-light-switch";
 import WorkspaceViewer from "./WorkspaceViewer";
@@ -30,8 +28,6 @@ import {
   usePubsFromStorage,
 } from "./util/hooks";
 import { deleteFromStorage } from "@rehooks/local-storage";
-import NavButton from "./NavButton";
-import { WindupChildren } from "windups";
 import Button from "./Button";
 
 type AppState =
@@ -72,8 +68,6 @@ const App: React.FC = () => {
   `;
 
   const initValues = useLocalStorageEarthstarSettings("lobby");
-
-  console.log("rendered");
 
   return (
     // Pass a theme into the app for styled components to use.

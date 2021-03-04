@@ -3,10 +3,12 @@ import {
   useRef,
   useEffect,
   useState,
-  
 } from "react";
 import { useLocalStorage } from '@rehooks/local-storage'
-import { AuthorKeypair } from "earthstar";
+import { AuthorKeypair, ValidatorEs4, WorkspaceParsed } from "earthstar";
+import { useDocuments, useCurrentAuthor } from "react-earthstar";
+import { useDebounce } from "use-debounce";
+import { notify } from "./handy";
 
 export function useDownload(data: string, filename: string): () => void {
   return useCallback(() => {
@@ -72,6 +74,36 @@ export function useWorkspacesFromStorage() {
   const [workspaces] = useLocalStorage<string[]>('workspaces')
   
 return workspaces
+}
+
+export function useWorkspaceNotifications(workspaceAddress: string) {
+  const [currentAuthor] = useCurrentAuthor()
+  const paths = useDocuments({
+    pathStartsWith: "/lobby/",
+    contentLengthGt: 0,
+  }, workspaceAddress);
+
+  const prevPaths = usePrevious(paths);
+
+  const prevSet = new Set(prevPaths);
+  
+  const differenceSet= new Set(paths.filter((x) => !prevSet.has(x)));
+  
+  const differenceIsMe = Array.from(differenceSet).every((doc) => doc.author === currentAuthor?.address)
+  
+  const difference = differenceIsMe ? 0 : prevPaths && prevPaths.length > 0 ? differenceSet.size : 0;
+
+  const [debouncedDifference] = useDebounce(difference, 1000);
+
+  useEffect(() => {
+    const parsed = ValidatorEs4.parseWorkspaceAddress(
+      workspaceAddress
+    ) as WorkspaceParsed;
+
+    if (debouncedDifference > 0) {
+      notify(`+${parsed.name}`, `${debouncedDifference} new posts(s)`);
+    }
+  }, [debouncedDifference, workspaceAddress]);
 }
 
 
