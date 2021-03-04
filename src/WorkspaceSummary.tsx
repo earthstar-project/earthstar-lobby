@@ -1,18 +1,13 @@
 import React, { useContext } from "react";
 import { css } from "styled-components/macro";
-import { WindupChildren } from "windups";
 import MaxWidth from "./MaxWidth";
 import NavButton from "./NavButton";
 import AuthorIdenticon from "./AuthorIdenticon";
 import { LobbyContext } from "./util/lobby-context";
 
-import {
-  useDocuments,
-  WorkspaceLabel,
-  useStorage,
-  AuthorLabel,
-} from "react-earthstar";
+import { useDocuments, WorkspaceLabel, AuthorLabel } from "react-earthstar";
 import { sortByPublished } from "./util/handy";
+import { useWorkspaceNotifications } from "./util/hooks";
 
 type WorkspaceSummaryProps = {
   workspace: string;
@@ -21,11 +16,14 @@ type WorkspaceSummaryProps = {
 const WorkspaceSummary: React.FC<WorkspaceSummaryProps> = ({ workspace }) => {
   const { appStateDispatch } = useContext(LobbyContext);
 
-  const firstThreePosts = useDocuments({ pathPrefix: "/lobby/" }, workspace)
+  const firstThreePosts = useDocuments(
+    { pathStartsWith: "/lobby/", contentLengthGt: 0 },
+    workspace
+  )
     .sort(sortByPublished)
     .slice(0, 3);
 
-  const storage = useStorage(workspace);
+  useWorkspaceNotifications(workspace);
 
   return (
     <>
@@ -50,15 +48,6 @@ const WorkspaceSummary: React.FC<WorkspaceSummaryProps> = ({ workspace }) => {
             >
               <WorkspaceLabel address={workspace} />
             </NavButton>
-            <WindupChildren>
-              <span
-                css={css`
-                  color: ${(props) => props.theme.colours.fgHint};
-                `}
-              >
-                {` ${storage?.authors().length} members`}
-              </span>
-            </WindupChildren>
           </div>
         </div>
         <div

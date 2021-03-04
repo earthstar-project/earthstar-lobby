@@ -38,7 +38,7 @@ const Message: React.FC<MessageProps> = ({ document }) => {
   );
 
   return (
-    <div style={{ marginBottom: 16 }}>
+    <div style={{ marginBottom: 24 }}>
       {openPanel !== "none" ? (
         <ContextualPanel pointsToNode={buttonNode} accentColour={"gamma"}>
           {openPanel === "editing" ? (
