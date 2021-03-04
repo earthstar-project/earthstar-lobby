@@ -18,6 +18,7 @@ import {
   useAddWorkspace,
   useWorkspaces,
   usePubs,
+  useWorkspacePubs,
 } from "react-earthstar";
 import "react-earthstar/styles/layout.css";
 import "react-earthstar/styles/junior.css";
@@ -137,6 +138,17 @@ function WorkspaceMigrator() {
 
   const [pubs, setPubs] = usePubs();
 
+  const { initPubs } = useLocalStorageEarthstarSettings("lobby");
+
+  const allWorkspaces = React.useMemo(
+    () => (initPubs ? Object.keys(initPubs) : []),
+    [initPubs]
+  );
+
+  React.useEffect(() => {
+    allWorkspaces.forEach((addr) => addWorkspace(addr));
+  }, [addWorkspace, allWorkspaces]);
+
   React.useEffect(() => {
     if (oldCurrentAuthor && currentAuthor === null) {
       setCurrentAuthor(oldCurrentAuthor);
@@ -175,6 +187,20 @@ function WorkspaceMigrator() {
       deleteFromStorage("pubs");
     }
   }, [oldPubs, pubs, setPubs]);
+
+  // Include some defaults...
+
+  React.useEffect(() => {
+    if (workspaces.length === 0) {
+      addWorkspace("+lobbydev.a1");
+      addWorkspace("+emojiparty.fq0p48");
+      setPubs((prev) => ({
+        ...prev,
+        "+lobbydev.a1": ["https://earthstar-demo-pub-v5-a.glitch.me"],
+        "+emojiparty.fq0p48": ["https://earthstar-demo-pub-v5-a.glitch.me"],
+      }));
+    }
+  }, [workspaces, addWorkspace, setPubs]);
 
   return null;
 }

@@ -76,6 +76,12 @@ export function useWorkspacesFromStorage() {
 return workspaces
 }
 
+export function useSecondWorkspacesFromStorage() {
+  const [workspaces] = useLocalStorage<Record<string, any>>('earthstar-peer-lobby-storages', []);
+  
+return Object.keys(workspaces)
+}
+
 export function useWorkspaceNotifications(workspaceAddress: string) {
   const [currentAuthor] = useCurrentAuthor()
   const paths = useDocuments({
