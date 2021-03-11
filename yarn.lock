@@ -4280,10 +4280,10 @@ duplexify@^3.4.2, duplexify@^3.6.0:
     readable-stream "^2.0.0"
     stream-shift "^1.0.0"
 
-earthstar@^6.3.1:
-  version "6.3.1"
-  resolved "https://registry.yarnpkg.com/earthstar/-/earthstar-6.3.1.tgz#8853792904fbb90efeb5efd7c7e80ab8dd331442"
-  integrity sha512-+kDIE+Fzk+R98zwKrUo7AiEWYtylupn4PRnFrsRrLA+vtljBmuoaSjo4jZYvTiCYb0pAbv6T0eOiGnWw0atDJQ==
+earthstar@^6.3.5:
+  version "6.3.5"
+  resolved "https://registry.yarnpkg.com/earthstar/-/earthstar-6.3.5.tgz#49e08cc31928be86820e8d84995c483f22551f4e"
+  integrity sha512-TrdPeV+4akMUqbgAozYlPBJinv2XOX6udWqsoAx5n6/YRmDb/lQxqpOtHUsXsnOsi29ERbe/CPQ36Anh4vOkmQ==
   dependencies:
     "@types/better-sqlite3" "^5.4.1"
     "@types/isomorphic-fetch" "0.0.35"
@@ -9298,10 +9298,10 @@ react-dropzone@^11.0.2:
     file-selector "^0.1.12"
     prop-types "^15.7.2"
 
-react-earthstar@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/react-earthstar/-/react-earthstar-2.0.0.tgz#5fd73eb767437f34e63d5837c2a3145622959859"
-  integrity sha512-e0zCLomFuem1i7QDa7pnc4Rqw0fEfBiPrRb1t6Elu3c5TzKvC+f/0rcZlxbUdUk9csx3jzklKJ7u7v2GjDLHrQ==
+react-earthstar@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/react-earthstar/-/react-earthstar-2.0.1.tgz#96d55f6ab29bd325ab8a6ba937f608b6f36c2031"
+  integrity sha512-oG1X7Ydk+EXR7SXf+7Pq4gxfcl18CLOSZwhHexg6VI7OcO3CvbkNYSahpvBcDGYWxJkE5ApuunVg5SqYAqTt9A==
   dependencies:
     "@reach/alert" "^0.11.2"
     "@reach/auto-id" "^0.11.2"
