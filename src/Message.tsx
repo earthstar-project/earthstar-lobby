@@ -9,9 +9,10 @@ import MaxWidth from "./MaxWidth";
 import AuthorIdenticon from "./AuthorIdenticon";
 import { css } from "styled-components/macro";
 import Linkify from "react-linkify";
+import { findEdgesAsync, writeEdgeAsync, deleteEdgeAsync } from 'earthstar-graph-db'
 
-import { Document } from "earthstar";
-import { useDocument, useCurrentAuthor, AuthorLabel } from "react-earthstar";
+import { Document, isErr } from "earthstar";
+import { useDocument, useCurrentAuthor, AuthorLabel, useStorage } from "react-earthstar";
 
 type MessageProps = {
   document: Document;
@@ -36,6 +37,37 @@ const Message: React.FC<MessageProps> = ({ document }) => {
     `/about/~${document.author}/displayName.txt`,
     document.workspace
   );
+  
+  const storage = useStorage(document.workspace);
+  
+  const [isStarred, setIsStarred] = React.useState(false);
+  
+
+    if (storage && currentAuthor) {
+      findEdgesAsync(storage, {
+        appName: 'LOBBY',
+        source: document.path,
+        dest: currentAuthor.address,
+        kind: 'STARRED_BY',
+        owner: currentAuthor.address
+      }).then((edges) => {
+        if (!isErr(edges) && edges.length > 0) {
+          const [first] = edges;
+          
+          
+          
+          setIsStarred(first.content.length > 0);
+        }
+      })  
+    }
+ 
+  
+  
+  
+  
+  
+  
+  
 
   return (
     <div style={{ marginBottom: 24 }}>
@@ -77,8 +109,11 @@ const Message: React.FC<MessageProps> = ({ document }) => {
           css={`
             padding: 12px 0 0 0;
             align-items: baseline;
+            display: flex;
+            justify-content: space-between;
           `}
         >
+          <div>
           <span>
             <b
               css={css`
@@ -129,6 +164,28 @@ const Message: React.FC<MessageProps> = ({ document }) => {
               `${fromDate(new Date(document.timestamp / 1000))}`
             )}
           </span>
+          </div>
+          { currentAuthor && storage ? <button css={css`appearance: none; background: none; border: none; padding: 0; font-size: 1.1em; color: ${(props) => props.theme.colours.fgHint};`} onClick={() => {
+            if (isStarred) {
+              deleteEdgeAsync(storage, currentAuthor, {
+                appName: 'LOBBY',
+                source: document.path,
+                dest: currentAuthor.address,
+                kind: 'STARRED_BY',
+                owner: currentAuthor.address
+              })
+            } else {
+              writeEdgeAsync(storage, currentAuthor, {
+                appName: 'LOBBY',
+                source: document.path,
+                dest: currentAuthor.address,
+                kind: 'STARRED_BY',
+                owner: currentAuthor.address
+              })
+            }
+            
+            setIsStarred(prev => !prev)
+          }}>{isStarred ? '★':  '☆'}</button> : null}
         </div>
         <div
           css={css`
